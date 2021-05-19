@@ -1,0 +1,164 @@
+#include "led.h"
+#include "apt8l08_key_sim.h"
+#include "main.h"
+#include "../drivers.h"
+#include "mechanical_key.h"
+#include "key.h"
+
+//#define APT8L08_KEY
+#include "i2c_protocol.h"
+#if (defined APT8L08_KEY)
+static const u8 APTT8L16ArrySensing[8]= {0xff,0x05,0x04,0x04,0x06,0x06,0x06,0x07};
+static const u8 APTTouchRegAdd[14]={0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d};
+static const u8 APTTouchRegDat[14]={0x02,0x51,0x20,0x00,0x00,0x00,0x08,0x02,0x02,0x10,0x10,0x04,0x00,0x00};
+static const u8 touch_key_map_arry[MAX_MECHANICAL_KEY + MAX_TOUCH_KEY] = {
+  0,0,0,0,0,0,0,0,0,0,
+  0,1,2,3,4,5,6,7,
+
+};
+
+//write one byte data to apt8 register
+void apt8_set_reg(u8 addr, u8 data)
+{
+  u8 rd_data = 0;
+  u8 cnt = 10;
+
+  i2c_port_init(APT8_SDA, APT8_SCL);
+
+  do{
+    write_one_data(APT8_ADDRESS, addr, data);
+
+    WaitUs(5);
+
+    rd_data = read_one_data(APT8_ADDRESS, addr);
+
+    if(rd_data != data){
+      WaitMs(5);
+      cnt--;
+    }
+  }while((rd_data != data));
+//    if(rd_data == data)
+//    	 gpio_write(Debug_pin, 1);
+  //  HalLedSet (HAL_LED_15, HAL_LED_MODE_ON);
+}
+
+//apt8 enter config mode
+void apt8_enter_cfg()
+{
+  u8 deep_sleep = 0x5a;
+
+  apt8_set_reg(SYS_CON, deep_sleep);
+}
+
+//apt8 enter active mode
+void apt_enter_active()
+{
+  u8 active = 0;
+
+  apt8_set_reg(SYS_CON, active);
+}
+
+void apt8_init()
+{
+  i2c_port_init(APT8_SDA, APT8_SCL);
+
+  WaitMs(5);
+
+  apt8_enter_cfg();
+
+  WaitMs(5);
+
+  apt_enter_active();
+
+  WaitMs(5);
+
+  apt8_enter_cfg();
+
+  for(u8 i = 0; i < 14; i++)
+    apt8_set_reg(APTTouchRegAdd[i], APTTouchRegDat[i]);
+
+  for(u8 i = 0; i < 8; i++)
+    apt8_set_reg(i, APTT8L16ArrySensing[i]);
+
+  apt_enter_active();
+
+  WaitMs(300);
+}
+
+void apt8_reset()
+{
+  apt8_enter_cfg();
+
+  WaitMs(5);
+
+  apt_enter_active();
+
+  WaitMs(5);
+}
+
+u8 touch_key_map(key_index_t key)
+{
+  u8 key_map;
+
+  key_map = touch_key_map_arry[key];
+
+  return key_map;
+}
+
+//read key value
+void apt8_read(key_status_t* key_s, key_index_t key)
+{
+  u8 rd_data = 0;
+  u8 touch_key;
+
+  i2c_port_init(APT8_SDA, APT8_SCL);
+
+  rd_data = read_one_data(APT8_ADDRESS, KVR0);
+
+  touch_key = touch_key_map(key);
+
+  if(rd_data & (1 << touch_key)){
+    *key_s = PRESSING;
+  }else{
+    *key_s = RELEASE;
+  }
+  //	if(rd_data & 0x01)
+  //		 HalLedSet (HAL_LED_6, HAL_LED_MODE_ON);
+  //	if(rd_data & 0x02)
+  //		 HalLedSet (HAL_LED_8, HAL_LED_MODE_ON);
+  //	if(rd_data & 0x04)
+  //		HalLedSet (HAL_LED_9, HAL_LED_MODE_ON);
+  //	if(rd_data & 0x08)
+  //		HalLedSet (HAL_LED_10, HAL_LED_MODE_ON);
+  //	if(rd_data & 0x10)
+  //		HalLedSet (HAL_LED_11, HAL_LED_MODE_ON);
+  //	if(rd_data & 0x20)
+  //		HalLedSet (HAL_LED_12, HAL_LED_MODE_ON);
+  //	if(rd_data & 0x40)
+  //		HalLedSet (HAL_LED_13, HAL_LED_MODE_ON);
+  //	if(rd_data & 0x80)
+  //		HalLedSet (HAL_LED_14, HAL_LED_MODE_ON);
+
+}
+void apt8_read_a()
+{
+	u8 rd_data;
+	rd_data = read_one_data(APT8_ADDRESS, 0X34);
+	  	if(rd_data & 0x01)
+	  		 HalLedSet (HAL_LED_6, HAL_LED_MODE_ON);
+	  	if(rd_data & 0x02)
+	  		 HalLedSet (HAL_LED_8, HAL_LED_MODE_ON);
+	  	if(rd_data & 0x04)
+	  		HalLedSet (HAL_LED_9, HAL_LED_MODE_ON);
+	  	if(rd_data & 0x08)
+	  		HalLedSet (HAL_LED_10, HAL_LED_MODE_ON);
+	  	if(rd_data & 0x10)
+	  		HalLedSet (HAL_LED_11, HAL_LED_MODE_ON);
+	  	if(rd_data & 0x20)
+	  		HalLedSet (HAL_LED_12, HAL_LED_MODE_ON);
+	  	if(rd_data & 0x40)
+	  		HalLedSet (HAL_LED_13, HAL_LED_MODE_ON);
+	  	if(rd_data & 0x80)
+	  		HalLedSet (HAL_LED_14, HAL_LED_MODE_ON);
+}
+#endif
