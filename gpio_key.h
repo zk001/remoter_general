@@ -30,16 +30,28 @@
 		gpio_set_output_en(col, 0);\
 		gpio_setup_up_down_resistor(col, PM_PIN_PULLUP_1M);)
 
-#define SET_ROW_GPIO_WITH_DEEPSLEEP(row) st(\
+#define SET_ROW_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(row) st(\
 		gpio_set_output_en(row, 0);\
 		gpio_set_input_en(row, 0);\
 		gpio_setup_up_down_resistor(row, PM_PIN_PULLDOWN_100K);)
 
-#define SET_COL_GPIO_WITH_DEEPSLEEP(col) st(\
+#define SET_COL_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(col) st(\
 		gpio_set_output_en(col, 0);\
 		gpio_set_input_en(col, 0);\
 		gpio_setup_up_down_resistor(col, PM_PIN_PULLUP_1M);\
 		cpu_set_gpio_wakeup(col, 0, 1);)
+
+#define SET_ROW_GPIO_WITH_DEEPSLEEP_HIGH_WAKEUP(row) st(\
+		gpio_set_output_en(row, 0);\
+		gpio_set_input_en(row, 0);\
+		gpio_setup_up_down_resistor(row, PM_PIN_PULLUP_1M);)
+
+#define SET_COL_GPIO_WITH_DEEPSLEEP_HIGH_WAKEUP(col) st(\
+		gpio_set_output_en(col, 0);\
+		gpio_set_input_en(col, 0);\
+		gpio_setup_up_down_resistor(col, PM_PIN_PULLUP_1M);\
+		cpu_set_gpio_wakeup(col, 1, 1);)
+
 
 #define DEBOUNCE_TIME 20*16*1000
 
@@ -55,11 +67,10 @@ typedef struct {
 }key_map_t;
 
 extern void key_gpio_init(u8 first_key, u8 last_key);
-extern key_map_t *key_map(key_index_t key);
-extern bool read_col_gpio(u32 col);
 extern void low_key_scan(key_status_t* key_s, key_index_t key);
 extern void key_alloc(const key_map_t *key_arry, u8 num);
 extern void key_gpio_sleep_init();
+extern void key_wake_up_init();
 
 #endif
 #endif

@@ -1,6 +1,6 @@
+#include "../../common.h"
 #include "dc.h"
 #include "board.h"
-#include "../drivers.h"
 
 //set dc chip select pin to output high
 void dc_init()

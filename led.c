@@ -349,7 +349,7 @@ int HalLedUpdateBreath (void *data)
 
   }
 
-   return us;
+  return us;
 }
 
 /***************************************************************************************************
@@ -487,7 +487,7 @@ int HalLedUpdate (void *data)
             /* no more blink, no more wait */
             wait = 0;
             /* After blinking, set the LED back to the state before it blinks */
-           // HalLedSet (led, ((preBlinkState & led)!=0)?HAL_LED_MODE_ON:HAL_LED_MODE_OFF);
+            // HalLedSet (led, ((preBlinkState & led)!=0)?HAL_LED_MODE_ON:HAL_LED_MODE_OFF);
             HalLedSet (led, HAL_LED_MODE_OFF);
             /* Clear the saved bit */
             preBlinkState &= (led ^ 0xFF);
@@ -514,7 +514,7 @@ int HalLedUpdate (void *data)
     us = TICK2US(next);
   }
 
-   return us;
+  return us;
 }
 
 void HalLedbreathe (u32 leds, u8 tim)

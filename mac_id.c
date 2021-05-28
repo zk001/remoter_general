@@ -3,22 +3,22 @@
 #include "mac_id.h"
 #include "app.h"
 
-char is_original_id()
+static char is_original_id()
 {
-	u8 data[8] = {0,0,0,0,0x12,0x34,0x56,0x78};
-	u8 raw_data[8] = {0};
+  u8 data[8] = {0,0,0,0,0x12,0x34,0x56,0x78};
+  u8 raw_data[8] = {0};
 
-	flash_read_page(ID_Flash_Addr, sizeof(raw_data), (unsigned char *)raw_data);
+  flash_read_page(ID_Flash_Addr, sizeof(raw_data), (unsigned char *)raw_data);
 
-	if(!memcmp((const void*)&data[4], (const void*)&raw_data[4], 4)){
-		return 0;
-	}else
-		return 1;
+  if(!memcmp((const void*)&data[4], (const void*)&raw_data[4], 4)){
+    return 0;
+  }else
+    return 1;
 }
 
 void read_id(void *addr, u8 len)
 {
-	flash_read_page(ID_Flash_Addr, len, (unsigned char *)addr);
+  flash_read_page(ID_Flash_Addr, len, (unsigned char *)addr);
 }
 
 void write_id(void *addr, u8 len)
@@ -34,16 +34,16 @@ void write_id(void *addr, u8 len)
 
 void gen_random_id(u32 *data)
 {
-	random_generator_init();
-	generateRandomNum(4, (unsigned char*)data);
+  random_generator_init();
+  generateRandomNum(4, (unsigned char*)data);
 }
 
 void id_init()
 {
-	u8 data[8] = {0,0,0,0,0x12,0x34,0x56,0x78};
-	if(is_original_id()){
-		random_generator_init();
-		generateRandomNum(4, (unsigned char*)data);
-		write_id(data, sizeof(data));
-	}
+  u8 data[8] = {0,0,0,0,0x12,0x34,0x56,0x78};
+  if(is_original_id()){
+    random_generator_init();
+    generateRandomNum(4, (unsigned char*)data);
+    write_id(data, sizeof(data));
+  }
 }

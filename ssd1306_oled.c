@@ -10,7 +10,7 @@ u8 const ascii_table_8x16[95][16];
 u8 const ascii_table_5x8[95][5];
 
 //写指令到OLED显示模块
-void lcd_command(u8 com)
+static void lcd_command(u8 com)
 {
   i2c_gpio_set(I2C_GPIO_GROUP_C0C1);  	//SDA/CK : B6/D7
 
@@ -20,7 +20,7 @@ void lcd_command(u8 com)
 }
 
 //写数据到OLED显示模块
-void lcd_data(u8 data)
+static void lcd_data(u8 data)
 {
   i2c_gpio_set(I2C_GPIO_GROUP_C0C1);  	//SDA/CK : B6/D7
 
@@ -29,7 +29,7 @@ void lcd_data(u8 data)
   i2c_write_series(0x40, 1, (unsigned char *)&data, 1);
 }
 
-void lcd_address(u8 page, u8 column)
+static void lcd_address(u8 page, u8 column)
 {
   column -=1;
   page   -=1;

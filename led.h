@@ -104,9 +104,9 @@ extern "C"
 #define HAL_LED_DEFAULT_FLASH_TIME    MS2TICK(1000)
 
 //#define HAL_LED_DEFAULT_MAX_BREATH_LEDS 16
-#define HAL_LED_DEFAULT_BREATHE_STEP    MS2TICK(6)
+#define HAL_LED_DEFAULT_BREATHE_STEP    MS2TICK(25)
 #define HAL_LED_DEFAULT_BREATHE_COUNT   1
-#define HAL_LED_DEFAULT_BREATHE_TIME    MS2TICK(1500)
+#define HAL_LED_DEFAULT_BREATHE_TIME    MS2TICK(2500)
 /*********************************************************************
  * TYPEDEFS
  */

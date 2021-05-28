@@ -4,7 +4,7 @@
 #include "board.h"
 #include "gpio_led.h"
 
-static low_led_t low_led;
+_attribute_data_retention_ static low_led_t low_led;
 
 void led_alloc(const u32 *led_arry, u8 num)
 {

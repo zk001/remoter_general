@@ -26,8 +26,8 @@ typedef enum {
   COMBIN_KEY               = 0x08,//active when two keys are pressed in combin time 
   COMBIN_KEY_IN_TIME       = 0x10,//active when two keys are pressed in combin time and over a spec time
   STUCK_KEY                = 0x20,//active when pressed over long long time 
-  RESERVED_KEY0            = 0x40,
-  RESERVED_KEY1            = 0x80,
+  NO_TIME_LIMIT_KEY_RELEASED  = 0x40,
+  NO_TIME_LIMIT_KEY_ON        = 0x80,
   RESERVED_KEY2            = 0x100,
   RESERVED_KEY3            = 0x200,
   RESERVED_KEY4            = 0x400,
@@ -126,13 +126,11 @@ extern u8 leader_key;
 extern void key_init();
 extern void poll_key_event();
 extern int key_process();
-extern void key_clear_status(key_state_t * key);
-extern key_action_t get_key_status(u8 key);
-extern void clr_key_status(u8 key, u32 status);
-extern u8 app_read_key(u8 first_key, u8 second_key);
 extern void set_leader_key(u8 key);
 extern void register_key_event(u8 first_key, u8 second_key, u32 time1, u32 time2, key_action_t key_ac, handler key_handler);
 extern void register_key(const key_type_t *key, u8 num);
 extern u8 app_read_single_key(u8 key);
+extern u8 app_read_key(u8 first_key, u8 second_key);
+extern void set_stuck_key_handler(handler stuck_handler);
 
 #endif

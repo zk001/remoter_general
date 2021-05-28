@@ -21,8 +21,8 @@
 
 extern void apt8_reset();
 extern void apt8_init(u8 first_key, u8 last_key);
-extern void apt8_set_cfg();
-extern void apt8_set_reg(u8 addr, u8 data);
+//extern void apt8_set_cfg();
+//extern void apt8_set_reg(u8 addr, u8 data);
 extern void apt8_read(key_status_t* key_s, key_index_t key);
 extern void apt_enter_sleep();
 extern void apt_exit_sleep();

@@ -14,12 +14,12 @@ static const u8 aw9523_led_table[] = {
   PORT0_BIT_7
 };
 
-void aw9523_set_conf(u8 conf)
+static void aw9523_set_conf(u8 conf)
 {
   i2c_write_byte(GCR, 1, conf);
 }
 
-void aw9523_set_led_mode(u8 aw_port)
+static void aw9523_set_led_mode(u8 aw_port)
 {
   u8 port;
 
@@ -37,9 +37,33 @@ void aw9523_set_gpio_mode(u8 aw_port)
   i2c_write_byte(port, 1, 0xff);
 }
 
+void aw9523_wake_up_config()
+{
+  i2c_gpio_set(I2C_GPIO_GROUP_C0C1);  	//SDA/CK : C0/C1
+  i2c_master_init(AW9523_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
+
+  RSTN_OUT_LOW();
+
+  WaitUs(100);
+
+  RSTN_OUT_HIGH();
+
+  WaitMs(5);
+
+  i2c_write_byte(SOFT_RESET, 1, 0x00);
+
+  WaitMs(1);
+
+  aw9523_set_conf(0x13);//P0 push_pull mode,led current = max/4
+
+  aw9523_set_led_mode(0);//port0 as led mode
+
+  aw9523_set_led_mode(1);//port1 as led mode
+}
+
 void aw9523_init()
 {
-  u8 id;
+  //  u8 id;
 
   i2c_gpio_set(I2C_GPIO_GROUP_C0C1);  	//SDA/CK : C0/C1
   i2c_master_init(AW9523_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
@@ -56,7 +80,7 @@ void aw9523_init()
 
   WaitMs(1);
 
-  id = i2c_read_byte(0x03, 1);
+  //  id = i2c_read_byte(0x03, 1);
 
   aw9523_set_conf(0x13);//P0 push_pull mode,led current = max/4
 
@@ -65,12 +89,12 @@ void aw9523_init()
   aw9523_set_led_mode(1);//port1 as led mode
 }
 
-void aw9523_led_on(u8 port_bit)
+static void aw9523_led_on(u8 port_bit)
 {
   aw9523_set_led_dim(port_bit, LED_BRIGHT_LEVEL);
 }
 
-void aw9523_led_off(u8 port_bit)
+static void aw9523_led_off(u8 port_bit)
 {
   aw9523_set_led_dim(port_bit, 0);
 }
