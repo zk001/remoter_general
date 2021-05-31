@@ -594,19 +594,26 @@ void poll_key_event()
 
 u8 app_read_key(u8 first_key, u8 second_key)
 {
-  _attribute_data_retention_ u8 static only_once = 1;
+   u8 static only_once = 1;
 
   if(only_once){
     if(is_key_released(first_key, NULL) && is_key_released(second_key, NULL)){
       only_once = 0;
-      return 0;
     }
-  }else if(is_key_pressing(first_key, NULL) && is_key_pressing(second_key, NULL)){
-    only_once = 1;
-    return 1;
+  }else{
+	  if(is_key_pressing(first_key, NULL)){
+		  if(is_key_pressing(second_key, NULL)){
+			  only_once = 1;
+			  goto return_1;
+		  }
+	  }else if(is_key_pressing(second_key, NULL)){
+		  only_once = 1;
+	  }
   }
 
-  return 0;
+return 0;
+return_1:
+	return 1;
 }
 
 u8 app_read_single_key(u8 key)
