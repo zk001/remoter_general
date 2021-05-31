@@ -537,54 +537,58 @@ void poll_key_event()
 {
   handler key_handler = NULL;
   key_action_t key_action;
-  key_action_t status;
+  key_action_t action;
   key_action_t key;
   u8 first  = 255;
   u8 second = 255;
-
-  key = SHORT_KEY;
 
   for(u8 i = 0; i < MAX_KEY; i++){
 
     key_action = get_key_status(i);//get key status from key_event
 
+    key = SHORT_KEY;
+
     while(key_action){
-      status =  key_action & key;
-      if(status){
-        if((status & COMBIN_KEY) || (status & COMBIN_KEY_IN_TIME)){
+      if((key_action & COMBIN_KEY) || (key_action & COMBIN_KEY_IN_TIME)){
+
+    	  action =  key_action & (COMBIN_KEY | COMBIN_KEY_IN_TIME);
+
           if(key_action & FIRST_KEY_FLAG){//check if it is the first key
             first = i;
-            key_action &= ~FIRST_KEY_FLAG;//clear first_key flag
+            key_action = 0;
           }else{
             second = i;
-            key_action &= ~SECOND_KEY_FLAG;//clear second_key flag
+            key_action = 0;
           }
 
           if((first != 255) && (second != 255)){
-            key_handler = get_key_handler(first, status, second);//clear bit7 and bit6 clear first key and second key flag
+            key_handler = get_key_handler(first, action, second);//clear bit7 and bit6 clear first key and second key flag
             if(key_handler)
               key_handler();
 
-            clr_key_status(first,  status | FIRST_KEY_FLAG);
-            clr_key_status(second, status | SECOND_KEY_FLAG);
+            clr_key_status(first,  0xffffffff);
+            clr_key_status(second, 0xffffffff);
           }
-        }else if(status & STUCK_KEY){
-          clr_key_status(i, status);
-          key_handler = get_stuck_key_handler();
-          if(key_handler)
-            key_handler();
-        }else{//short key short immedia key long key process
+      }else{
+    	  action =  key_action & key;
+
+    	  if(action == STUCK_KEY){
+    		  clr_key_status(i, STUCK_KEY);
+    		  key_handler = get_stuck_key_handler();
+    		  if(key_handler)
+    			  key_handler();
+    		  key_action ^= key;
+        }else if(action){//short key short immedia key long key process
           //warning bit31 and bit30 are combinkey flag short key or long key
-          clr_key_status(i, status);
-          key_handler = get_key_handler(i, status, 0);
+          clr_key_status(i, action);
+          key_handler = get_key_handler(i, action, 0);
           if(key_handler)
             key_handler();
+          key_action ^= key;
         }
-        key_action ^= key;
+        key <<= 1;
       }
-      key <<= 1;
     }
-    key = SHORT_KEY;
   }
 }
 

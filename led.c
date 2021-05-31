@@ -282,7 +282,7 @@ int HalLedUpdateBreath (void *data)
       if (sts->mode & HAL_LED_MODE_BREATHE)
       {
         time = clock_time();
-        if (time >= sts->next)
+        if (time_after(time, sts->next))
         {
           iter = sts->time/sts->step;
 
@@ -314,7 +314,7 @@ int HalLedUpdateBreath (void *data)
           {
             //warning overflow!!!
             wait = pct;
-            sts->next = time + wait;
+            sts->next = (u32)((int)time + (int)wait);
           }
           else
           {
@@ -329,7 +329,7 @@ int HalLedUpdateBreath (void *data)
         }
         else
         {
-          wait = sts->next - time;  /* Time left */
+          wait = (u32)((int)sts->next - (int)time);  /* Time left */
         }
 
         if (!next || ( wait && (wait < next) ))
@@ -451,7 +451,7 @@ int HalLedUpdate (void *data)
       if (sts->mode & HAL_LED_MODE_BLINK)
       {
         time = clock_time();
-        if (time >= sts->next)
+        if(time_after(time, sts->next))
         {
           if (sts->mode & HAL_LED_MODE_ON)
           {
@@ -480,7 +480,7 @@ int HalLedUpdate (void *data)
             wait = (u32)sts->time/100;
             wait = wait * pct;
             //  wait = (((unsigned long )pct * (unsigned long)sts->time) / 100);
-            sts->next = time + wait;
+            sts->next = (u32)((int)time + (int)wait);
           }
           else
           {
@@ -495,7 +495,7 @@ int HalLedUpdate (void *data)
         }
         else
         {
-          wait = sts->next - time;  /* Time left */
+          wait = (u32)((int)sts->next - (int)time);  /* Time left */
         }
 
         if (!next || ( wait && (wait < next) ))
