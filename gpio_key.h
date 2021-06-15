@@ -66,11 +66,12 @@ typedef struct {
   enum wake_up_pin_t is_wake_up_pin;
 }key_map_t;
 
-extern void key_gpio_init(u8 first_key, u8 last_key);
-extern void low_key_scan(key_status_t* key_s, key_index_t key);
-extern void key_alloc(const key_map_t *key_arry, u8 num);
-extern void key_gpio_sleep_init();
-extern void key_wake_up_init();
+extern void gpio_key_init(u8 first_key, u8 last_key);
+extern void gpio_key_low_scan(key_status_t* key_s, key_index_t key);
+extern void gpio_key_alloc(key_map_t *key_arry, u8 num);
+extern void gpio_key_sleep_setup();
+extern void gpio_key_sleep_unset(u8 key);
+extern void gpio_stuck_key_low_scan(key_status_t* key_s, key_index_t key);
 
 #endif
 #endif

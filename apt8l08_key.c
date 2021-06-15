@@ -6,14 +6,12 @@
 #include "gpio_key.h"
 #include "n_timer.h"
 
-static u32 debounce_time[MAX_TOUCH_KEY];
-
 //static const u8 APTT8L16ArrySensing[8]= {0x04,0x04,0x04,0x04,0x04,0x04,0x04,0x04};
 //static const u8 APTTouchRegAdd[14]={0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d};
 //static const u8 APTTouchRegDat[14]={0x04,0x51,0x20,0x00,0x00,0x00,0x08,0x02,0x02,0x10,0xff,0x04,0x00,0x08};
-static const u8 APTT8L16ArrySensing[8]= {0x03,0x04,0x04,0x04,0x04,0x04,0x04,0x03};
+static const u8 APTT8L16ArrySensing[8]= {0x03,0x04,0x04,0x03,0x03,0x04,0x04,0x04};
 static const u8 APTTouchRegAdd[14]={0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d};
-static const u8 APTTouchRegDat[14]={0x02,0x50,0x20,0x00,0x00,0x00,0x08,0x02,0x02,0x10,0x10,0x04,0x00,0x00};
+static const u8 APTTouchRegDat[14]={0x03,0x50,0x20,0x00,0x00,0x00,0x08,0x02,0x02,0x10,0x10,0x04,0x00,0x00};
 
 _attribute_data_retention_ static u8 apt8_first_key;
 _attribute_data_retention_ static u8 apt8_last_key;
@@ -45,6 +43,17 @@ static void apt8_set_cfg()
 static void apt_set_active()
 {
   apt8_set_reg(SYS_CON, 0);
+}
+
+static key_index_t touch_key_map(key_index_t key)
+{
+  if(key < apt8_first_key)
+    return apt8_first_key;
+
+  if(key > apt8_last_key)
+    return apt8_last_key;
+
+  return key - apt8_first_key;
 }
 
 void apt_enter_sleep()
@@ -112,25 +121,11 @@ void apt8_reset()
   WaitMs(5);
 }
 
-static key_index_t touch_key_map(key_index_t key)
-{
-  if(key < apt8_first_key)
-    return apt8_first_key;
-
-  if(key > apt8_last_key)
-    return apt8_last_key;
-
-  return key - apt8_first_key;
-}
-
 //read key value
 void apt8_read(key_status_t* key_s, key_index_t key)
 {
   u8 rd_data;
   u8 touch_key;
-  u8 read_key;
-  u32 time;
-  u32 cur_time;
 
   i2c_gpio_set(I2C_GPIO_GROUP_B6D7);  	//SDA/CK : B6/D7
 
@@ -139,26 +134,13 @@ void apt8_read(key_status_t* key_s, key_index_t key)
   i2c_read_series(KVR0, 1, (unsigned char *)&rd_data, 1);
 
   touch_key = touch_key_map(key);
-  read_key  = rd_data & (1 << touch_key);
 
-  if(read_key)
-    *key_s = PRESSING;
-  else
-    *key_s = RELEASE;
-  //  cur_time = clock_time();
-  //  time = debounce_time[touch_key];
-  //
-  //  if(read_key){
-  //    if(!time){
-  //      debounce_time[touch_key] = clock_time();
-  //      *key_s = RELEASE;
-  //    }else if((cur_time - time) >= APT8_DEBOUNCE_TIME){
-  //      *key_s = PRESSING;
-  //    }else
-  //      *key_s = RELEASE;
-  //  }else{
-  //    debounce_time[touch_key] = 0;
-  //    *key_s = RELEASE;
-  //  }
+  *key_s = (rd_data & (1 << touch_key)) ? PRESSING:RELEASE;
 }
+
+void touch_key_sleep_unset(u8 key)
+{
+
+}
+
 #endif

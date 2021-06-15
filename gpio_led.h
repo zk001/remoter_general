@@ -22,7 +22,7 @@ typedef struct {
 #define HAL_LED_ALL   (HAL_LED_1 | HAL_LED_2 | HAL_LED_3 | HAL_LED_4 | HAL_LED_5)
 #define MAX_LEDS 5
 
-extern void led_alloc(const u32 *led_arry, u8 num);
+extern void gpio_led_alloc(const u32 *led_arry, u8 num);
 extern void gpio_led_on_off(u32 leds, u8 mode);
 
 #endif

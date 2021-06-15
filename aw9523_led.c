@@ -2,6 +2,7 @@
 #include "aw9523_led.h"
 #include "main.h"
 #include "led.h"
+
 //led
 //should we set gpio direction???
 //shuld we set gcr register???
@@ -94,6 +95,11 @@ static void aw9523_led_on(u8 port_bit)
   aw9523_set_led_dim(port_bit, LED_BRIGHT_LEVEL);
 }
 
+static void aw9523_other_led_on(u8 port_bit)
+{
+  aw9523_set_led_dim(port_bit, 20);
+}
+
 static void aw9523_led_off(u8 port_bit)
 {
   aw9523_set_led_dim(port_bit, 0);
@@ -162,4 +168,5 @@ void aw9523_led_breath(u32 leds, u8 tim)
     led <<= 1;
   }
 }
+
 #endif

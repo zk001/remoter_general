@@ -3,16 +3,27 @@
 #include "../common.h"
 #include "list.h"
 
-typedef enum  {
+typedef enum {
   RELEASE = 1,
   PRESSING
 }key_status_t;
 
+typedef enum {
+	NO_STUCK = 1,
+	STUCK
+}key_stuck_t;
+
+typedef enum {
+	SHORT_KEY_IMMEDIATELY_FLAG =  0x01,
+	LONG_KEY_FLAG              =  0x02,
+	STUCK_KEY_FLAG             =  0x04
+}key_flag_t;
+
 typedef struct {
-  u32 key;
+  key_flag_t flag;
   key_status_t cur_status;//current status
   key_status_t pre_status;//prev status
-  u32 sys_time;//when key is pressed,store the system time
+  u32 sys_time;//store the system time
   u32 pressing_time;
 }key_state_t;
 
@@ -105,7 +116,8 @@ typedef struct {
   u8 key;
   enum key_type_e type;
   void (*key_init)(u8 first_key, u8 last_key);
-  void (*key_scan)(key_status_t* key_s, key_index_t key);;
+  void (*key_scan)(key_status_t* key_s, key_index_t key);
+  void (*stuck_scan)(key_status_t* key_s, key_index_t key);
 }key_type_t;
 
 typedef struct {
@@ -113,17 +125,15 @@ typedef struct {
 	u8 num;
 }key_table_t;
 
-#define LONG_KEY_FLAG               0x80000000
-#define SHORT_KEY_IMMEDIATELY_FLAG  0x20000000
-#define STUCK_KEY_FLAG              0x40000000
-
 #define FIRST_KEY_FLAG              0x80000000
 #define SECOND_KEY_FLAG             0x40000000
 
 extern u8 cur_key;
 extern u8 pre_key;
 extern u8 leader_key;
+
 extern void key_init();
+extern void key_wake_up_init();
 extern void poll_key_event();
 extern int key_process();
 extern void set_leader_key(u8 key);
@@ -132,5 +142,7 @@ extern void register_key(const key_type_t *key, u8 num);
 extern u8 app_read_single_key(u8 key);
 extern u8 app_read_key(u8 first_key, u8 second_key);
 extern void set_stuck_key_handler(handler stuck_handler);
+extern void key_gpio_sleep_init();
+extern void clr_app_read_key_flag();
 
 #endif

@@ -3,7 +3,7 @@
 #include "board.h"
 
 //set dc chip select pin to output high
-void dc_init()
+void dc_power_on()
 {
 	gpio_set_func(DCDC_CE, AS_GPIO);
 	gpio_set_output_en(DCDC_CE, 1);

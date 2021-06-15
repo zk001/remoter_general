@@ -1,42 +1,3 @@
-/**************************************************************************************************
-Filename:       hal_led.c
-Revised:        $Date: 2011-09-15 16:51:11 -0700 (Thu, 15 Sep 2011) $
-Revision:       $Revision: 27590 $
-
-Description:    This file contains the interface to the HAL LED Service.
-
-
-Copyright 2006-2011 Texas Instruments Incorporated. All rights reserved.
-
-IMPORTANT: Your use of this Software is limited to those specific rights
-granted under the terms of a software license agreement between the user
-who downloaded the software, his/her employer (which must be your employer)
-and Texas Instruments Incorporated (the "License").  You may not use this
-Software unless you agree to abide by the terms of the License. The License
-limits your use, and you acknowledge, that the Software may not be modified,
-copied or distributed unless embedded on a Texas Instruments microcontroller
-or used solely and exclusively in conjunction with a Texas Instruments radio
-frequency transceiver, which is integrated into your product.  Other than for
-the foregoing purpose, you may not use, reproduce, copy, prepare derivative
-works of, modify, distribute, perform, display or sell this Software and/or
-its documentation for any purpose.
-
-YOU FURTHER ACKNOWLEDGE AND AGREE THAT THE SOFTWARE AND DOCUMENTATION ARE
-PROVIDED ¡°AS IS¡± WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED,
-INCLUDING WITHOUT LIMITATION, ANY WARRANTY OF MERCHANTABILITY, TITLE,
-NON-INFRINGEMENT AND FITNESS FOR A PARTICULAR PURPOSE. IN NO EVENT SHALL
-TEXAS INSTRUMENTS OR ITS LICENSORS BE LIABLE OR OBLIGATED UNDER CONTRACT,
-NEGLIGENCE, STRICT LIABILITY, CONTRIBUTION, BREACH OF WARRANTY, OR OTHER
-LEGAL EQUITABLE THEORY ANY DIRECT OR INDIRECT DAMAGES OR EXPENSES
-INCLUDING BUT NOT LIMITED TO ANY INCIDENTAL, SPECIAL, INDIRECT, PUNITIVE
-OR CONSEQUENTIAL DAMAGES, LOST PROFITS OR LOST DATA, COST OF PROCUREMENT
-OF SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
-(INCLUDING BUT NOT LIMITED TO ANY DEFENSE THEREOF), OR OTHER SIMILAR COSTS.
-
-Should you have any questions regarding your right to use this Software,
-contact Texas Instruments Incorporated at www.TI.com.
- **************************************************************************************************/
-
 /***************************************************************************************************
  *                                             INCLUDES
  ***************************************************************************************************/
@@ -60,59 +21,49 @@ contact Texas Instruments Incorporated at www.TI.com.
  ***************************************************************************************************/
 /* LED control structure */
 typedef struct {
-  u8 mode;       /* Operation mode */
-  u8 todo;       /* Blink cycles left */
-  u8 onPct;      /* On cycle percentage */
+  u8  mode;       /* Operation mode */
+  u8  todo;       /* Blink cycles left */
+  u8  onPct;      /* On cycle percentage */
+  u8  bright;
   u32 time;      /* On/off cycle time (msec) */
   u32 next;      /* Time for next change */
   u32 step;
-  u32 raw_time;
-  u8 bright;
+  u32 raw;       /*store raw time for breathe*/
+
 } HalLedControl_t;
 
 typedef struct
 {
   HalLedControl_t HalLedControlTable[MAX_LEDS];
-  u8           sleepActive;
 } HalLedStatus_t;
 
-_attribute_data_retention_ static hal_led_arry_t hal_led;
 /***************************************************************************************************
  *                                           GLOBAL VARIABLES
  ***************************************************************************************************/
+_attribute_data_retention_ static hal_led_arry_t hal_led;
+static u32 HalLedState;                                        // LED state at last set/clr/blink update
 
-
-static u32 HalLedState;              // LED state at last set/clr/blink update
-
-#if HAL_LED == TRUE
 _attribute_data_retention_ static u8 HalSleepLedState;         // LED state at last set/clr/blink update
-_attribute_data_retention_ static u32 preBlinkState;            // Original State before going to blink mode
-// bit 0, 1, 2, 3 represent led 0, 1, 2, 3
-#endif
+_attribute_data_retention_ static u32 preBlinkState;           // Original State before going to blink mode
+//bit 0, 1, 2, 3 represent led 0, 1, 2, 3
 
-#ifdef BLINK_LEDS
 _attribute_data_retention_ static HalLedStatus_t HalLedStatusControl;
-#endif
-
 /***************************************************************************************************
  *                                            LOCAL FUNCTION
  ***************************************************************************************************/
-#if (HAL_LED == TRUE)
+
 int HalLedUpdate (void *data);
 void HalLedOnOff (u32 leds, u8 mode);
 void HalLedbreathe (u32 leds, u8 tim);
-#endif /* HAL_LED */
-
-void register_led(const hal_led_t *led, u8 num)
-{
-  hal_led.led = led;
-  hal_led.num = num;
-}
 
 /***************************************************************************************************
  *                                            FUNCTIONS - API
  ***************************************************************************************************/
-
+void register_led (const hal_led_t *led, u8 num)
+{
+  hal_led.led = led;
+  hal_led.num = num;
+}
 /***************************************************************************************************
  * @fn      HalLedInit
  *
@@ -124,16 +75,9 @@ void register_led(const hal_led_t *led, u8 num)
  ***************************************************************************************************/
 void HalLedInit (void)
 {
-#if (HAL_LED == TRUE)
   /* Initialize all LEDs to OFF */
   HalLedSet (HAL_LED_ALL, HAL_LED_MODE_OFF);
-#endif /* HAL_LED */
-#ifdef BLINK_LEDS
-  /* Initialize sleepActive to FALSE */
-  HalLedStatusControl.sleepActive = FALSE;
-#endif
 }
-
 /***************************************************************************************************
  * @fn      HalLedSet
  *
@@ -145,7 +89,6 @@ void HalLedInit (void)
  ***************************************************************************************************/
 u32 HalLedSet (u32 leds, u8 mode)
 {
-#if (defined (BLINK_LEDS)) && (HAL_LED == TRUE)
   u32 led;
   HalLedControl_t *sts;
 
@@ -194,164 +137,8 @@ u32 HalLedSet (u32 leds, u8 mode)
     default:
       break;
   }
-
-#elif (HAL_LED == TRUE)
-  LedOnOff(leds, mode);
-#else
-  // HAL LED is disabled, suppress unused argument warnings
-  (void) leds;
-  (void) mode;
-#endif /* BLINK_LEDS && HAL_LED   */
-
   return ( HalLedState );
-
 }
-
-void HalLedBreathe (u32 leds, u8 numBreathe, u32 step, u32 period)
-{
-#if (defined (BREATHE_LEDS)) && (HAL_LED == TRUE)
-  u32 led;
-  HalLedControl_t *sts;
-
-  if (leds && step && period)
-  {
-    led = HAL_LED_1;
-    leds &= HAL_LED_ALL;
-    sts = HalLedStatusControl.HalLedControlTable;
-    while (leds)
-    {
-      if (leds & led)
-      {
-        /* Store the current state of the led before going to blinking if not already blinking */
-        if(sts->mode < HAL_LED_MODE_BLINK )
-          preBlinkState |= (led & HalLedState);
-
-        sts->mode      = HAL_LED_MODE_OFF;                    /* Stop previous blink */
-        sts->bright    = 0;
-        sts->time      = period;                              /* Time for one on/off cycle */
-        sts->raw_time  = period;
-        sts->step      = step;                             /* % of cycle LED is on */
-        sts->todo      = numBreathe;                           /* Number of blink cycles */
-        if (!numBreathe) sts->mode |= HAL_LED_MODE_CONTINUE_BREATHE;  /* Continuous */
-        //  sts->next = osal_GetSystemClock();                /* Start now */
-        sts->next  = clock_time();
-        sts->mode |= HAL_LED_MODE_BREATHE;                  /* Enable blinking */
-        leds ^= led;
-      }
-      led <<= 1;
-      sts++;
-    }
-  }
-  else
-  {
-    HalLedSet (leds, HAL_LED_MODE_OFF);                     /* No on time, turn off */
-  }
-#elif (HAL_LED == TRUE)
-  percent = (leds & HalLedState) ? HAL_LED_MODE_OFF : HAL_LED_MODE_ON;
-  HalLedOnOff (leds, percent);                              /* Toggle */
-#else
-  // HAL LED is disabled, suppress unused argument warnings
-  (void) leds;
-  (void) numBlinks;
-  (void) percent;
-  (void) period;
-#endif /* BLINK_LEDS && HAL_LED */
-}
-
-int HalLedUpdateBreath (void *data)
-{
-  u32 led;
-  u32 leds;
-  u32 pct = 0;
-  u32 time = 0;
-  u32 next;
-  u32 wait;
-  u8 iter;
-  u32 us = 0;
-  HalLedControl_t *sts;
-
-  next = 0;
-  led  = HAL_LED_1;
-  leds = HAL_LED_ALL;
-
-  sts = HalLedStatusControl.HalLedControlTable;
-  while (leds)
-  {
-    if (leds & led)
-    {
-      if (sts->mode & HAL_LED_MODE_BREATHE)
-      {
-        time = clock_time();
-        if (time_after(time, sts->next))
-        {
-          iter = sts->time/sts->step;
-
-          if(sts->time)
-          {
-            pct = sts->step;
-
-            if(sts->bright > LED_BRIGHT_LEVEL)
-              sts->bright = LED_BRIGHT_LEVEL;
-            HalLedbreathe (led, sts->bright++);
-            sts->time -= sts->step;
-          }
-          else if(!(sts->mode & HAL_LED_MODE_CONTINUE_BREATHE))
-          {
-            sts->todo--;
-            sts->time = sts->raw_time;
-
-            if(!sts->todo)
-            {
-              sts->mode ^= HAL_LED_MODE_BREATHE;      /* No more blinks */
-            }
-          }
-          else
-          {
-            sts->time = sts->raw_time;
-          }
-
-          if (sts->mode & HAL_LED_MODE_BREATHE)
-          {
-            //warning overflow!!!
-            wait = pct;
-            sts->next = (u32)((int)time + (int)wait);
-          }
-          else
-          {
-            /* no more blink, no more wait */
-            wait = 0;
-            /* After blinking, set the LED back to the state before it blinks */
-            //HalLedSet (led, ((preBlinkState & led)!=0)?HAL_LED_MODE_ON:HAL_LED_MODE_OFF);
-            HalLedSet (led, HAL_LED_MODE_ON);
-            /* Clear the saved bit */
-            preBlinkState &= (led ^ 0xFF);
-          }
-        }
-        else
-        {
-          wait = (u32)((int)sts->next - (int)time);  /* Time left */
-        }
-
-        if (!next || ( wait && (wait < next) ))
-        {
-          next = wait;
-        }
-      }
-      leds ^= led;
-    }
-    led <<= 1;
-    sts++;
-  }
-
-  if (next)
-  {
-    us = TICK2US(next);
-
-  }
-
-  return us;
-}
-
 /***************************************************************************************************
  * @fn      HalLedBlink
  *
@@ -367,7 +154,6 @@ int HalLedUpdateBreath (void *data)
  ***************************************************************************************************/
 void HalLedBlink (u32 leds, u8 numBlinks, u8 percent, u32 period)
 {
-#if (defined (BLINK_LEDS)) && (HAL_LED == TRUE)
   u32 led;
   HalLedControl_t *sts;
 
@@ -375,9 +161,9 @@ void HalLedBlink (u32 leds, u8 numBlinks, u8 percent, u32 period)
   {
     if (percent <= 100)
     {
-      led = HAL_LED_1;
+      led   = HAL_LED_1;
       leds &= HAL_LED_ALL;
-      sts = HalLedStatusControl.HalLedControlTable;
+      sts   = HalLedStatusControl.HalLedControlTable;
 
       while (leds)
       {
@@ -392,8 +178,7 @@ void HalLedBlink (u32 leds, u8 numBlinks, u8 percent, u32 period)
           sts->onPct = percent;                             /* % of cycle LED is on */
           sts->todo  = numBlinks;                           /* Number of blink cycles */
           if (!numBlinks) sts->mode |= HAL_LED_MODE_FLASH;  /* Continuous */
-          //  sts->next = osal_GetSystemClock();                /* Start now */
-          sts->next = clock_time();
+          sts->next = clock_time();                         /* Start now */
           sts->mode |= HAL_LED_MODE_BLINK;                  /* Enable blinking */
           leds ^= led;
         }
@@ -406,19 +191,59 @@ void HalLedBlink (u32 leds, u8 numBlinks, u8 percent, u32 period)
   {
     HalLedSet (leds, HAL_LED_MODE_OFF);                     /* No on time, turn off */
   }
-#elif (HAL_LED == TRUE)
-  percent = (leds & HalLedState) ? HAL_LED_MODE_OFF : HAL_LED_MODE_ON;
-  HalLedOnOff (leds, percent);                              /* Toggle */
-#else
-  // HAL LED is disabled, suppress unused argument warnings
-  (void) leds;
-  (void) numBlinks;
-  (void) percent;
-  (void) period;
-#endif /* BLINK_LEDS && HAL_LED */
 }
+/***************************************************************************************************
+ * @fn      HalLedBreathe
+ *
+ * @brief   Breathe the leds
+ *
+ * @param   leds        - bit mask value of leds to be blinked
+ *          numBreathe  - number of breathe
+ *          step        - the length in each period where the led
+ *                        brightness last time
+ *          period      - length of each cycle in milliseconds
+ *
+ * @return  None
+ ***************************************************************************************************/
+void HalLedBreathe (u32 leds, u8 numBreathe, u32 step, u32 period)
+{
+  u32 led;
+  HalLedControl_t *sts;
 
-#if (HAL_LED == TRUE)
+  if (leds && step && period)
+  {
+    led   = HAL_LED_1;
+    leds &= HAL_LED_ALL;
+    sts   = HalLedStatusControl.HalLedControlTable;
+
+    while (leds)
+    {
+      if (leds & led)
+      {
+        /* Store the current state of the led before going to breath if not already breath */
+        if(sts->mode < HAL_LED_MODE_BLINK )
+          preBlinkState |= (led & HalLedState);
+
+        sts->mode      = HAL_LED_MODE_OFF;                    /* Stop previous blink */
+        sts->bright    = 0;
+        sts->time      = period;                              /* Time for one on/off cycle */
+        sts->raw       = period;
+        sts->step      = step;                                /* % of cycle LED is on */
+        sts->todo      = numBreathe;                           /* Number of blink cycles */
+        if (!numBreathe) sts->mode |= HAL_LED_MODE_CONTINUE_BREATHE;  /* Continuous */
+        sts->next  = clock_time();                                  /* Start now */
+        sts->mode |= HAL_LED_MODE_BREATHE;                  /* Enable blinking */
+        leds ^= led;
+      }
+      led <<= 1;
+      sts++;
+    }
+  }
+  else
+  {
+    HalLedSet (leds, HAL_LED_MODE_OFF);                     /* No on time, turn off */
+  }
+}
 /***************************************************************************************************
  * @fn      HalLedUpdate
  *
@@ -431,18 +256,18 @@ void HalLedBlink (u32 leds, u8 numBlinks, u8 percent, u32 period)
 int HalLedUpdate (void *data)
 {
   u32 led;
-  u8 pct = 0;
+  u8  pct = 0;
   u32 leds;
   HalLedControl_t *sts;
   u32 time = 0;
-  u32 next;
+  u32 next = 0;
   u32 wait;
-  u32 us = 0;
 
-  next = 0;
   led  = HAL_LED_1;
   leds = HAL_LED_ALL;
-  sts = HalLedStatusControl.HalLedControlTable;
+  sts  = HalLedStatusControl.HalLedControlTable;
+
+  time = clock_time();
 
   while (leds)
   {
@@ -450,7 +275,6 @@ int HalLedUpdate (void *data)
     {
       if (sts->mode & HAL_LED_MODE_BLINK)
       {
-        time = clock_time();
         if(time_after(time, sts->next))
         {
           if (sts->mode & HAL_LED_MODE_ON)
@@ -479,8 +303,7 @@ int HalLedUpdate (void *data)
             //warning out of array!!!
             wait = (u32)sts->time/100;
             wait = wait * pct;
-            //  wait = (((unsigned long )pct * (unsigned long)sts->time) / 100);
-            sts->next = (u32)((int)time + (int)wait);
+            sts->next = time + wait;
           }
           else
           {
@@ -490,7 +313,7 @@ int HalLedUpdate (void *data)
             // HalLedSet (led, ((preBlinkState & led)!=0)?HAL_LED_MODE_ON:HAL_LED_MODE_OFF);
             HalLedSet (led, HAL_LED_MODE_OFF);
             /* Clear the saved bit */
-            preBlinkState &= (led ^ 0xFF);
+            preBlinkState &= (led ^ 0xFFFFFFFF);
           }
         }
         else
@@ -509,40 +332,107 @@ int HalLedUpdate (void *data)
     sts++;
   }
 
-  if (next)
-  {
-    us = TICK2US(next);
-  }
-
-  return us;
+  return next;
 }
-
-void HalLedbreathe (u32 leds, u8 tim)
+/***************************************************************************************************
+ * @fn      HalLedUpdateBreath
+ *
+ * @brief   Update leds to work with breath
+ *
+ * @param   none
+ *
+ * @return  none
+ ***************************************************************************************************/
+int HalLedUpdateBreath (void *data)
 {
-  if(!hal_led.led)
-  {
-    return;
-  }
+  u32 led;
+  u32 leds;
+  u32 pct = 0;
+  u32 time = 0;
+  u32 next = 0;
+  u32 wait;
 
-  for(u8 i = 0; i < hal_led.num; i++)
+  HalLedControl_t *sts;
+
+  led  = HAL_LED_1;
+  leds = HAL_LED_ALL;
+
+  sts = HalLedStatusControl.HalLedControlTable;
+
+  time = clock_time();
+
+  while (leds)
   {
-    if(hal_led.led[i].leds == leds)
+    if (leds & led)
     {
-      hal_led.led[i].led_breath(leds, tim);
+      if (sts->mode & HAL_LED_MODE_BREATHE)
+      {
+        if (time_after(time, sts->next))
+        {
+          if(sts->time)
+          {
+            pct = sts->step;
+
+            sts->bright++;
+            if(sts->bright > LED_BRIGHT_LEVEL)
+              sts->bright = LED_BRIGHT_LEVEL;
+
+            if((led == HAL_LED_8) && ((sts->bright == 31) || (sts->bright == 32) ||\
+                  (sts->bright == 28) || (sts->bright == 29))){
+              ;
+            }else
+              HalLedbreathe (led, sts->bright);
+            sts->time -= sts->step;
+          }
+          else if(!(sts->mode & HAL_LED_MODE_CONTINUE_BREATHE))
+          {
+            sts->todo--;
+            sts->time = sts->raw;
+
+            if(!sts->todo)
+            {
+              sts->mode ^= HAL_LED_MODE_BREATHE;      /* No more breathe */
+            }
+          }
+          else
+          {
+            sts->time = sts->raw;
+          }
+
+          if (sts->mode & HAL_LED_MODE_BREATHE)
+          {
+            //warning overflow!!!
+            wait = pct;
+            sts->next = time + wait;
+          }
+          else
+          {
+            /* no more blink, no more wait */
+            wait = 0;
+            /* After blinking, set the LED back to the state before it blinks */
+            //HalLedSet (led, ((preBlinkState & led)!=0)?HAL_LED_MODE_ON:HAL_LED_MODE_OFF);
+            HalLedSet (led, HAL_LED_MODE_ON);
+            /* Clear the saved bit */
+            preBlinkState &= (led ^ 0xFFFFFFFF);
+          }
+        }
+        else
+        {
+          wait = (u32)((int)sts->next - (int)time);  /* Time left */
+        }
+
+        if (!next || ( wait && (wait < next) ))
+        {
+          next = wait;
+        }
+      }
+      leds ^= led;
     }
+    led <<= 1;
+    sts++;
   }
-
-  /* Remember current state */
-  if (tim)
-  {
-    HalLedState |= leds;
-  }
-  else
-  {
-    HalLedState &= (leds ^ 0xFF);
-  }
+  return next;
 }
-
 /***************************************************************************************************
  * @fn      HalLedOnOff
  *
@@ -575,11 +465,44 @@ void HalLedOnOff (u32 leds, u8 mode)
   }
   else
   {
-    HalLedState &= (leds ^ 0xFF);
+    HalLedState &= (leds ^ 0xFFFFFFFF);
   }
 }
-#endif /* HAL_LED */
+/***************************************************************************************************
+ * @fn      HalLedbreathe
+ *
+ * @brief   Turns specified LED breahte ON
+ *
+ * @param   leds - LED bit mask
+ *          mode - LED_ON,LED_OFF,
+ *
+ * @return  none
+ ***************************************************************************************************/
+void HalLedbreathe (u32 leds, u8 tim)
+{
+  if(!hal_led.led)
+  {
+    return;
+  }
 
+  for(u8 i = 0; i < hal_led.num; i++)
+  {
+    if(hal_led.led[i].leds == leds)
+    {
+      hal_led.led[i].led_breath(leds, tim);
+    }
+  }
+
+  /* Remember current state */
+  if (tim)
+  {
+    HalLedState |= leds;
+  }
+  else
+  {
+    HalLedState &= (leds ^ 0xFFFFFFFF);
+  }
+}
 /***************************************************************************************************
  * @fn      HalGetLedState
  *
@@ -591,13 +514,8 @@ void HalLedOnOff (u32 leds, u8 mode)
  ***************************************************************************************************/
 u32 HalLedGetState ()
 {
-#if (HAL_LED == TRUE)
   return HalLedState;
-#else
-  return 0;
-#endif
 }
-
 /***************************************************************************************************
  * @fn      HalLedEnterSleep
  *
@@ -609,25 +527,9 @@ u32 HalLedGetState ()
  ***************************************************************************************************/
 void HalLedEnterSleep( void )
 {
-#ifdef BLINK_LEDS
-  /* Sleep ON */
-  HalLedStatusControl.sleepActive = TRUE;
-#endif /* BLINK_LEDS */
-
-#if (HAL_LED == TRUE)
-  /* Save the state of each led */
-  //  HalSleepLedState = 0;
-  //  HalSleepLedState |= HAL_STATE_LED1();
-  //  HalSleepLedState |= HAL_STATE_LED2() << 1;
-  //  HalSleepLedState |= HAL_STATE_LED3() << 2;
-  //  HalSleepLedState |= HAL_STATE_LED4() << 3;
-
   /* TURN OFF all LEDs to save power */
   HalLedOnOff (HAL_LED_ALL, HAL_LED_MODE_OFF);
-#endif /* HAL_LED */
-
 }
-
 /***************************************************************************************************
  * @fn      HalLedExitSleep
  *
@@ -639,20 +541,12 @@ void HalLedEnterSleep( void )
  ***************************************************************************************************/
 void HalLedExitSleep( void )
 {
-#if (HAL_LED == TRUE)
   /* Load back the saved state */
   HalLedOnOff(HalSleepLedState, HAL_LED_MODE_ON);
 
   /* Restart - This takes care BLINKING LEDS */
   HalLedUpdate(NULL);
-#endif /* HAL_LED */
-
-#ifdef BLINK_LEDS
-  /* Sleep OFF */
-  HalLedStatusControl.sleepActive = FALSE;
-#endif /* BLINK_LEDS */
 }
-
 /***************************************************************************************************
  ***************************************************************************************************/
 #endif

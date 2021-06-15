@@ -6,7 +6,7 @@
 
 //init
 //row set input with 1m pull_up resistor
-//col set input 1m pull_pu resistor 
+//col set input with 1m pull_pu resistor
 
 //sleep
 //row set 10k pull_down resistor
@@ -22,17 +22,17 @@ _attribute_data_retention_ static u8 gpio_first_key;
 _attribute_data_retention_ static u8 gpio_last_key;
 
 _attribute_data_retention_ static struct {
-  const key_map_t *map;
+  key_map_t *map;
   u8 num;
 }gpio_key_map;
 
-static void key_gpio_for_scan(const key_map_t *key)
+static void gpio_key_for_scan(const key_map_t *key)
 {
   SET_ROW_GPIO_OUTPUT_LOW(key->row);
   SET_COL_GPIO_INPUT(key->col);
 }
 
-static void key_gpio_for_no_scan(const key_map_t *key)
+static void gpio_key_for_no_scan(const key_map_t *key)
 {
   SET_ROW_GPIO_INPUT(key->row);
   SET_COL_GPIO_INPUT(key->col);
@@ -40,10 +40,7 @@ static void key_gpio_for_no_scan(const key_map_t *key)
 
 static key_map_t* key_map(key_index_t key)
 {
-  if(key < gpio_first_key)
-    return NULL;
-
-  if(key > gpio_last_key)
+  if((key < gpio_first_key) || (key > gpio_last_key))
     return NULL;
 
   return gpio_key_map.map != NULL? (key_map_t*)&gpio_key_map.map[key]:NULL;
@@ -54,27 +51,27 @@ static inline bool read_col_gpio(u32 col)
   return gpio_read(col);
 }
 
-static bool key_low_level_scan(const key_map_t *key)
+bool key_low_level_scan(const key_map_t *key)
 {
   bool status;
 
-  key_gpio_for_scan(key);
+  gpio_key_for_scan(key);
 
   status = read_col_gpio(key->col) ? 0:1;
 
-  key_gpio_for_no_scan(key);
+  gpio_key_for_no_scan(key);
 
   return status;
 }
 
-void key_alloc(const key_map_t *key_arry, u8 num)
+void gpio_key_alloc(key_map_t *key_arry, u8 num)
 {
   gpio_key_map.map = key_arry;
   gpio_key_map.num = num;
 }
 
-void key_gpio_init(u8 first_key, u8 last_key)
-{//init status,col input with deep sleep and row input
+void gpio_key_init(u8 first_key, u8 last_key)
+{
   if(gpio_key_map.map){
     for(u8 i = 0; i < gpio_key_map.num; i++){
       SET_ROW_GPIO_INPUT(gpio_key_map.map[i].row);
@@ -86,7 +83,7 @@ void key_gpio_init(u8 first_key, u8 last_key)
   gpio_last_key   = last_key;
 }
 
-void key_gpio_sleep_init()
+void gpio_key_sleep_setup()
 {
   if(gpio_key_map.map){
     for(u8 i = 0; i < gpio_key_map.num; i++){
@@ -98,7 +95,35 @@ void key_gpio_sleep_init()
   }
 }
 
-void low_key_scan(key_status_t* key_s, key_index_t key)
+void gpio_key_sleep_unset(u8 key)
+{
+  u32 col;
+
+  if((key < gpio_first_key) || (key > gpio_last_key))
+    return;
+
+  if(gpio_key_map.map){
+    gpio_key_map.map[key].is_wake_up_pin = NO_WAKE_UP;
+
+    col = gpio_key_map.map[key].col;
+
+    for(u8 i = 0; i < gpio_key_map.num; i++){
+      if((gpio_key_map.map[i].col == col) && (i != key))
+        gpio_key_map.map[i].is_wake_up_pin = NO_WAKE_UP;
+    }
+  }
+}
+
+void gpio_stuck_key_low_scan(key_status_t* key_s, key_index_t key)
+{
+  key_map_t *key_row_col;
+
+  key_row_col = key_map(key);
+
+  *key_s = (key_low_level_scan(key_row_col))? PRESSING:RELEASE;
+}
+
+void gpio_key_low_scan(key_status_t* key_s, key_index_t key)
 {
   u32 time;
   u32 cur_time;
@@ -117,7 +142,7 @@ void low_key_scan(key_status_t* key_s, key_index_t key)
     if(!time){
       debounce_time[key] = clock_time();
       *key_s = RELEASE;
-    }else if((cur_time - time) >= DEBOUNCE_TIME){
+    }else if(((u32)((int)cur_time - (int)time)) >= DEBOUNCE_TIME){
       *key_s = PRESSING;
     }else
       *key_s = RELEASE;
@@ -126,4 +151,5 @@ void low_key_scan(key_status_t* key_s, key_index_t key)
     *key_s = RELEASE;
   }
 }
+
 #endif

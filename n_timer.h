@@ -16,4 +16,5 @@ static inline bool n_clock_time_exceed(u32 ref, u32 us)
 {
 	return time_after(clock_time(), (ref + (us*16)));
 }
+
 #endif

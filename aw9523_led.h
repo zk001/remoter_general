@@ -68,18 +68,14 @@
 #define HAL_LED_ALL   (HAL_LED_1 | HAL_LED_2 | HAL_LED_3 | HAL_LED_4 | HAL_LED_5 | HAL_LED_6 |\
 		HAL_LED_7 | HAL_LED_8 | HAL_LED_9 | HAL_LED_10 | HAL_LED_11 | HAL_LED_12 | HAL_LED_13 |\
 		HAL_LED_14 | HAL_LED_15 )
+
 #define MAX_LEDS 15
 
 extern void aw9523_init();
 extern void aw9523_conf(u8 conf);
-//extern void aw9523_set_gpio_mode(u8 port);
-//extern void aw9523_set_led_mode(u8 port);
 extern void aw9523_set_led_dim(u8 port_bit, u8 level);
-//extern void aw9523_led_on(u8 port_bit);
-//extern void aw9523_led_off(u8 port_bit);
 extern void aw9523_led_on_off(u32 leds, u8 mode);
 extern void aw9523_led_breath(u32 leds, u8 tim);
 extern void aw9523_wake_up_config();
-
 #endif
 #endif

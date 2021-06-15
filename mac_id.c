@@ -3,17 +3,14 @@
 #include "mac_id.h"
 #include "app.h"
 
-static char is_original_id()
+static bool is_original_id()
 {
   u8 data[8] = {0,0,0,0,0x12,0x34,0x56,0x78};
   u8 raw_data[8] = {0};
 
   flash_read_page(ID_Flash_Addr, sizeof(raw_data), (unsigned char *)raw_data);
 
-  if(!memcmp((const void*)&data[4], (const void*)&raw_data[4], 4)){
-    return 0;
-  }else
-    return 1;
+  return (!memcmp((const void*)&data[4], (const void*)&raw_data[4], 4))? 0:1;
 }
 
 void read_id(void *addr, u8 len)
@@ -42,8 +39,7 @@ void id_init()
 {
   u8 data[8] = {0,0,0,0,0x12,0x34,0x56,0x78};
   if(is_original_id()){
-    random_generator_init();
-    generateRandomNum(4, (unsigned char*)data);
+    gen_random_id((u32*)data);
     write_id(data, sizeof(data));
   }
 }
