@@ -149,7 +149,7 @@ void send_rf_data(void *addr, u32 len)
   }
 }
 
-void send_rf_data_jiumo(void *addr, u32 len)
+void send_rf_data_3_times(void *addr, u32 len)
 {
   volatile unsigned char tmp;
 

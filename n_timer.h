@@ -10,11 +10,11 @@
 
 //time_after(current, timeout) returns true if the time current is after time timeout.
 #define time_after(current, timeout) \
-((int)(timeout) - (int)(current) < 0)
+  ((int)(timeout) - (int)(current) < 0)
 
 static inline bool n_clock_time_exceed(u32 ref, u32 us)
 {
-	return time_after(clock_time(), (ref + (us*16)));
+  return time_after(clock_time(), (ref + (us*16)));
 }
 
 #endif

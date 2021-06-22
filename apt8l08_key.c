@@ -15,6 +15,7 @@ static const u8 APTTouchRegDat[14]={0x03,0x50,0x20,0x00,0x00,0x00,0x08,0x02,0x02
 
 _attribute_data_retention_ static u8 apt8_first_key;
 _attribute_data_retention_ static u8 apt8_last_key;
+static bool touch_key_set_sleep = 1;
 
 //write one byte data to apt8 register
 static void apt8_set_reg(u8 addr, u8 data)
@@ -58,7 +59,7 @@ static key_index_t touch_key_map(key_index_t key)
 
 void apt_enter_sleep()
 {
-  i2c_gpio_set(I2C_GPIO_GROUP_B6D7);  	//SDA/CK : B6/D7
+  i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
   i2c_master_init(APT8_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
 
@@ -67,7 +68,7 @@ void apt_enter_sleep()
 
 void apt_exit_sleep()
 {
-  i2c_gpio_set(I2C_GPIO_GROUP_B6D7);  	//SDA/CK : B6/D7
+  i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
   i2c_master_init(APT8_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
 
@@ -76,7 +77,7 @@ void apt_exit_sleep()
 
 void apt8_init(u8 first_key, u8 last_key)
 {
-  i2c_gpio_set(I2C_GPIO_GROUP_B6D7);  	//SDA/CK : B6/D7
+  i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
   i2c_master_init(APT8_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
 
@@ -108,7 +109,7 @@ void apt8_init(u8 first_key, u8 last_key)
 
 void apt8_reset()
 {
-  i2c_gpio_set(I2C_GPIO_GROUP_B6D7);  	//SDA/CK : B6/D7
+  i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
   i2c_master_init(APT8_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
 
@@ -127,7 +128,7 @@ void apt8_read(key_status_t* key_s, key_index_t key)
   u8 rd_data;
   u8 touch_key;
 
-  i2c_gpio_set(I2C_GPIO_GROUP_B6D7);  	//SDA/CK : B6/D7
+  i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
   i2c_master_init(APT8_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
 
@@ -138,9 +139,16 @@ void apt8_read(key_status_t* key_s, key_index_t key)
   *key_s = (rd_data & (1 << touch_key)) ? PRESSING:RELEASE;
 }
 
+void touch_key_sleep_setup()
+{
+  if(touch_key_set_sleep)
+    SET_COL_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(APT8L08_INT);
+}
+
 void touch_key_sleep_unset(u8 key)
 {
-
+  (void)key;
+  touch_key_set_sleep = 0;
 }
 
 #endif

@@ -4,8 +4,7 @@
 
 #define THRESHOLD 2490
 
-extern void vbat_init();
-extern bool is_low_bat();
+extern bool is_low_power();
 
 #endif
 #endif

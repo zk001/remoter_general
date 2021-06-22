@@ -1,6 +1,7 @@
 #include "../drivers.h"
 #include "led.h"
 #include "../../esb_ll/esb_ll.h"
+#include "timer_clock.h"
 
 volatile unsigned int tx_irq_cnt_tx = 0;
 volatile unsigned int tx_irq_cnt_invalid_pid = 0;
@@ -11,7 +12,7 @@ volatile unsigned int tx_irq_cnt_rx_dr = 0;
 volatile unsigned char rx_flag = 0;
 volatile unsigned char ds_flag = 0;
 volatile unsigned char maxretry_flag = 0;
-const u8 rf_channel_select[] = {10, 44, 100, 140};//ÆµµÀ
+const u8 rf_channel_select[] = {10, 44, 100, 140};
 
 volatile unsigned char timer0_expire_flg = 0;
 unsigned int timer0_irq_cnt = 0;
@@ -64,11 +65,11 @@ __attribute__((section(".ram_code")))__attribute__((optimize("-Os"))) void irq_h
     rx_flag = 1;
   }
 
-
   if(reg_tmr_sta & FLD_TMR_STA_TMR0){
     reg_tmr_sta = FLD_TMR_STA_TMR0; //clear irq status
     timer0_irq_cnt ++;;
     timer0_expire_flg = 1;
+    run_timer_handler();
   }
 
   irq_clr_src();

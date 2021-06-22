@@ -19,11 +19,12 @@ typedef struct {
 		gpio_set_input_en(led, 0);\
 		gpio_write(led, 0);)
 
-#define HAL_LED_ALL   (HAL_LED_1 | HAL_LED_2 | HAL_LED_3 | HAL_LED_4 | HAL_LED_5)
-#define MAX_LEDS 5
+#define PWM_PERIOD  1000  //US
+#define PWM_ON_DUTY 200  //US
 
 extern void gpio_led_alloc(const u32 *led_arry, u8 num);
 extern void gpio_led_on_off(u32 leds, u8 mode);
+extern void pwm_gpio_sim_led_on_off(u32 leds, u8 mode);
 
 #endif
 #endif

@@ -9,14 +9,14 @@ typedef enum {
 }key_status_t;
 
 typedef enum {
-	NO_STUCK = 1,
-	STUCK
+  NO_STUCK = 1,
+  STUCK
 }key_stuck_t;
 
 typedef enum {
-	SHORT_KEY_IMMEDIATELY_FLAG =  0x01,
-	LONG_KEY_FLAG              =  0x02,
-	STUCK_KEY_FLAG             =  0x04
+  SHORT_KEY_IMMEDIATELY_FLAG =  0x01,
+  LONG_KEY_FLAG              =  0x02,
+  STUCK_KEY_FLAG             =  0x04
 }key_flag_t;
 
 typedef struct {
@@ -39,7 +39,7 @@ typedef enum {
   STUCK_KEY                = 0x20,//active when pressed over long long time 
   NO_TIME_LIMIT_KEY_RELEASED  = 0x40,
   NO_TIME_LIMIT_KEY_ON        = 0x80,
-  RESERVED_KEY2            = 0x100,
+  ONE_KEY_TWICE               = 0x100,
   RESERVED_KEY3            = 0x200,
   RESERVED_KEY4            = 0x400,
   RESERVED_KEY5            = 0x800,
@@ -59,52 +59,52 @@ typedef enum {
 }key_action_t;
 
 typedef struct {
-	struct g_list_head list;
-	u8 second_key;
-	key_action_t key_ac;
-	u32 time1;
-	u32 time2;
-	handler key_handler;
+  struct g_list_head list;
+  u8 second_key;
+  key_action_t key_ac;
+  u32 time1;
+  u32 time2;
+  handler key_handler;
 }event_handler_t __attribute__ ((aligned (4)));
 
 typedef struct {
-	struct g_list_head list;
-	key_action_t key_current_action;
+  struct g_list_head list;
+  key_action_t key_current_action;
 }key_process_t __attribute__ ((aligned (4)));
 
 typedef enum {
- KEY0 = 0,
- KEY1,
- KEY2,
- KEY3,
- KEY4,
- KEY5,
- KEY6,
- KEY7,
- KEY8,
- KEY9,
- KEY10,
- KEY11,
- KEY12,
- KEY13,
- KEY14,
- KEY15,
- KEY16,
- KEY17,
- KEY18,
- KEY19,
- KEY20,
- KEY21,
- KEY22,
- KEY23,
- KEY24,
- KEY25,
- KEY26,
- KEY27,
- KEY28,
- KEY29,
- KEY30,
- KEY31
+  KEY0 = 0,
+  KEY1,
+  KEY2,
+  KEY3,
+  KEY4,
+  KEY5,
+  KEY6,
+  KEY7,
+  KEY8,
+  KEY9,
+  KEY10,
+  KEY11,
+  KEY12,
+  KEY13,
+  KEY14,
+  KEY15,
+  KEY16,
+  KEY17,
+  KEY18,
+  KEY19,
+  KEY20,
+  KEY21,
+  KEY22,
+  KEY23,
+  KEY24,
+  KEY25,
+  KEY26,
+  KEY27,
+  KEY28,
+  KEY29,
+  KEY30,
+  KEY31
 }key_index_t;
 
 enum key_type_e{
@@ -121,12 +121,14 @@ typedef struct {
 }key_type_t;
 
 typedef struct {
-	const key_type_t *key;
-	u8 num;
+  const key_type_t *key;
+  u8 num;
 }key_table_t;
 
 #define FIRST_KEY_FLAG              0x80000000
 #define SECOND_KEY_FLAG             0x40000000
+
+#define ONE_KEY_PRESSING_TWICE_INTERVAL MS2TICK(1000)
 
 extern u8 cur_key;
 extern u8 pre_key;

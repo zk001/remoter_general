@@ -29,7 +29,6 @@ typedef struct {
   u32 next;      /* Time for next change */
   u32 step;
   u32 raw;       /*store raw time for breathe*/
-
 } HalLedControl_t;
 
 typedef struct
@@ -137,6 +136,7 @@ u32 HalLedSet (u32 leds, u8 mode)
     default:
       break;
   }
+
   return ( HalLedState );
 }
 /***************************************************************************************************
@@ -263,6 +263,8 @@ int HalLedUpdate (void *data)
   u32 next = 0;
   u32 wait;
 
+  void (*cb)();
+
   led  = HAL_LED_1;
   leds = HAL_LED_ALL;
   sts  = HalLedStatusControl.HalLedControlTable;
@@ -332,8 +334,16 @@ int HalLedUpdate (void *data)
     sts++;
   }
 
+  if(!next){
+    if(data){
+      cb = (void (*)())data;
+      cb();
+    }
+  }
+
   return next;
 }
+
 /***************************************************************************************************
  * @fn      HalLedUpdateBreath
  *
@@ -468,6 +478,7 @@ void HalLedOnOff (u32 leds, u8 mode)
     HalLedState &= (leds ^ 0xFFFFFFFF);
   }
 }
+
 /***************************************************************************************************
  * @fn      HalLedbreathe
  *

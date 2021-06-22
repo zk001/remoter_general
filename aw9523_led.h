@@ -76,6 +76,6 @@ extern void aw9523_conf(u8 conf);
 extern void aw9523_set_led_dim(u8 port_bit, u8 level);
 extern void aw9523_led_on_off(u32 leds, u8 mode);
 extern void aw9523_led_breath(u32 leds, u8 tim);
-extern void aw9523_wake_up_config();
+
 #endif
 #endif

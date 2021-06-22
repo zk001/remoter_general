@@ -4,7 +4,6 @@
 #include "app.h"
 
 _attribute_data_retention_ static u32 idle_tick;
-_attribute_data_retention_ static bool wake_up;
 static u32 sys_tick;
 
 void idle_time_for_sleep(u32 ms)
@@ -22,17 +21,3 @@ void reload_sys_time()
   sys_tick = clock_time();
 }
 
-bool is_wakeup_from_sleep()
-{
-  return wake_up;
-}
-
-void clr_wake_up_flag()
-{
-  wake_up = 0;
-}
-
-void set_wake_up_flag()
-{
-  wake_up = 1;
-}

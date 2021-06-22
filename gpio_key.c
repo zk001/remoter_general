@@ -17,7 +17,7 @@
 //col input 1m pull_down resistor
 // if col is low_level ,the key is pressing 
 
-static u32 debounce_time[MAX_GPIO_KEY];
+static u32 debounce_time[MAX_GPIO_KEYS];
 _attribute_data_retention_ static u8 gpio_first_key;
 _attribute_data_retention_ static u8 gpio_last_key;
 
