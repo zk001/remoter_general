@@ -12,8 +12,8 @@ _attribute_data_retention_ u8 leader_key    = 255;
 _attribute_data_retention_ u8 pre_key       = 255;
 _attribute_data_retention_ u8 cur_key       = 255;
 
-_attribute_data_retention_ static u8 first_key_r   = 255;
-_attribute_data_retention_ static u8 second_key_r  = 255;
+_attribute_data_retention_ static u8 first_key   = 255;
+_attribute_data_retention_ static u8 second_key  = 255;
 _attribute_data_retention_ static handler       stuck_key_handler;
 _attribute_data_retention_ static key_state_t   key_status[MAX_KEYS];
 _attribute_data_retention_ static key_process_t key_event[MAX_KEYS];
@@ -88,44 +88,55 @@ static bool is_stuck_key_released(key_state_t* key_result, const key_type_t* key
   return (key_s == RELEASE);
 }
 
+static void fast_key_read(key_state_t* key_result, const key_type_t* key)
+{
+  key_status_t key_s;//the current key status
+
+  key_index_t key_index = key->key;//the key number
+
+  key->fast_scan(&key_s, key_index);//check the key is pressing or not
+
+  cal_key_press_time(key_result, key_s);//cal the key pressing time
+}
+
 static inline void clr_first_key()
 {
-  first_key_r = 255;
+  first_key = 255;
 }
 
 static inline void clr_second_key()
 {
-  second_key_r = 255;
+  second_key = 255;
 }
 
 static inline bool is_first_key_valid()
 {
-  return (first_key_r != 255);
+  return (first_key != 255);
 }
 
 static inline u8 get_first_key()
 {
-  return first_key_r;
+  return first_key;
 }
 
 static inline u8 get_second_key()
 {
-  return second_key_r;
+  return second_key;
 }
 
 static inline void set_first_key(u8 key)
 {
-  first_key_r = key;
+  first_key = key;
 }
 
 static inline void set_second_key(u8 key)
 {
-  second_key_r = key;
+  second_key = key;
 }
 
 static inline bool is_diff_with_first_key(u8 key)
 {
-  return (first_key_r != key);
+  return (first_key != key);
 }
 
 static bool is_key_pressing(u8 key, u32 *time)
@@ -315,6 +326,24 @@ static bool is_long_key(u8 i, key_state_t* key_s)
       !(key_s->flag & LONG_KEY_FLAG));//bit31 is the flag that indicaction the long key only once
 }
 
+static bool is_long_key_8s(u8 i, key_state_t* key_s)
+{
+  event_handler_t *pos_ptr = NULL;
+
+  list_for_each_entry(pos_ptr, &key_event[i].list, list){
+    if(pos_ptr != (event_handler_t*)&key_event[i].list){
+      if((pos_ptr->key_ac == LONG_KEY_IN_8S)){
+        break;
+      }
+    }
+  }
+
+  return ((key_s->cur_status == PRESSING) && \
+      (key_s->pressing_time > LONG_KEY_8S) && \
+      (key_s->pressing_time < STUCK_TIME) && \
+      !(key_s->flag & LONG_8S_KEY_FLAG));//bit31 is the flag that indicaction the long key only once
+}
+
 static inline bool is_key_stuck(key_state_t* key_s)
 {
   return ((key_s->cur_status == PRESSING) && \
@@ -360,7 +389,18 @@ static inline handler get_stuck_key_handler()
   return stuck_key_handler;
 }
 
-static void clr_wake_up_pin(u8 key)
+static void set_wakeup_pin(u8 key)
+{
+  if(key_table.key[key].type == MECHANICAL_KEY)
+    gpio_key_sleep_set(key);
+  else if(key_table.key[key].type == TOUCH_KEY){
+#if (defined AW9523_LED)
+    touch_key_sleep_set(key);
+#endif
+  }
+}
+
+static void clr_wakeup_pin(u8 key)
 {
   if(key_table.key[key].type == MECHANICAL_KEY)
     gpio_key_sleep_unset(key);
@@ -371,7 +411,7 @@ static void clr_wake_up_pin(u8 key)
   }
 }
 
-void key_wake_up_init()
+void key_wakeup_init()
 {
   u8 type = 0;
   u8 first_key_of_type = 0;
@@ -426,12 +466,14 @@ int key_process(void *data)
   key_state_t *key_s;
   key_process_t *key_e;
 
-  _attribute_data_retention_ static bool is_two_key_pressing;
-  _attribute_data_retention_ static bool setup_time_valid;
+  static bool is_two_key_pressing;
+  static bool setup_time_valid;
 
   static u32 pressed_tick;
-  static u8 one_key_twice_key = 255;
+  static u8 key_start_time_window = 255;
   static u8 released_times;
+  static u8 pressed_times;
+  static bool only_once = 1;
 
   u32 st_time;
   u32 cmb_time;
@@ -456,12 +498,32 @@ int key_process(void *data)
         goto the_next;
     }
 
-    key_read(key_s, &key_table.key[i]);
+    if(only_once){
+      only_once = 0;
+      fast_key_read(key_s, &key_table.key[i]);
+    }else
+      key_read(key_s, &key_table.key[i]);
 
-    //key released form pressing && current key is not equal the one_key_twice_key, then start time windows
-    if(is_key_from_release_to_pressing(key_s) && one_key_twice_key != i){
-      one_key_twice_key = i;//which key starts the time windows
-      pressed_tick = clock_time();
+    //t twice s short
+    //pressed_times  0  1 1 2 2
+    //released_times 0  0 1 1 2
+    //               x  x s x t
+    if(key_start_time_window != 255){
+      interval = (int)clock_time() - (int)pressed_tick;
+      if(interval <= ONE_KEY_PRESSING_TWICE_INTERVAL){
+        if(released_times == 2){
+          released_times = 0;
+          pressed_times  = 0;
+          key_start_time_window = 255;//stop
+          key_e->key_current_action |= ONE_KEY_TWICE;
+        }
+      }else{//over ONE_KEY_PRESSING_TWICE_INTERVAL
+        if(pressed_times == 1 && released_times == 1)
+          key_e->key_current_action |= ONE_KEY_TWICE_ONLY_ONCE;
+        released_times = 0;
+        pressed_times  = 0;
+        key_start_time_window = 255;//stop
+      }
     }
 
     if(is_current_key_pressing(key_s))//if current key is pressing, reload system tick
@@ -491,7 +553,7 @@ int key_process(void *data)
             }//first key is released
           }//current key is same with prev key
         }//first key is not record, then record it
-        set_first_key(i);//record current key as the first_key_r
+        set_first_key(i);//record current key as the first_key
         goto one_key_pressing;//current key is pressing, goto one_key_pressed process
       }//the current key is not pressing 1995076
       goto released_key_check;//goto released_key_check process to check
@@ -503,14 +565,25 @@ int key_process(void *data)
     goto wait_both_two_key_reset;//COMBIN_KEY_IN_TIME action is finish, wait two key released
 
 one_key_pressing:
+	if(is_long_key_8s(i, key_s)){
+	  key_e->key_current_action |= LONG_KEY_IN_8S;
+	  set_current_key_flag(key_s, LONG_8S_KEY_FLAG);
+	}
     if(is_long_key(i, key_s)){
       key_e->key_current_action |= LONG_KEY;
       set_current_key_flag(key_s, LONG_KEY_FLAG);
     }else if(is_key_stuck(key_s)){
       key_e->key_current_action |= STUCK_KEY;
       set_current_key_flag(key_s, STUCK_KEY_FLAG);
-      clr_wake_up_pin(i);
+      clr_wakeup_pin(i);
       clr_first_key();
+    }
+    //key from released to pressing && time window is not start, then start time windows
+    //key from released to pressing && is other key is pressing, then start time windows
+    if(is_key_from_release_to_pressing(key_s) && (key_start_time_window == 255 || key_start_time_window != i)){
+      pressed_times = 1;
+      key_start_time_window = i;//which key starts the time windows
+      pressed_tick = clock_time();
     }
 
     goto the_next;//continue check the next key
@@ -519,25 +592,9 @@ released_key_check:
     if(is_short_key_released(i, key_s)){
       key_e->key_current_action |= SHORT_KEY;
 
-      //first ok, second ok  when first released, interval valid, when second released, interval valid, next time restart
-      //first ok, second err when first released, interval valid, when second released, interval invalid,next time restart
-      //first err,second ok  when first released,first interval too long next time restart
-      //first err,second err when first released,first interval too long next time restart
-
-      //check if key which start the time windows is released
-      if(one_key_twice_key == i){
-        interval = (int)clock_time() - (int)pressed_tick;//when key released, check the time interval
-        if(interval < ONE_KEY_PRESSING_TWICE_INTERVAL){
-          if(++released_times == 2){//one_key_twice event ok
-            released_times = 0;
-            one_key_twice_key = 255;
-            key_e->key_current_action |= ONE_KEY_TWICE;
-          }
-        }else{//over the interval restart the time windows
-          one_key_twice_key = 255;
-          released_times = 0;
-        }
-      }
+      //time window is valid
+      if(key_start_time_window != 255)
+        released_times++;
     }
 
     goto the_next;//continue check the next key
@@ -552,6 +609,12 @@ two_key_pressing:
 
     if(is_key_pressing_less_than_time(get_first_key(), st_time))//two key is pressing, and first key pressing time is less than st_time
       setup_time_valid = 1;
+
+    if(key_start_time_window != 255){
+      released_times = 0;
+      pressed_times  = 0;
+      key_start_time_window = 255;//stop
+    }
     goto the_next;
 
 two_key_pressed_in_time:
@@ -568,7 +631,7 @@ two_key_pressed_in_time:
 wait_both_two_key_reset:
     if(!is_stuck_key(get_first_key())){
       if(is_key_pressing_exceed_time(get_first_key(), STUCK_TIME) ){//if first key stuck?
-        clr_wake_up_pin(get_first_key());
+        clr_wakeup_pin(get_first_key());
         set_key_event(get_first_key(), STUCK_KEY);
         set_key_flag(get_first_key(), STUCK_KEY_FLAG);
       }
@@ -576,7 +639,7 @@ wait_both_two_key_reset:
 
     if(!is_stuck_key(get_second_key())){
       if(is_key_pressing_exceed_time(get_second_key(), STUCK_TIME)){//if second key stuck?
-        clr_wake_up_pin(get_second_key());
+        clr_wakeup_pin(get_second_key());
         set_key_event(get_second_key(), STUCK_KEY);
         set_key_flag(get_second_key(), STUCK_KEY_FLAG);
       }
@@ -597,8 +660,10 @@ wait_both_two_key_reset:
     goto the_next;
 
 stuck_key_process:
-    if(is_stuck_key_released(key_s, &key_table.key[i]))
+    if(is_stuck_key_released(key_s, &key_table.key[i])){
       clr_key_flag(i, STUCK_KEY_FLAG);
+      set_wakeup_pin(i);
+    }
 
     goto the_next;
 

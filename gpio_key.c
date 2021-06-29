@@ -15,9 +15,10 @@
 //scan
 //set scan row output low other row key input
 //col input 1m pull_down resistor
-// if col is low_level ,the key is pressing 
+//if col is low_level ,the key is pressing
 
 static u32 debounce_time[MAX_GPIO_KEYS];
+
 _attribute_data_retention_ static u8 gpio_first_key;
 _attribute_data_retention_ static u8 gpio_last_key;
 
@@ -95,6 +96,15 @@ void gpio_key_sleep_setup()
   }
 }
 
+void gpio_key_sleep_set(u8 key)
+{
+  if((key < gpio_first_key) || (key > gpio_last_key))
+    return;
+
+  if(gpio_key_map.map)
+    gpio_key_map.map[key].is_wake_up_pin = IS_WAKE_UP;
+}
+
 void gpio_key_sleep_unset(u8 key)
 {
   u32 col;
@@ -123,6 +133,15 @@ void gpio_stuck_key_low_scan(key_status_t* key_s, key_index_t key)
   *key_s = (key_low_level_scan(key_row_col))? PRESSING:RELEASE;
 }
 
+void gpio_wakeup_fast_read(key_status_t* key_s, key_index_t key)
+{
+  key_map_t *key_row_col;
+
+  key_row_col = key_map(key);
+
+  *key_s = (key_low_level_scan(key_row_col))? PRESSING:RELEASE;
+}
+
 void gpio_key_low_scan(key_status_t* key_s, key_index_t key)
 {
   u32 time;
@@ -142,9 +161,9 @@ void gpio_key_low_scan(key_status_t* key_s, key_index_t key)
     if(!time){
       debounce_time[key] = clock_time();
       *key_s = RELEASE;
-    }else if(((u32)((int)cur_time - (int)time)) >= DEBOUNCE_TIME){
+    }else if(((u32)((int)cur_time - (int)time)) >= DEBOUNCE_TIME)
       *key_s = PRESSING;
-    }else
+    else
       *key_s = RELEASE;
   }else{
     debounce_time[key] = 0;

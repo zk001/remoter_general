@@ -8,19 +8,16 @@ typedef struct {
 }low_led_t;
 
 #define GPIO_HAL_TURN_ON(led)	st(\
-		gpio_set_func(led, AS_GPIO);\
-		gpio_set_output_en(led, 1);\
-		gpio_set_input_en(led, 0);\
-		gpio_write(led, 1);)
+    gpio_set_func(led, AS_GPIO);\
+    gpio_set_output_en(led, 1);\
+    gpio_set_input_en(led, 0);\
+    gpio_write(led, 1);)
 
 #define GPIO_HAL_TURN_OFF(led)	st(\
-		gpio_set_func(led, AS_GPIO);\
-		gpio_set_output_en(led, 1);\
-		gpio_set_input_en(led, 0);\
-		gpio_write(led, 0);)
-
-#define PWM_PERIOD  1000  //US
-#define PWM_ON_DUTY 200  //US
+    gpio_set_func(led, AS_GPIO);\
+    gpio_set_output_en(led, 1);\
+    gpio_set_input_en(led, 0);\
+    gpio_write(led, 0);)
 
 extern void gpio_led_alloc(const u32 *led_arry, u8 num);
 extern void gpio_led_on_off(u32 leds, u8 mode);

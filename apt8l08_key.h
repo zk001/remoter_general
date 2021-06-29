@@ -14,9 +14,6 @@
 #define   KOR             0x00
 #define   KVR0            0x34
 
-#define MAX_TOUCH_KEYS 8
-#define APT8_INT_GPIO GPIO_PD3
-
 extern void apt8_reset();
 extern void apt8_init(u8 first_key, u8 last_key);
 extern void apt8_read(key_status_t* key_s, key_index_t key);
@@ -24,6 +21,6 @@ extern void apt_enter_sleep();
 extern void apt_exit_sleep();
 extern void touch_key_sleep_unset(u8 key);
 extern void touch_key_sleep_setup();
-
+extern void touch_key_sleep_set(u8 key);
 #endif
 #endif

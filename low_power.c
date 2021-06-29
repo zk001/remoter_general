@@ -2,6 +2,7 @@
 #include "../drivers.h"
 #include "low_power.h"
 #include "board.h"
+#include "app.h"
 
 u32 sample_result[32];
 

@@ -145,6 +145,12 @@ void touch_key_sleep_setup()
     SET_COL_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(APT8L08_INT);
 }
 
+void touch_key_sleep_set(u8 key)
+{
+  (void)key;
+  touch_key_set_sleep = 1;
+}
+
 void touch_key_sleep_unset(u8 key)
 {
   (void)key;

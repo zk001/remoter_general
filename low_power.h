@@ -2,8 +2,6 @@
 #ifndef __LOW_POWER__
 #define __LOW_POWER__
 
-#define THRESHOLD 2490
-
 extern bool is_low_power();
 
 #endif

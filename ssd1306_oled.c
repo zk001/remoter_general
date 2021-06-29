@@ -5,6 +5,7 @@
 #include "../../common.h"
 #include "ssd1306_oled.h"
 #include "main.h"
+#include "board.h"
 
 u8 const ascii_table_8x16[95][16];
 u8 const ascii_table_5x8[95][5];
@@ -12,7 +13,7 @@ u8 const ascii_table_5x8[95][5];
 //写指令到OLED显示模块
 static void lcd_command(u8 com)
 {
-  i2c_gpio_set(I2C_GPIO_GROUP_C0C1);  	//SDA/CK : B6/D7
+  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
 
   i2c_master_init(LCD_IIC_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
 
@@ -22,7 +23,7 @@ static void lcd_command(u8 com)
 //写数据到OLED显示模块
 static void lcd_data(u8 data)
 {
-  i2c_gpio_set(I2C_GPIO_GROUP_C0C1);  	//SDA/CK : B6/D7
+  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
 
   i2c_master_init(LCD_IIC_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
 

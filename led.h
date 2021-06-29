@@ -118,6 +118,7 @@ extern u32 HalLedGetState ( void );
 extern void HalLedBreathe (u32 leds, u8 numBreathe, u32 step, u32 period);
 extern int HalLedUpdateBreath (void *data);
 extern void register_led(const hal_led_t *led, u8 num);
+//extern u8 HalLedGetMode(u32 leds);
 
 /*********************************************************************
 *********************************************************************/

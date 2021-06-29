@@ -16,7 +16,8 @@ typedef enum {
 typedef enum {
   SHORT_KEY_IMMEDIATELY_FLAG =  0x01,
   LONG_KEY_FLAG              =  0x02,
-  STUCK_KEY_FLAG             =  0x04
+  STUCK_KEY_FLAG             =  0x04,
+  LONG_8S_KEY_FLAG           =  0x08,
 }key_flag_t;
 
 typedef struct {
@@ -40,8 +41,8 @@ typedef enum {
   NO_TIME_LIMIT_KEY_RELEASED  = 0x40,
   NO_TIME_LIMIT_KEY_ON        = 0x80,
   ONE_KEY_TWICE               = 0x100,
-  RESERVED_KEY3            = 0x200,
-  RESERVED_KEY4            = 0x400,
+  ONE_KEY_TWICE_ONLY_ONCE     = 0x200,
+  LONG_KEY_IN_8S              = 0x400,
   RESERVED_KEY5            = 0x800,
   RESERVED_KEY6            = 0x1000,
   RESERVED_KEY7            = 0x2000,
@@ -118,6 +119,7 @@ typedef struct {
   void (*key_init)(u8 first_key, u8 last_key);
   void (*key_scan)(key_status_t* key_s, key_index_t key);
   void (*stuck_scan)(key_status_t* key_s, key_index_t key);
+  void (*fast_scan)(key_status_t* key_s, key_index_t key);
 }key_type_t;
 
 typedef struct {
@@ -125,17 +127,18 @@ typedef struct {
   u8 num;
 }key_table_t;
 
-#define FIRST_KEY_FLAG              0x80000000
-#define SECOND_KEY_FLAG             0x40000000
+#define FIRST_KEY_FLAG   0x80000000
+#define SECOND_KEY_FLAG  0x40000000
 
 #define ONE_KEY_PRESSING_TWICE_INTERVAL MS2TICK(1000)
+#define LONG_KEY_8S (8000*16*1000)
 
 extern u8 cur_key;
 extern u8 pre_key;
 extern u8 leader_key;
 
 extern void key_init();
-extern void key_wake_up_init();
+extern void key_wakeup_init();
 extern void poll_key_event();
 extern int key_process();
 extern void set_leader_key(u8 key);
@@ -146,5 +149,4 @@ extern u8 app_read_key(u8 first_key, u8 second_key);
 extern void set_stuck_key_handler(handler stuck_handler);
 extern void key_gpio_sleep_init();
 extern void clr_app_read_key_flag();
-
 #endif

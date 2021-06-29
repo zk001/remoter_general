@@ -7,14 +7,14 @@
 #include "board.h"
 
 #define RSTN_OUT_LOW()  st(\
-		gpio_set_output_en(AW9523_RSTN, 1);\
-		gpio_set_input_en(AW9523_RSTN, 0);\
-		gpio_write(AW9523_RSTN, 0);)
+    gpio_set_output_en(AW9523_RSTN, 1);\
+    gpio_set_input_en(AW9523_RSTN, 0);\
+    gpio_write(AW9523_RSTN, 0);)
 
 #define RSTN_OUT_HIGH()  st(\
-		gpio_set_output_en(AW9523_RSTN, 1);\
-		gpio_set_input_en(AW9523_RSTN, 0);\
-		gpio_write(AW9523_RSTN, 1);)
+    gpio_set_output_en(AW9523_RSTN, 1);\
+    gpio_set_input_en(AW9523_RSTN, 0);\
+    gpio_write(AW9523_RSTN, 1);)
 
 #define P0_IN_STATE    0x00
 #define P1_IN_STATE    0x01
@@ -64,12 +64,6 @@
 #define PORT1_BIT_5  13
 #define PORT1_BIT_6  14
 #define PORT1_BIT_7  15
-
-#define HAL_LED_ALL   (HAL_LED_1 | HAL_LED_2 | HAL_LED_3 | HAL_LED_4 | HAL_LED_5 | HAL_LED_6 |\
-		HAL_LED_7 | HAL_LED_8 | HAL_LED_9 | HAL_LED_10 | HAL_LED_11 | HAL_LED_12 | HAL_LED_13 |\
-		HAL_LED_14 | HAL_LED_15 )
-
-#define MAX_LEDS 15
 
 extern void aw9523_init();
 extern void aw9523_conf(u8 conf);
