@@ -15,7 +15,7 @@ static void lcd_command(u8 com)
 {
   i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
 
-  i2c_master_init(LCD_IIC_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
+  i2c_master_init(LCD_IIC_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
 
   i2c_write_series(0x00, 1, (unsigned char *)&com, 1);
 }
@@ -25,7 +25,7 @@ static void lcd_data(u8 data)
 {
   i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
 
-  i2c_master_init(LCD_IIC_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
+  i2c_master_init(LCD_IIC_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
 
   i2c_write_series(0x40, 1, (unsigned char *)&data, 1);
 }

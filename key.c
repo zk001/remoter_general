@@ -147,6 +147,8 @@ static bool is_key_pressing(u8 key, u32 *time)
 
   key_read(&key_f, &key_table.key[key]);
 
+  key_status[key] = key_f;
+
   if(time != NULL)
     *time = key_f.pressing_time;
 
@@ -160,6 +162,8 @@ static bool is_key_released(u8 key, u32 *time)
   key_f = key_status[key];
 
   key_read(&key_f, &key_table.key[key]);
+
+  key_status[key] = key_f;
 
   if(time != NULL)
     *time = key_f.pressing_time;
@@ -461,12 +465,77 @@ void key_init()
   key_event_init();
 }
 
+bool get_other_map_key(u32 *key_map, u8 *key)
+{
+  u32  key_iterator = 1;
+  u32  tmp_itor = 0;
+  bool has_key = 0;
+  u8 real_key = 0;
+
+  while(*key_map){
+	if(*key_map & key_iterator){
+	  *key_map ^= key_iterator;
+
+	 while(key_iterator != tmp_itor){
+	   tmp_itor = 1 << real_key;
+	   real_key++;
+	 }
+	 real_key--;
+	 *key = real_key;
+	 has_key = 1;
+	 break;
+	}
+	key_iterator <<= 1;
+  }
+  return has_key;
+}
+
+static bool is_all_other_key_stuck(u32 key_map)
+{
+  u32  key_iterator = 1;
+  u32  tmp_itor = 0;
+  u32  is_stuck = 0;
+  u32  tmp_key = key_map;
+  u8  real_key = 0;
+
+  while(key_map){
+    if(key_map & key_iterator){
+      key_map ^= key_iterator;
+
+	 while(key_iterator != tmp_itor){
+       tmp_itor = 1 << real_key;
+       real_key++;
+	 }
+	 real_key--;
+    if(is_stuck_key(real_key))
+    	is_stuck |= 1 << real_key;
+
+    tmp_itor = 0;
+    real_key = 0;
+    }
+
+    key_iterator <<= 1;
+  }
+  return (is_stuck ^ tmp_key)? 0:1;
+}
+
+static void process_stuck_key(u8 key)
+{
+  if(!is_stuck_key(key)){
+    if(is_key_pressing_exceed_time(key, STUCK_TIME)){//if second key stuck?
+      clr_wakeup_pin(key);
+	  set_key_event(key, STUCK_KEY);
+	  set_key_flag(key, STUCK_KEY_FLAG);
+	 }
+  }
+}
+
 int key_process(void *data)
 {
   key_state_t *key_s;
   key_process_t *key_e;
 
-  static bool is_two_key_pressing;
+  static bool is_more_one_key_pressing;
   static bool setup_time_valid;
 
   static u32 pressed_tick;
@@ -474,7 +543,7 @@ int key_process(void *data)
   static u8 released_times;
   static u8 pressed_times;
   static bool only_once = 1;
-
+  static u32 other_key_map;
   u32 st_time;
   u32 cmb_time;
   u32 interval;
@@ -491,15 +560,22 @@ int key_process(void *data)
       goto stuck_key_process;
 
     //when two key is pressing, current key is not first key or second key, then check next key
-    if(is_two_key_pressing){
+    if(is_more_one_key_pressing){
       if((get_first_key() == i) || (get_second_key() == i))
         ;
-      else
+      else{
+    	if(is_key_pressing(i, NULL))//when two keys are pressing,check if other key is pressing
+    		other_key_map |= 1 << i;
+    	else
+    		other_key_map &= ~(1 << i);
         goto the_next;
+      }
     }
 
+    //wake up fast scan
     if(only_once){
-      only_once = 0;
+      if(i == MAX_KEYS - 1)
+        only_once = 0;
       fast_key_read(key_s, &key_table.key[i]);
     }else
       key_read(key_s, &key_table.key[i]);
@@ -535,7 +611,7 @@ int key_process(void *data)
     if(is_current_key_no_time_limit_on(key_s))//if current key is pressing, set NO_TIME_LIMIT_KEY_ON action
       key_e->key_current_action |= NO_TIME_LIMIT_KEY_ON;
 
-    if(!is_two_key_pressing){//check if there is two key pressing or not
+    if(!is_more_one_key_pressing){//check if there is two key pressing or not
       if(is_current_key_pressing(key_s)){//if current key is pressing
         if(is_current_key_short_immediately(key_s)){//if current key is pressing,set SHORT_KEY_IMMEDIATELY_FLAG action
           pre_key = cur_key;
@@ -554,17 +630,17 @@ int key_process(void *data)
           }//current key is same with prev key
         }//first key is not record, then record it
         set_first_key(i);//record current key as the first_key
-        goto one_key_pressing;//current key is pressing, goto one_key_pressed process
+        goto single_key_pressing;//current key is pressing, goto one_key_pressed process
       }//the current key is not pressing 1995076
-      goto released_key_check;//goto released_key_check process to check
+      goto single_released_key_check;//goto single_released_key_check process to check
     }//two key is pressing
 
     if(setup_time_valid)
       goto two_key_pressed_in_time;//check COMBIN_KEY_IN_TIME action
 
-    goto wait_both_two_key_reset;//COMBIN_KEY_IN_TIME action is finish, wait two key released
+    goto wait_key_reset;//COMBIN_KEY_IN_TIME action is finish, wait two key released
 
-one_key_pressing:
+single_key_pressing:
 	if(is_long_key_8s(i, key_s)){
 	  key_e->key_current_action |= LONG_KEY_IN_8S;
 	  set_current_key_flag(key_s, LONG_8S_KEY_FLAG);
@@ -588,7 +664,7 @@ one_key_pressing:
 
     goto the_next;//continue check the next key
 
-released_key_check:
+single_released_key_check:
     if(is_short_key_released(i, key_s)){
       key_e->key_current_action |= SHORT_KEY;
 
@@ -600,7 +676,7 @@ released_key_check:
     goto the_next;//continue check the next key
 
 two_key_pressing:
-    is_two_key_pressing = 1;
+    is_more_one_key_pressing = 1;
     get_key_combin_setup_time_and_combin_time(get_first_key(), &st_time, &cmb_time);
     if(is_key_pressing_less_than_time(get_first_key(), cmb_time)){//two key is pressing, and first key pressing time is less than cmb_time
       set_key_event(get_first_key(),  COMBIN_KEY | FIRST_KEY_FLAG);
@@ -628,34 +704,32 @@ two_key_pressed_in_time:
     }else//key is released, clr the flag
       setup_time_valid = 0;
 
-wait_both_two_key_reset:
-    if(!is_stuck_key(get_first_key())){
-      if(is_key_pressing_exceed_time(get_first_key(), STUCK_TIME) ){//if first key stuck?
-        clr_wakeup_pin(get_first_key());
-        set_key_event(get_first_key(), STUCK_KEY);
-        set_key_flag(get_first_key(), STUCK_KEY_FLAG);
-      }
-    }
+wait_key_reset:
+  process_stuck_key(get_first_key());
 
-    if(!is_stuck_key(get_second_key())){
-      if(is_key_pressing_exceed_time(get_second_key(), STUCK_TIME)){//if second key stuck?
-        clr_wakeup_pin(get_second_key());
-        set_key_event(get_second_key(), STUCK_KEY);
-        set_key_flag(get_second_key(), STUCK_KEY_FLAG);
-      }
-    }
+  process_stuck_key(get_second_key());
+
+  u32 tmp_other_key_map;
+  tmp_other_key_map = other_key_map;
+  while(tmp_other_key_map){
+	  u8 other_key;
+	  if(get_other_map_key(&tmp_other_key_map, &other_key)){
+		  process_stuck_key(other_key);
+	  }
+  }
 
     //two keys are released,then reset
     //two keys are stuck,then reset
     //first key is stuck,second key is released,then reset
     //second key is stuck,fist key is released, then reset
     //if first key is leader key and second key is released,then reset
-    if(is_two_key_released(get_first_key(), get_second_key()) ||\
+    if((is_two_key_released(get_first_key(), get_second_key()) ||\
         (is_stuck_key(get_first_key()) && is_stuck_key(get_second_key())) ||\
         (is_stuck_key(get_first_key())  && is_single_key_released(get_second_key())) ||\
         (is_stuck_key(get_second_key()) && is_single_key_released(get_first_key())) ||\
-        (is_leader_key_on(get_first_key()) && is_single_key_released(get_second_key())))
-      goto reset_key_val;
+        (is_leader_key_on(get_first_key()) && is_single_key_released(get_second_key()))) &&\
+        (is_all_other_key_stuck(other_key_map)))
+          goto reset_key_val;
 
     goto the_next;
 
@@ -670,7 +744,8 @@ stuck_key_process:
 reset_key_val:
     clr_first_key();
     clr_second_key();
-    is_two_key_pressing = 0;
+    is_more_one_key_pressing = 0;
+    other_key_map = 0;
 
 the_next:
     key_s++;

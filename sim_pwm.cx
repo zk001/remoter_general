@@ -1,0 +1,216 @@
+//void turn_on_led(u32 leds)
+//{
+//  u8  num = 0;
+//  u32 led = HAL_LED_1;
+//
+//  while(leds){
+//	if(leds & led){
+//
+//	  GPIO_HAL_TURN_ON(low_led.led_table[num]);
+//
+//	  leds ^= led;
+//	}
+//	num++;
+//	led <<= 1;
+//  }
+//}
+
+//void turn_off_led(u32 leds)
+//{
+//  u8  num = 0;
+//  u32 led = HAL_LED_1;
+//
+//  while(leds){
+//	if(leds & led){
+//
+//	  GPIO_HAL_TURN_OFF(low_led.led_table[num]);
+//
+//	  leds ^= led;
+//	}
+//	num++;
+//	led <<= 1;
+//  }
+//}
+
+//void key_handler(u32 leds)
+//{
+//	static u32 cnt = 0;
+//
+//	cnt++;
+//
+//	if(cnt == (PWM_PERIOD/PWM_ON_DUTY)){
+//		cnt = 0;
+//		turn_on_led(leds);
+//	}
+//	if(cnt == 1){
+//		turn_off_led(leds);
+//	}
+//}
+
+//void set_timer_handler_para(timer_handler_t *timer_hand);
+
+timer_handler_t pwm_key_handler;
+//void pwm_gpio_sim_led_on_off(u32 leds, u8 mode)
+//{
+//  u8  num = 0;
+//  u32 led = HAL_LED_1;
+//  u32 gpio_led;
+//  bool is_led_on = 0;
+//  u32 off_led = 0;
+//  static bool once = 1;
+//
+//  if(once){
+//	once = 0;
+//	pwm_key_handler.t_handler = key_handler;
+////  pwm_key_handler.para      |= leds;
+//	set_timer_handler(&pwm_key_handler);
+//  }
+//
+//  while(leds){
+//	if(leds & led){
+//	  gpio_led = low_led.led_table[num];
+//	  if(mode == HAL_LED_MODE_ON){
+////		  is_led_on = 1;
+//		  pwm_key_handler.para      |= led;
+////		  GPIO_HAL_TURN_ON(gpio_led);
+//	  }else{
+////		  is_led_on = 0;
+////		  off_led |= led;
+//		  pwm_key_handler.para      ^= led;
+//		  GPIO_HAL_TURN_OFF(gpio_led);
+//	  }
+//	  leds ^= led;
+//	}
+//	num++;
+//	led <<= 1;
+//  }
+//
+////  if(off_led){
+////	  pwm_key_handler.para      = pwm_key_handler.para  ^ off_led;
+////  }
+////  else
+////	  pwm_key_handler.para      = leds;//dr-0932
+//
+////  if(is_led_on){
+//	//  timer0_clock_stop();
+//	//  timer0_clock_init(PWM_ON_DUTY);
+//
+//	  set_timer_handler_para(&pwm_key_handler);
+//
+////  }else{
+////	  pwm_key_handler.para = 0;
+////	  set_timer_handler(&pwm_key_handler);
+////	  clr_timer_handler();
+////	  set_timer_handler(&pwm_key_handler);
+////	  timer0_clock_stop();
+////  }
+//}
+
+int HalLedUpdate (void *data)
+{
+  u32 led;
+  u8  pct = 0;
+  u32 leds;
+  HalLedControl_t *sts;
+  u32 time = 0;
+  u32 next = 0;
+  u32 wait;
+  u32 led_on  = 0;
+  u32 led_off = 0;
+
+  led  = HAL_LED_1;
+  leds = HAL_LED_ALL;
+  sts  = HalLedStatusControl.HalLedControlTable;
+
+  time = clock_time();
+
+  while (leds)
+  {
+    if (leds & led)
+    {
+      if (sts->mode & HAL_LED_MODE_BLINK)
+      {
+        if(time_after(time, sts->next))
+        {
+          if (sts->mode & HAL_LED_MODE_ON)
+          {
+            pct = 100 - sts->onPct;               /* Percentage of cycle for off */
+            sts->mode &= ~HAL_LED_MODE_ON;        /* Say it's not on */
+            HalLedOnOff (led, HAL_LED_MODE_OFF);  /* Turn it off */
+            //            led_on = 0;
+            //            led_off |= led;
+            if (!(sts->mode & HAL_LED_MODE_FLASH))
+            {
+              sts->todo--;                        /* Not continuous, reduce count */
+            }
+          }
+          else if ( (!sts->todo) && !(sts->mode & HAL_LED_MODE_FLASH) )
+          {
+            sts->mode ^= HAL_LED_MODE_BLINK;      /* No more blinks */
+          }
+          else
+          {
+            pct = sts->onPct;                     /* Percentage of cycle for on */
+            sts->mode |= HAL_LED_MODE_ON;         /* Say it's on */
+            HalLedOnOff (led, HAL_LED_MODE_ON);   /* Turn it on */
+            //            led_on |= led;
+          }
+          if (sts->mode & HAL_LED_MODE_BLINK)
+          {
+            //warning out of array!!!
+            wait = (u32)sts->time/100;
+            wait = wait * pct;
+            sts->next = time + wait;
+          }
+          else
+          {
+            /* no more blink, no more wait */
+            wait = 0;
+            /* After blinking, set the LED back to the state before it blinks */
+            // HalLedSet (led, ((preBlinkState & led)!=0)?HAL_LED_MODE_ON:HAL_LED_MODE_OFF);
+            HalLedSet (led, HAL_LED_MODE_OFF);
+            /* Clear the saved bit */
+            preBlinkState &= (led ^ 0xFFFFFFFF);
+          }
+        }
+        else
+        {
+          wait = (u32)((int)sts->next - (int)time);  /* Time left */
+        }
+
+        if (!next || ( wait && (wait < next) ))
+        {
+          next = wait;
+        }
+      }
+      leds ^= led;
+    }
+    led <<= 1;
+    sts++;
+  }
+
+  //  if(led_on)
+  //	  HalLedOnOff (led_on, HAL_LED_MODE_ON);
+
+  return next;
+}
+
+void HalLedOnOff (u32 leds, u8 mode)
+{
+  if(!hal_led.led)
+  {
+    return;
+  }
+
+  hal_led.led[0].led_on_off(leds, mode);
+
+  /* Remember current state */
+  if (mode)
+  {
+    HalLedState |= leds;
+  }
+  else
+  {
+    HalLedState &= (leds ^ 0xFFFFFFFF);
+  }
+}

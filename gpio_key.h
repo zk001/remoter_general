@@ -52,8 +52,11 @@
     gpio_setup_up_down_resistor(col, PM_PIN_PULLUP_1M);\
     cpu_set_gpio_wakeup(col, 1, 1);)
 
-
+#if (defined YIHE_0932)
 #define DEBOUNCE_TIME 20*16*1000
+#else
+#define DEBOUNCE_TIME 20*16*1000
+#endif
 
 enum wake_up_pin_t{
   IS_WAKE_UP = 1,

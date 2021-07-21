@@ -6,7 +6,7 @@
 
 u32 sample_result[32];
 
-bool is_low_power()
+bool is_low_power(u32 threshold)
 {
   u32 sum = 0;
   u32 avg;
@@ -26,6 +26,6 @@ bool is_low_power()
 
   avg = sum / len;
 
-  return (avg < THRESHOLD);
+  return (avg < threshold);
 }
 #endif

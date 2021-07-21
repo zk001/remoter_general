@@ -21,7 +21,7 @@ typedef struct {
 
 extern void gpio_led_alloc(const u32 *led_arry, u8 num);
 extern void gpio_led_on_off(u32 leds, u8 mode);
-extern void pwm_gpio_sim_led_on_off(u32 leds, u8 mode);
+extern void pwm_gpio_led_on_off(u32 leds, u8 mode);
 
 #endif
 #endif
