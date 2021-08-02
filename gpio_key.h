@@ -75,9 +75,7 @@ extern void gpio_key_alloc(key_map_t *key_arry, u8 num);
 extern void gpio_key_sleep_setup();
 extern void gpio_key_sleep_unset(u8 key);
 extern void gpio_stuck_key_low_scan(key_status_t* key_s, key_index_t key);
-extern void pwm_gpio_led_on_off(u32 leds, u8 mode);
 extern void gpio_key_sleep_set(u8 key);
-extern void gpio_wakeup_fast_read(key_status_t* key_s, key_index_t key);
 
 #endif
 #endif

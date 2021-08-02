@@ -119,7 +119,6 @@ typedef struct {
   void (*key_init)(u8 first_key, u8 last_key);
   void (*key_scan)(key_status_t* key_s, key_index_t key);
   void (*stuck_scan)(key_status_t* key_s, key_index_t key);
-  void (*fast_scan)(key_status_t* key_s, key_index_t key);
 }key_type_t;
 
 typedef struct {

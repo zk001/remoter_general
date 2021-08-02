@@ -88,17 +88,6 @@ static bool is_stuck_key_released(key_state_t* key_result, const key_type_t* key
   return (key_s == RELEASE);
 }
 
-static void fast_key_read(key_state_t* key_result, const key_type_t* key)
-{
-  key_status_t key_s;//the current key status
-
-  key_index_t key_index = key->key;//the key number
-
-  key->fast_scan(&key_s, key_index);//check the key is pressing or not
-
-  cal_key_press_time(key_result, key_s);//cal the key pressing time
-}
-
 static inline void clr_first_key()
 {
   first_key = 255;
@@ -542,7 +531,6 @@ int key_process(void *data)
   static u8 key_start_time_window = 255;
   static u8 released_times;
   static u8 pressed_times;
-  static bool only_once = 1;
   static u32 other_key_map;
   u32 st_time;
   u32 cmb_time;
@@ -572,13 +560,7 @@ int key_process(void *data)
       }
     }
 
-    //wake up fast scan
-    if(only_once){
-      if(i == MAX_KEYS - 1)
-        only_once = 0;
-      fast_key_read(key_s, &key_table.key[i]);
-    }else
-      key_read(key_s, &key_table.key[i]);
+    key_read(key_s, &key_table.key[i]);
 
     //t twice s short
     //pressed_times  0  1 1 2 2
