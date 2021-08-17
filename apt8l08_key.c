@@ -49,10 +49,10 @@ static void apt_set_active()
 static key_index_t touch_key_map(key_index_t key)
 {
   if(key < apt8_first_key)
-    return apt8_first_key;
+    return 0;
 
   if(key > apt8_last_key)
-    return apt8_last_key;
+    return apt8_last_key - apt8_first_key;
 
   return key - apt8_first_key;
 }

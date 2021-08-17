@@ -74,7 +74,7 @@ static void aw9523_led_on(u8 port_bit)
 static void aw9523_other_led_on(u8 port_bit)
 {
   aw9523_set_led_dim(port_bit, 20);
-//	  aw9523_set_led_dim(port_bit, LED_BRIGHT_LEVEL);
+  //	  aw9523_set_led_dim(port_bit, LED_BRIGHT_LEVEL);
 
 }
 

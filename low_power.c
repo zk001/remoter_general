@@ -24,7 +24,7 @@ bool is_low_power(u32 threshold)
     sum += sample_result[i];
   }
 
-  avg = sum / len;
+  avg = sum/len;
 
   return (avg < threshold);
 }

@@ -12,7 +12,8 @@ volatile unsigned int tx_irq_cnt_rx_dr = 0;
 volatile unsigned char rx_flag = 0;
 volatile unsigned char ds_flag = 0;
 volatile unsigned char maxretry_flag = 0;
-#if defined(YIHE) || defined(YIHE_0932)
+
+#if defined(YIHE) || defined(YIHE_0932) || defined(RUIERTE)
 const u8 rf_channel_select[] = {140, 170, 190, 198};
 #else
 const u8 rf_channel_select[] = {10, 44, 100, 140};

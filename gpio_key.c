@@ -29,9 +29,9 @@ _attribute_data_retention_ static struct {
 static void local_gpio_key(u8 key, u8 *local_key)
 {
   if(key < gpio_first_key)
-    *local_key = gpio_first_key;
+    *local_key = 0;
   else if(key > gpio_last_key)
-    *local_key = gpio_last_key;
+    *local_key = gpio_last_key - gpio_first_key;
   else
     *local_key = key - gpio_first_key;
 }
@@ -161,7 +161,7 @@ void gpio_key_low_scan(key_status_t* key_s, key_index_t key)//key scan rate too 
 
   time = debounce_time[local_key];
   cur_time = clock_time();
-  
+
   if(wakeup_fast_scan){
     if(key_low_level_scan(key_row_col)){
       if(!time)
@@ -190,36 +190,5 @@ void gpio_key_low_scan(key_status_t* key_s, key_index_t key)//key scan rate too 
     }
   }
 }
-
-// void gpio_key_low_scan(key_status_t* key_s, key_index_t key)//key scan rate too low
-// {
-  // u32 time;
-  // u32 cur_time;
-  // key_map_t *key_row_col;
-  // u8 local_key;
-//
-  // local_gpio_key(key, &local_key);
-//
-  // key_row_col = key_map(local_key);
-//
-  // if(!key_row_col)
-    // return;
-//
-  // time = debounce_time[local_key];
-  // cur_time = clock_time();
-//
-  // if(key_low_level_scan(key_row_col)){
-    // if(!time){
-      // debounce_time[local_key] = clock_time();
-      // *key_s = RELEASE;
-    // }else if(((u32)((int)cur_time - (int)time)) >= DEBOUNCE_TIME)
-      // *key_s = PRESSING;
-    // else
-      // *key_s = RELEASE;
-  // }else{
-    // debounce_time[local_key] = 0;
-    // *key_s = RELEASE;
-  // }
-// }
 
 #endif

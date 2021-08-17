@@ -39,17 +39,17 @@ void gpio_led_on_off(u32 leds, u8 mode)
 static void choose_pwm(u32 led, pwm_t *pwm)
 {
   switch(led){
-    case GPIO_PD4: pwm->pwm = AS_PWM2_N;pwm->id = PWM2_ID;break;
-    case GPIO_PA0: pwm->pwm = AS_PWM0_N;pwm->id = PWM0_ID;break;
-    case GPIO_PB1: pwm->pwm = AS_PWM4;  pwm->id = PWM4_ID;break;
-    case GPIO_PB4: pwm->pwm = AS_PWM4;  pwm->id = PWM4_ID;break;
-    case GPIO_PB5: pwm->pwm = AS_PWM5;  pwm->id = PWM5_ID;break;
-    case GPIO_PC0: pwm->pwm = AS_PWM4_N;pwm->id = PWM4_ID;break;
-    case GPIO_PC1: pwm->pwm = AS_PWM1_N;pwm->id = PWM1_ID;break;
-    case GPIO_PC4: pwm->pwm = AS_PWM2;  pwm->id = PWM2_ID;break;
-    case GPIO_PC5: pwm->pwm = AS_PWM3_N;pwm->id = PWM3_ID;break;
-    case GPIO_PC6: pwm->pwm = AS_PWM4_N;pwm->id = PWM4_ID;break;
-    case GPIO_PD3: pwm->pwm = AS_PWM1_N;pwm->id = PWM1_ID;break;
+    case GPIO_PD4: pwm->pwm = AS_PWM2_N; pwm->id = PWM2_ID;break;
+    case GPIO_PA0: pwm->pwm = AS_PWM0_N; pwm->id = PWM0_ID;break;
+    case GPIO_PB1: pwm->pwm = AS_PWM4;   pwm->id = PWM4_ID;break;
+    case GPIO_PB4: pwm->pwm = AS_PWM4;   pwm->id = PWM4_ID;break;
+    case GPIO_PB5: pwm->pwm = AS_PWM5;   pwm->id = PWM5_ID;break;
+    case GPIO_PC0: pwm->pwm = AS_PWM4_N; pwm->id = PWM4_ID;break;
+    case GPIO_PC1: pwm->pwm = AS_PWM1_N; pwm->id = PWM1_ID;break;
+    case GPIO_PC4: pwm->pwm = AS_PWM2;   pwm->id = PWM2_ID;break;
+    case GPIO_PC5: pwm->pwm = AS_PWM3_N; pwm->id = PWM3_ID;break;
+    case GPIO_PC6: pwm->pwm = AS_PWM4_N; pwm->id = PWM4_ID;break;
+    case GPIO_PD3: pwm->pwm = AS_PWM1_N; pwm->id = PWM1_ID;break;
     default:break;
   }
 }
