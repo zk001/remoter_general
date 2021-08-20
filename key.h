@@ -35,11 +35,11 @@ typedef enum {
   SHORT_KEY                = 0x01,//active when released in short time
   SHORT_KEY_IMMEDIATELY    = 0x02,//active when pressed
   LONG_KEY                 = 0x04,//active when pressed over long time
-  COMBIN_KEY               = 0x08,//active when two keys are pressed in combin time 
-  COMBIN_KEY_IN_TIME       = 0x10,//active when two keys are pressed in combin time and over a spec time
+  COMBIN_KEY               = 0x08,//active when two keys are pressed in combin time  the highest proi
+  COMBIN_KEY_IN_TIME       = 0x10,//active when two keys are pressed in combin time and over a spec time the highest proi
   STUCK_KEY                = 0x20,//active when pressed over long long time 
-  NO_TIME_LIMIT_KEY_RELEASED  = 0x40,
-  NO_TIME_LIMIT_KEY_ON        = 0x80,
+  NO_TIME_LIMIT_KEY_RELEASED  = 0x40, //note
+  NO_TIME_LIMIT_KEY_ON        = 0x80, //note
   ONE_KEY_TWICE               = 0x100,
   ONE_KEY_TWICE_ONLY_ONCE     = 0x200,
   LONG_KEY_IN_8S              = 0x400,

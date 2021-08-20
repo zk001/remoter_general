@@ -587,11 +587,13 @@ int key_process(void *data)
     if(is_current_key_pressing(key_s))//if current key is pressing, reload system tick
       reload_sys_time();
 
-    if(is_current_key_no_time_limit_released(key_s))//if current key is been pressed and now been released, set NO_TIME_LIMIT_KEY_RELEASED action
-      key_e->key_current_action |= NO_TIME_LIMIT_KEY_RELEASED;
+    if(get_second_key() != i){//if two keys are pressing, not set the second key NO_TIME_LIMIT_KEY_RELEASED action and NO_TIME_LIMIT_KEY_ON action
+      if(is_current_key_no_time_limit_released(key_s))//if current key is been pressed and now been released, set NO_TIME_LIMIT_KEY_RELEASED action
+        key_e->key_current_action |= NO_TIME_LIMIT_KEY_RELEASED;
 
-    if(is_current_key_no_time_limit_on(key_s))//if current key is pressing, set NO_TIME_LIMIT_KEY_ON action
-      key_e->key_current_action |= NO_TIME_LIMIT_KEY_ON;
+      if(is_current_key_no_time_limit_on(key_s))//if current key is pressing, set NO_TIME_LIMIT_KEY_ON action
+        key_e->key_current_action |= NO_TIME_LIMIT_KEY_ON;
+    }
 
     if(!is_more_one_key_pressing){//check if there is two key pressing or not
       if(is_current_key_pressing(key_s)){//if current key is pressing
@@ -659,6 +661,8 @@ single_released_key_check:
 
 two_key_pressing:
     is_more_one_key_pressing = 1;
+    clr_key_action(get_second_key(), SHORT_KEY_IMMEDIATELY);
+    clr_key_action(get_second_key(), NO_TIME_LIMIT_KEY_ON);
     get_key_combin_setup_time_and_combin_time(get_first_key(), &st_time, &cmb_time);
     if(is_key_pressing_less_than_time(get_first_key(), cmb_time)){//two key is pressing, and first key pressing time is less than cmb_time
       set_key_event(get_first_key(),  COMBIN_KEY | FIRST_KEY_FLAG);
