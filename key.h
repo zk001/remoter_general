@@ -135,6 +135,7 @@ typedef struct {
 extern u8 cur_key;
 extern u8 pre_key;
 extern u8 leader_key;
+extern u8 wakeup_key;
 
 extern void key_init();
 extern void key_wakeup_init();

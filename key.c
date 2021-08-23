@@ -7,6 +7,7 @@
 #include "power_saving.h"
 #include "key.h"
 #include "led.h"
+#include "wakeup.h"
 
 _attribute_data_retention_ u8 leader_key    = 255;
 _attribute_data_retention_ u8 pre_key       = 255;
@@ -19,6 +20,7 @@ _attribute_data_retention_ static key_state_t   key_status[MAX_KEYS];
 _attribute_data_retention_ static key_process_t key_event[MAX_KEYS];
 _attribute_data_retention_ static key_table_t   key_table;
 static bool app_read_key_only_once = 1;
+u8 wakeup_key = 255;
 
 static void key_status_init()
 {
@@ -552,10 +554,10 @@ int key_process(void *data)
       if((get_first_key() == i) || (get_second_key() == i))
         ;
       else{
-    	if(is_key_pressing(i, NULL))//when two keys are pressing,check if other key is pressing
-    		other_key_map |= 1 << i;
-    	else
-    		other_key_map &= ~(1 << i);
+        if(is_key_pressing(i, NULL))//when two keys are pressing,check if other key is pressing
+          other_key_map |= 1 << i;
+        else
+          other_key_map &= ~(1 << i);
         goto the_next;
       }
     }
@@ -581,6 +583,14 @@ int key_process(void *data)
         released_times = 0;
         pressed_times  = 0;
         key_start_time_window = 255;//stop
+      }
+    }
+    
+    if(is_wakeup_from_sleep()){
+      if(wakeup_key == 255){
+        if(is_current_key_pressing(key_s)){//if current key is pressing, reload system tick
+          wakeup_key = i;
+        }
       }
     }
 

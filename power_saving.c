@@ -3,7 +3,7 @@
 #include "power_saving.h"
 #include "app.h"
 
-_attribute_data_retention_ static u32 idle_tick;
+static u32 idle_tick;
 static u32 sys_tick;
 
 void idle_time_for_sleep(u32 ms)
