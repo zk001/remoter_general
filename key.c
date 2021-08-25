@@ -9,6 +9,7 @@
 #include "led.h"
 #include "wakeup.h"
 
+u8 wakeup_key = 255;
 _attribute_data_retention_ u8 leader_key    = 255;
 _attribute_data_retention_ u8 pre_key       = 255;
 _attribute_data_retention_ u8 cur_key       = 255;
@@ -19,8 +20,7 @@ _attribute_data_retention_ static handler       stuck_key_handler;
 _attribute_data_retention_ static key_state_t   key_status[MAX_KEYS];
 _attribute_data_retention_ static key_process_t key_event[MAX_KEYS];
 _attribute_data_retention_ static key_table_t   key_table;
-static bool app_read_key_only_once = 1;
-u8 wakeup_key = 255;
+_attribute_data_retention_ handler normal_handler = NULL;
 
 static void key_status_init()
 {
@@ -211,6 +211,20 @@ static void get_key_combin_setup_time_and_combin_time(u8 key, u32 *st_time, u32 
   *st_time = setup_time ? setup_time:COMBIN_KEY_SETUP_TIME;//setup time
 
   *cmb_time = combin_time? combin_time:COMBIN_TIME;//last time
+}
+
+static void get_register_key_comb_action(u8 first_key, u8 second_key, key_action_t *action)
+{
+  event_handler_t *pos_ptr = NULL;
+
+  list_for_each_entry(pos_ptr, &key_event[first_key].list, list){
+    if(pos_ptr != (event_handler_t*)&key_event[first_key].list){
+      if(((pos_ptr->key_ac == COMBIN_KEY) || (pos_ptr->key_ac == COMBIN_KEY_IN_TIME)) && (pos_ptr->second_key == second_key)){
+        *action = pos_ptr->key_ac;
+        break;
+      }
+    }
+  }
 }
 
 static inline bool is_leader_key_on()
@@ -464,19 +478,19 @@ bool get_other_map_key(u32 *key_map, u8 *key)
   u8 real_key = 0;
 
   while(*key_map){
-	if(*key_map & key_iterator){
-	  *key_map ^= key_iterator;
+    if(*key_map & key_iterator){
+      *key_map ^= key_iterator;
 
-	 while(key_iterator != tmp_itor){
-	   tmp_itor = 1 << real_key;
-	   real_key++;
-	 }
-	 real_key--;
-	 *key = real_key;
-	 has_key = 1;
-	 break;
-	}
-	key_iterator <<= 1;
+      while(key_iterator != tmp_itor){
+        tmp_itor = 1 << real_key;
+        real_key++;
+      }
+      real_key--;
+      *key = real_key;
+      has_key = 1;
+      break;
+    }
+    key_iterator <<= 1;
   }
   return has_key;
 }
@@ -493,16 +507,16 @@ static bool is_all_other_key_stuck(u32 key_map)
     if(key_map & key_iterator){
       key_map ^= key_iterator;
 
-	 while(key_iterator != tmp_itor){
-       tmp_itor = 1 << real_key;
-       real_key++;
-	 }
-	 real_key--;
-    if(is_stuck_key(real_key))
-    	is_stuck |= 1 << real_key;
+      while(key_iterator != tmp_itor){
+        tmp_itor = 1 << real_key;
+        real_key++;
+      }
+      real_key--;
+      if(is_stuck_key(real_key))
+        is_stuck |= 1 << real_key;
 
-    tmp_itor = 0;
-    real_key = 0;
+      tmp_itor = 0;
+      real_key = 0;
     }
 
     key_iterator <<= 1;
@@ -515,9 +529,9 @@ static void process_stuck_key(u8 key)
   if(!is_stuck_key(key)){
     if(is_key_pressing_exceed_time(key, STUCK_TIME)){//if second key stuck?
       clr_wakeup_pin(key);
-	  set_key_event(key, STUCK_KEY);
-	  set_key_flag(key, STUCK_KEY_FLAG);
-	 }
+      set_key_event(key, STUCK_KEY);
+      set_key_flag(key, STUCK_KEY_FLAG);
+    }
   }
 }
 
@@ -585,7 +599,7 @@ int key_process(void *data)
         key_start_time_window = 255;//stop
       }
     }
-    
+
     if(is_wakeup_from_sleep()){
       if(wakeup_key == 255){
         if(is_current_key_pressing(key_s)){//if current key is pressing, reload system tick
@@ -635,10 +649,10 @@ int key_process(void *data)
     goto wait_key_reset;//COMBIN_KEY_IN_TIME action is finish, wait two key released
 
 single_key_pressing:
-	if(is_long_key_8s(i, key_s)){
-	  key_e->key_current_action |= LONG_KEY_IN_8S;
-	  set_current_key_flag(key_s, LONG_8S_KEY_FLAG);
-	}
+    if(is_long_key_8s(i, key_s)){
+      key_e->key_current_action |= LONG_KEY_IN_8S;
+      set_current_key_flag(key_s, LONG_8S_KEY_FLAG);
+    }
     if(is_long_key(i, key_s)){
       key_e->key_current_action |= LONG_KEY;
       set_current_key_flag(key_s, LONG_KEY_FLAG);
@@ -701,18 +715,18 @@ two_key_pressed_in_time:
       setup_time_valid = 0;
 
 wait_key_reset:
-  process_stuck_key(get_first_key());
+    process_stuck_key(get_first_key());
 
-  process_stuck_key(get_second_key());
+    process_stuck_key(get_second_key());
 
-  u32 tmp_other_key_map;
-  tmp_other_key_map = other_key_map;
-  while(tmp_other_key_map){
-	  u8 other_key;
-	  if(get_other_map_key(&tmp_other_key_map, &other_key)){
-		  process_stuck_key(other_key);
-	  }
-  }
+    u32 tmp_other_key_map;
+    tmp_other_key_map = other_key_map;
+    while(tmp_other_key_map){
+      u8 other_key;
+      if(get_other_map_key(&tmp_other_key_map, &other_key)){
+        process_stuck_key(other_key);
+      }
+    }
 
     //two keys are released,then reset
     //two keys are stuck,then reset
@@ -720,12 +734,12 @@ wait_key_reset:
     //second key is stuck,fist key is released, then reset
     //if first key is leader key and second key is released,then reset
     if((is_two_key_released(get_first_key(), get_second_key()) ||\
-        (is_stuck_key(get_first_key()) && is_stuck_key(get_second_key())) ||\
-        (is_stuck_key(get_first_key())  && is_single_key_released(get_second_key())) ||\
-        (is_stuck_key(get_second_key()) && is_single_key_released(get_first_key())) ||\
-        (is_leader_key_on(get_first_key()) && is_single_key_released(get_second_key()))) &&\
+          (is_stuck_key(get_first_key()) && is_stuck_key(get_second_key())) ||\
+          (is_stuck_key(get_first_key())  && is_single_key_released(get_second_key())) ||\
+          (is_stuck_key(get_second_key()) && is_single_key_released(get_first_key())) ||\
+          (is_leader_key_on(get_first_key()) && is_single_key_released(get_second_key()))) &&\
         (is_all_other_key_stuck(other_key_map)))
-          goto reset_key_val;
+      goto reset_key_val;
 
     goto the_next;
 
@@ -788,6 +802,11 @@ void set_stuck_key_handler(handler stuck_handler)
   stuck_key_handler = stuck_handler;
 }
 
+void register_normal_sys_event(handler normal_cb)
+{
+  normal_handler = normal_cb;
+}
+
 void poll_key_event()
 {
   handler key_handler = NULL;
@@ -814,12 +833,12 @@ void poll_key_event()
 
         if((first != 255) && (second != 255)){
           key_handler = get_key_handler(first, action, second);
-
-          if(key_handler)
-            key_handler();
-
           clr_key_action(first,  0xffffffff);
           clr_key_action(second, 0xffffffff);
+          if(key_handler)
+            key_handler();
+          if(normal_handler)
+            normal_handler();
         }
       }else{
         action =  key_action & key;
@@ -835,6 +854,8 @@ void poll_key_event()
           key_handler = get_key_handler(i, action, 0);
           if(key_handler)
             key_handler();
+          if(normal_handler)
+            normal_handler();
           key_action ^= key;
         }
         key <<= 1;
@@ -843,40 +864,99 @@ void poll_key_event()
   }
 }
 
-void clr_app_read_key_flag()
+bool app_read_key(u8 first_key, u8 second_key)
 {
-  app_read_key_only_once = 1;
-}
+  key_action_t key_action;
+  key_action_t action;
+  key_action_t key;
+  key_action_t register_action = RELEASE_KEY;
+  u8 first  = 255;
+  u8 second = 255;
 
-u8 app_read_key(u8 first_key, u8 second_key)
-{
-  if(app_read_key_only_once){
-    if(is_key_released(first_key, NULL) && is_key_released(second_key, NULL)){
-      app_read_key_only_once = 0;
-    }
-  }else{
-    if(is_key_pressing(first_key, NULL)){
-      if(is_key_pressing(second_key, NULL)){
-        app_read_key_only_once = 1;
-        return 1;
+  key_process(NULL);
+
+  for(u8 i = 0; i < MAX_KEYS; i++){
+    key_action = get_key_action(i);//get key status from key_event
+    key = SHORT_KEY;
+
+    while(key_action){
+      if((key_action & COMBIN_KEY) || (key_action & COMBIN_KEY_IN_TIME)){
+        action =  key_action & (COMBIN_KEY | COMBIN_KEY_IN_TIME);
+        if(key_action & FIRST_KEY_FLAG){//check if it is the first key
+          first = i;
+          key_action = 0;
+        }else{
+          second = i;
+          key_action = 0;
+        }
+
+        if((first != 255) && (second != 255)){
+          clr_key_action(first,  0xffffffff);
+          clr_key_action(second, 0xffffffff);
+
+          get_register_key_comb_action(first_key, second_key, &register_action);
+          if((register_action == action) && (first == first_key) && (second == second_key))
+            return 1;
+        }
+      }else{
+        action =  key_action & key;
+        if(action == STUCK_KEY){
+          key_action ^= key;
+          clr_key_action(i, STUCK_KEY);
+        }else if(action){//short key short immedia key long key process
+          clr_key_action(i, action);
+          key_action ^= key;
+        }
+        key <<= 1;
       }
-    }else if(is_key_pressing(second_key, NULL)){
-      app_read_key_only_once = 1;
     }
   }
-
   return 0;
 }
 
-u8 app_read_single_key(u8 key)
+bool app_read_single_key(u8 first_key)
 {
-  if(app_read_key_only_once){
-    if(is_key_released(key, NULL))
-      app_read_key_only_once = 0;
-  }else if(is_key_pressing(key, NULL)){
-    app_read_key_only_once = 1;
-    return 1;
-  }
+  key_action_t key_action;
+  key_action_t action;
+  key_action_t key;
+  u8 first  = 255;
+  u8 second = 255;
 
+  key_process(NULL);
+
+  for(u8 i = 0; i < MAX_KEYS; i++){
+    key_action = get_key_action(i);//get key status from key_event
+    key = SHORT_KEY;
+
+    while(key_action){
+      if((key_action & COMBIN_KEY) || (key_action & COMBIN_KEY_IN_TIME)){
+        action =  key_action & (COMBIN_KEY | COMBIN_KEY_IN_TIME);
+        if(key_action & FIRST_KEY_FLAG){//check if it is the first key
+          first = i;
+          key_action = 0;
+        }else{
+          second = i;
+          key_action = 0;
+        }
+
+        if((first != 255) && (second != 255)){
+          clr_key_action(first,  0xffffffff);
+          clr_key_action(second, 0xffffffff);
+        }
+      }else{
+        action =  key_action & key;
+        if(action == STUCK_KEY){
+          key_action ^= key;
+          clr_key_action(i, STUCK_KEY);
+        }else if(action){//short key short immedia key long key process
+          clr_key_action(i, action);
+          key_action ^= key;
+          if((first_key == i) && (action == SHORT_KEY_IMMEDIATELY))
+            return 1;
+        }
+        key <<= 1;
+      }
+    }
+  }
   return 0;
 }

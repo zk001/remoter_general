@@ -5,6 +5,7 @@
 typedef void low_bat_warn(void);
 typedef void low_bat_finish(void);
 
+extern bool is_low_power(u32 threshold);
 extern bool low_bat_chk(u32 threshold, low_bat_warn* cb_warn, low_bat_finish* cb_finsish, u32 low_bat_time);
 extern void low_bat_update();
 extern bool is_bat_warn();

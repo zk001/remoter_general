@@ -137,6 +137,7 @@ extern u8 pre_key;
 extern u8 leader_key;
 extern u8 wakeup_key;
 
+extern void register_normal_sys_event(handler noraml_cb);
 extern void key_init();
 extern void key_wakeup_init();
 extern void poll_key_event();
@@ -144,9 +145,8 @@ extern int key_process();
 extern void set_leader_key(u8 key);
 extern void register_key_event(u8 first_key, u8 second_key, u32 time1, u32 time2, key_action_t key_ac, handler key_handler);
 extern void register_key(const key_type_t *key, u8 num);
-extern u8 app_read_single_key(u8 key);
-extern u8 app_read_key(u8 first_key, u8 second_key);
+extern bool app_read_single_key(u8 first_key);
+extern bool app_read_key(u8 first_key, u8 second_key);
 extern void set_stuck_key_handler(handler stuck_handler);
 extern void key_gpio_sleep_init();
-extern void clr_app_read_key_flag();
 #endif
