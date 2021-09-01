@@ -548,6 +548,8 @@ int key_process(void *data)
   static u8 released_times;
   static u8 pressed_times;
   static u32 other_key_map;
+  static bool is_break_combin_key;
+
   u32 st_time;
   u32 cmb_time;
   u32 interval;
@@ -568,8 +570,10 @@ int key_process(void *data)
       if((get_first_key() == i) || (get_second_key() == i))
         ;
       else{
-        if(is_key_pressing(i, NULL))//when two keys are pressing,check if other key is pressing
+        if(is_key_pressing(i, NULL)){//when two keys are pressing,check if other key is pressing
           other_key_map |= 1 << i;
+          is_break_combin_key = 1;
+        }
         else
           other_key_map &= ~(1 << i);
         goto the_next;
@@ -704,15 +708,17 @@ two_key_pressing:
     goto the_next;
 
 two_key_pressed_in_time:
-    get_key_combin_setup_time_and_combin_time(get_first_key(), &st_time, &cmb_time);
-    if(is_key_pressing(get_first_key(), NULL) && is_key_pressing(get_second_key(), NULL)){
-      if(is_key_pressing_exceed_time(get_second_key(), cmb_time)){//if pressing time is more than cmb_time
+    if(!is_break_combin_key){
+      get_key_combin_setup_time_and_combin_time(get_first_key(), &st_time, &cmb_time);
+      if(is_key_pressing(get_first_key(), NULL) && is_key_pressing(get_second_key(), NULL)){
+        if(is_key_pressing_exceed_time(get_second_key(), cmb_time)){//if pressing time is more than cmb_time
+          setup_time_valid = 0;
+          set_key_event(get_first_key(),   COMBIN_KEY_IN_TIME | FIRST_KEY_FLAG );//bit31 used as firstkey flag
+          set_key_event(get_second_key(),  COMBIN_KEY_IN_TIME | SECOND_KEY_FLAG);//bit30 used as secondkey flag
+        }
+      }else//key is released, clr the flag
         setup_time_valid = 0;
-        set_key_event(get_first_key(),   COMBIN_KEY_IN_TIME | FIRST_KEY_FLAG );//bit31 used as firstkey flag
-        set_key_event(get_second_key(),  COMBIN_KEY_IN_TIME | SECOND_KEY_FLAG);//bit30 used as secondkey flag
-      }
-    }else//key is released, clr the flag
-      setup_time_valid = 0;
+    }
 
 wait_key_reset:
     process_stuck_key(get_first_key());
@@ -756,7 +762,7 @@ reset_key_val:
     clr_second_key();
     is_more_one_key_pressing = 0;
     other_key_map = 0;
-
+    is_break_combin_key = 0;
 the_next:
     key_s++;
     key_e++;

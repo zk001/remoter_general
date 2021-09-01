@@ -81,7 +81,7 @@ void rf_8359_set_tx()
 void decrease_rf_power_tx()
 {
   ESB_SetDatarate(ESB_DR_2M);
-  ESB_SetOutputPower(ESB_RF_POWER_M_13DBM);
+  ESB_SetOutputPower(ESB_RF_POWER_M_5DBM);
   ESB_SetAddressWidth(ADDRESS_WIDTH_5BYTES);
   ESB_ClosePipe(ESB_PIPE_ALL);
 
