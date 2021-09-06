@@ -9,6 +9,6 @@ extern void decrease_rf_power_tx();
 extern void send_rf_data_kemu(void *addr, u32 len);
 extern void send_rf_data_ruierte(void *addr, u32 len);
 extern void send_rf_data_yihe(void *addr, u32 len);
-extern bool receive_form_peer(u32 uid);
+extern bool receive_from_peer(u32 uid);
 
 #endif

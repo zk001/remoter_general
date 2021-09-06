@@ -257,7 +257,7 @@ u8 receive_rf_data(void *addr)
     return 0;
 }
 
-bool receive_form_peer(u32 uid)
+bool receive_from_peer(u32 uid)
 {
   rf_package_t rx_buf;
 
