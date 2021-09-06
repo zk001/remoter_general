@@ -2,6 +2,7 @@
 #include "../../esb_ll/esb_ll.h"
 #include "rf.h"
 #include "interrupt.h"
+#include "app.h"
 
 void rf_8359_set_rx()
 {
@@ -254,4 +255,15 @@ u8 receive_rf_data(void *addr)
     return len;
   }else
     return 0;
+}
+
+bool receive_form_peer(u32 uid)
+{
+  rf_package_t rx_buf;
+
+  if(receive_rf_data((u8*)&rx_buf)){
+    if((rx_buf.pid == uid || rx_buf.pid == 0) && rx_buf.control_key == 0x88)
+	  return 1;
+  }
+  return 0;
 }

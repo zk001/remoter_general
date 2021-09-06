@@ -18,6 +18,8 @@ typedef enum {
   LONG_KEY_FLAG              =  0x02,
   STUCK_KEY_FLAG             =  0x04,
   LONG_8S_KEY_FLAG           =  0x08,
+  COMBIN_KEY_FLAG            =  0x10,
+  COMBIN_KEY_IN_TIME_FLAG    =  0x20
 }key_flag_t;
 
 typedef struct {
@@ -57,6 +59,8 @@ typedef enum {
   RESERVED_KEY16           = 0x400000,
   RESERVED_KEY17           = 0x800000,
   RESERVED_KEY18           = 0x1000000,
+  ALL_ACTION               = RELEASE_KEY | SHORT_KEY | SHORT_KEY_IMMEDIATELY | LONG_KEY | COMBIN_KEY | COMBIN_KEY_IN_TIME |\
+  NO_TIME_LIMIT_KEY_RELEASED | NO_TIME_LIMIT_KEY_ON | ONE_KEY_TWICE | ONE_KEY_TWICE_ONLY_ONCE | LONG_KEY_IN_8S
 }key_action_t;
 
 typedef struct {
