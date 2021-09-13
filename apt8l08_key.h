@@ -17,10 +17,11 @@
 extern void apt8_reset();
 extern void apt8_init(u8 first_key, u8 last_key);
 extern void apt8_read(key_status_t* key_s, key_index_t key);
-extern void apt_enter_sleep();
-extern void apt_exit_sleep();
-extern void touch_key_sleep_unset(u8 key);
-extern void touch_key_sleep_setup();
-extern void touch_key_sleep_set(u8 key);
+extern void apt8_set_cap_sense_and_reg_data(u8* cap_sense, u8 cap_sense_cnt, u8* reg_data, u8 reg_data_cnt);
+extern void apt8_enter_sleep();
+extern void apt8_exit_sleep();
+extern void apt8_touch_key_enable_sleep(u8 key);
+extern void apt8_touch_key_disable_sleep(u8 key);
+extern void apt8_touch_key_sleep_setup();
 #endif
 #endif

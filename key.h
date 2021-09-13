@@ -19,7 +19,8 @@ typedef enum {
   STUCK_KEY_FLAG             =  0x04,
   LONG_8S_KEY_FLAG           =  0x08,
   COMBIN_KEY_FLAG            =  0x10,
-  COMBIN_KEY_IN_TIME_FLAG    =  0x20
+  COMBIN_KEY_IN_TIME_FLAG    =  0x20,
+  LEADER_KEY_FLAG            =  0x40,
 }key_flag_t;
 
 typedef struct {
@@ -45,7 +46,7 @@ typedef enum {
   ONE_KEY_TWICE               = 0x100,
   ONE_KEY_TWICE_ONLY_ONCE     = 0x200,
   LONG_KEY_IN_8S              = 0x400,
-  RESERVED_KEY5            = 0x800,
+  LEADER_KEY                  = 0x800,
   RESERVED_KEY6            = 0x1000,
   RESERVED_KEY7            = 0x2000,
   RESERVED_KEY8            = 0x4000,
@@ -60,7 +61,7 @@ typedef enum {
   RESERVED_KEY17           = 0x800000,
   RESERVED_KEY18           = 0x1000000,
   ALL_ACTION               = RELEASE_KEY | SHORT_KEY | SHORT_KEY_IMMEDIATELY | LONG_KEY | COMBIN_KEY | COMBIN_KEY_IN_TIME |\
-  NO_TIME_LIMIT_KEY_RELEASED | NO_TIME_LIMIT_KEY_ON | ONE_KEY_TWICE | ONE_KEY_TWICE_ONLY_ONCE | LONG_KEY_IN_8S
+                             NO_TIME_LIMIT_KEY_RELEASED | NO_TIME_LIMIT_KEY_ON | ONE_KEY_TWICE | ONE_KEY_TWICE_ONLY_ONCE | LONG_KEY_IN_8S | LEADER_KEY
 }key_action_t;
 
 typedef struct {
@@ -122,7 +123,8 @@ typedef struct {
   enum key_type_e type;
   void (*key_init)(u8 first_key, u8 last_key);
   void (*key_scan)(key_status_t* key_s, key_index_t key);
-  void (*stuck_scan)(key_status_t* key_s, key_index_t key);
+  void (*key_enable_sleep)(u8 key);
+  void (*key_disable_sleep)(u8 key);
 }key_type_t;
 
 typedef struct {
@@ -130,27 +132,26 @@ typedef struct {
   u8 num;
 }key_table_t;
 
+#define LONG_KEY_8S      MS2TICK(8000)
 #define FIRST_KEY_FLAG   0x80000000
 #define SECOND_KEY_FLAG  0x40000000
-
-#define ONE_KEY_PRESSING_TWICE_INTERVAL MS2TICK(1000)
-#define LONG_KEY_8S (8000*16*1000)
 
 extern u8 cur_key;
 extern u8 pre_key;
 extern u8 leader_key;
 extern u8 wakeup_key;
 
-extern void register_normal_sys_event(handler noraml_cb);
+extern void register_key(const key_type_t *key, u8 num);
 extern void key_init();
 extern void key_wakeup_init();
-extern void poll_key_event();
 extern int key_process();
+extern void poll_key_event();
 extern void set_leader_key(u8 key);
 extern void register_key_event(u8 first_key, u8 second_key, u32 time1, u32 time2, key_action_t key_ac, handler key_handler);
-extern void register_key(const key_type_t *key, u8 num);
 extern bool app_read_single_key(u8 first_key);
 extern bool app_read_key(u8 first_key, u8 second_key);
-extern void set_stuck_key_handler(handler stuck_handler);
 extern void key_gpio_sleep_init();
+extern void set_stuck_key_handler(handler stuck_handler);
+extern void register_normal_sys_event(handler noraml_cb);
+
 #endif

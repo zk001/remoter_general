@@ -7,20 +7,20 @@ extern "C"
 {
 #endif
 
-/*********************************************************************
- * INCLUDES
- */
+  /*********************************************************************
+   * INCLUDES
+   */
 #include "../drivers.h"
 #include "gpio_led.h"
 #include "aw9523_led.h"
-/*********************************************************************
- * MACROS
- */
-/*********************************************************************
- * CONSTANTS
- */
+  /*********************************************************************
+   * MACROS
+   */
+  /*********************************************************************
+   * CONSTANTS
+   */
 
-/* LEDS - The LED number is the same as the bit position */
+  /* LEDS - The LED number is the same as the bit position */
 #define HAL_LED_1     0x01
 #define HAL_LED_2     0x02
 #define HAL_LED_3     0x04
@@ -44,7 +44,7 @@ extern "C"
 #define HAL_LED_21    0x100000
 
 
-/* Modes */
+  /* Modes */
 #define HAL_LED_MODE_OFF              0x00
 #define HAL_LED_MODE_ON               0x01
 #define HAL_LED_MODE_BLINK            0x02
@@ -52,76 +52,76 @@ extern "C"
 #define HAL_LED_MODE_TOGGLE           0x08
 #define HAL_LED_MODE_CONTINUE_BREATHE 0x10
 #define HAL_LED_MODE_BREATHE          0x20
-//#define MAX_BRIGHT_LEVEL 100
-/* Defaults */
+  //#define MAX_BRIGHT_LEVEL 100
+  /* Defaults */
 
 #define HAL_LED_DEFAULT_DUTY_CYCLE    100
 #define HAL_LED_DEFAULT_FLASH_COUNT   10
 #define HAL_LED_DEFAULT_FLASH_TIME    MS2TICK(1000)
 
-//#define HAL_LED_DEFAULT_MAX_BREATH_LEDS 16
+  //#define HAL_LED_DEFAULT_MAX_BREATH_LEDS 16
 #define HAL_LED_DEFAULT_BREATHE_STEP    MS2TICK(50)
 #define HAL_LED_DEFAULT_BREATHE_COUNT   1
 #define HAL_LED_DEFAULT_BREATHE_TIME    MS2TICK(2500)
-/*********************************************************************
- * TYPEDEFS
- */
-typedef struct
-{
-	u32 leds;
-	void (*led_on_off)(u32 leds, u8 mode);
-	void (*led_breath)(u32 leds, u8 tim);
-}hal_led_t;
+  /*********************************************************************
+   * TYPEDEFS
+   */
+  typedef struct
+  {
+    u32 leds;
+    void (*led_on_off)(u32 leds, u8 mode);
+    void (*led_breath)(u32 leds, u8 tim);
+  }hal_led_t;
 
-typedef struct
-{
-	const hal_led_t *led;
-	u8 num;
-}hal_led_arry_t;
+  typedef struct
+  {
+    const hal_led_t *led;
+    u8 num;
+  }hal_led_arry_t;
 
-/*********************************************************************
- * GLOBAL VARIABLES
- */
+  /*********************************************************************
+   * GLOBAL VARIABLES
+   */
 
-/*
- * Initialize LED Service.
- */
-extern void HalLedInit( void );
+  /*
+   * Initialize LED Service.
+   */
+  extern void HalLedInit( void );
 
-/*
- * Set the LED ON/OFF/TOGGLE.
- */
-extern u32 HalLedSet( u32 led, u8 mode );
+  /*
+   * Set the LED ON/OFF/TOGGLE.
+   */
+  extern u32 HalLedSet( u32 led, u8 mode );
 
-/*
- * Blink the LED.
- */
-extern void HalLedBlink( u32 leds, u8 cnt, u8 duty, u32 time );
+  /*
+   * Blink the LED.
+   */
+  extern void HalLedBlink( u32 leds, u8 cnt, u8 duty, u32 time );
 
-extern int HalLedUpdate (void *data);
+  extern int HalLedUpdate (void *data);
 
-/*
- * Put LEDs in sleep state - store current values
- */
-extern void HalLedEnterSleep( void );
+  /*
+   * Put LEDs in sleep state - store current values
+   */
+  extern void HalLedEnterSleep( void );
 
-/*
- * Retore LEDs from sleep state
- */
-extern void HalLedExitSleep( void );
+  /*
+   * Retore LEDs from sleep state
+   */
+  extern void HalLedExitSleep( void );
 
-/*
- * Return LED state
- */
-extern u32 HalLedGetState ( void );
+  /*
+   * Return LED state
+   */
+  extern u32 HalLedGetState ( void );
 
-extern void HalLedBreathe (u32 leds, u8 numBreathe, u32 step, u32 period);
-extern int HalLedUpdateBreath (void *data);
-extern void register_led(const hal_led_t *led, u8 num);
-//extern u8 HalLedGetMode(u32 leds);
+  extern void HalLedBreathe (u32 leds, u8 numBreathe, u32 step, u32 period);
+  extern int HalLedUpdateBreath (void *data);
+  extern void register_led(const hal_led_t *led, u8 num);
+  //extern u8 HalLedGetMode(u32 leds);
 
-/*********************************************************************
-*********************************************************************/
+  /*********************************************************************
+   *********************************************************************/
 
 #ifdef __cplusplus
 }

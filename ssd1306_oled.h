@@ -17,6 +17,7 @@
 #define	LCD_IIC_ADDRESS     0x78   //SSD1306  SLAVE ADDRESS
 #define I2C_CLOCK           400000//KHZ
 extern void initial_lcd();
+extern void initial_lcd_no_clr();
 extern void clear_screen();
 extern void display_graphic_128x32(u8 page, u8 column, u8 *dp);
 extern void test_display(u8 data1,u8 data2);
@@ -34,7 +35,7 @@ extern u8 const yong1[];
 extern u8 const tai1[];
 
 #endif  
-	 
+
 
 
 

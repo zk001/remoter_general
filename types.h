@@ -8,7 +8,7 @@
 #ifndef __ASSEMBLY__
 
 #define DECLARE_BITMAP(name,bits) \
-	unsigned long name[BITS_TO_LONGS(bits)]
+  unsigned long name[BITS_TO_LONGS(bits)]
 
 typedef u32 __kernel_dev_t;
 
@@ -165,27 +165,27 @@ typedef phys_addr_t resource_size_t;
 typedef unsigned long irq_hw_number_t;
 
 typedef struct {
-	int counter;
+  int counter;
 } atomic_t;
 
 #define ATOMIC_INIT(i) { (i) }
 
 #ifdef CONFIG_64BIT
 typedef struct {
-	s64 counter;
+  s64 counter;
 } atomic64_t;
 #endif
 
 struct g_list_head {
-	struct g_list_head *next, *prev;
+  struct g_list_head *next, *prev;
 };
 
 struct hlist_head {
-	struct hlist_node *first;
+  struct hlist_node *first;
 };
 
 struct hlist_node {
-	struct hlist_node *next, **pprev;
+  struct hlist_node *next, **pprev;
 };
 
 //struct ustat {
@@ -215,8 +215,8 @@ struct hlist_node {
  *    false-positive PageTail().
  */
 struct callback_head {
-	struct callback_head *next;
-	void (*func)(struct callback_head *head);
+  struct callback_head *next;
+  void (*func)(struct callback_head *head);
 } __attribute__((aligned(sizeof(void *))));
 #define rcu_head callback_head
 

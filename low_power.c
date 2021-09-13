@@ -39,7 +39,7 @@ bool low_bat_chk(u32 threshold, low_bat_warn* cb_warn, low_bat_finish* cb_finsis
 {
   if(is_low_power(threshold)){
     if(cb_warn)
-    	cb_warn();
+      cb_warn();
     if(cb_finsish)
       low_bat_finish_cb = cb_finsish;
     low_bat_warnning = 1;

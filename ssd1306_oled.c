@@ -224,4 +224,52 @@ void initial_lcd()
   lcd_command(0xaf);   //Set Display On
   //	delay(200);
 }
+
+void initial_lcd_no_clr()
+{
+  //	LCD_RST =0;
+  //	delay(30);
+  //	LCD_RST =1;
+  //	delay(100);	  //等待RC复位  大约10MS
+
+  //  lcd_command(0xAE); //Display Off (0xAE/0xAF) 关显示
+
+  lcd_command(0x40); //0x40  Set Display Start Line 起始行
+
+  lcd_command(0x81); //Set Contrast Control,本指令的0x81不要改动，改下面的值
+  lcd_command(0x8F); // 0xff 微调对比度的值，可设置范围0x00～0xff
+
+  lcd_command(0xA1); //(0XA1/0XA0) Set Segment Re-Map  列扫描顺序：从左到右
+  lcd_command(0xC8); //(0xC0/0xC8) Set COM Output Scan Direction  行扫描顺序：从上到下
+
+  lcd_command(0xA6);	//Set Normal/Inverse Display
+
+  lcd_command(0xA8); //Set Multiplex Ratio
+  lcd_command(0x1F); // 1/64 Duty (0x0F~0x3F) duty=1/64	 3F
+
+  lcd_command(0xD3);  //Set Display Offset 显示偏移
+  lcd_command(0x00);	 //Shift Mapping RAM Counter (0x00~0x3F)
+
+  lcd_command(0xD5);  //Set Display Clock Divide Ratio/Oscillator Frequency
+  lcd_command(0x80);	 // Set Clock as 100 Frames/Sec
+
+  lcd_command(0xD9); //Set Pre-Charge Period
+  lcd_command(0x1F);	 //0xf1
+
+  lcd_command(0xDA); //Set COM Pins Hardware Configuration
+  lcd_command(0x00); 	  //12
+
+  lcd_command(0xDB); //Set VCOMH Deselect Level
+  lcd_command(0x40);	//0x40
+
+  //  clear_screen();	  	//clear all dots
+  //	delay(20);
+
+  lcd_command(0x8D); //Set Charge Pump
+  lcd_command(0x14);
+  //lcd_command(0x10);
+
+  lcd_command(0xaf);   //Set Display On
+  //	delay(200);
+}
 #endif

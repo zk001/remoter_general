@@ -1,6 +1,6 @@
 #include "../../drivers.h"
 #include "i2c_gpio_set.h"
-
+//for shuman when enter low power mode,set i2c port to PM_PIN_PULLDOWN_100K
 void i2c_gpio_set_deepsleep(u32 pin_sda, u32 pin_clk)
 {
   gpio_set_func(pin_sda, AS_GPIO);

@@ -37,8 +37,8 @@ void apt8_set_reg(u8 addr, u8 data)
       cnt--;
     }
   }while((rd_data != data));
-//    if(rd_data == data)
-//    	 gpio_write(Debug_pin, 1);
+  //    if(rd_data == data)
+  //    	 gpio_write(Debug_pin, 1);
   //  HalLedSet (HAL_LED_15, HAL_LED_MODE_ON);
 }
 
@@ -142,23 +142,23 @@ void apt8_read(key_status_t* key_s, key_index_t key)
 }
 void apt8_read_a()
 {
-	u8 rd_data;
-	rd_data = read_one_data(APT8_ADDRESS, 0X34);
-	  	if(rd_data & 0x01)
-	  		 HalLedSet (HAL_LED_6, HAL_LED_MODE_ON);
-	  	if(rd_data & 0x02)
-	  		 HalLedSet (HAL_LED_8, HAL_LED_MODE_ON);
-	  	if(rd_data & 0x04)
-	  		HalLedSet (HAL_LED_9, HAL_LED_MODE_ON);
-	  	if(rd_data & 0x08)
-	  		HalLedSet (HAL_LED_10, HAL_LED_MODE_ON);
-	  	if(rd_data & 0x10)
-	  		HalLedSet (HAL_LED_11, HAL_LED_MODE_ON);
-	  	if(rd_data & 0x20)
-	  		HalLedSet (HAL_LED_12, HAL_LED_MODE_ON);
-	  	if(rd_data & 0x40)
-	  		HalLedSet (HAL_LED_13, HAL_LED_MODE_ON);
-	  	if(rd_data & 0x80)
-	  		HalLedSet (HAL_LED_14, HAL_LED_MODE_ON);
+  u8 rd_data;
+  rd_data = read_one_data(APT8_ADDRESS, 0X34);
+  if(rd_data & 0x01)
+    HalLedSet (HAL_LED_6, HAL_LED_MODE_ON);
+  if(rd_data & 0x02)
+    HalLedSet (HAL_LED_8, HAL_LED_MODE_ON);
+  if(rd_data & 0x04)
+    HalLedSet (HAL_LED_9, HAL_LED_MODE_ON);
+  if(rd_data & 0x08)
+    HalLedSet (HAL_LED_10, HAL_LED_MODE_ON);
+  if(rd_data & 0x10)
+    HalLedSet (HAL_LED_11, HAL_LED_MODE_ON);
+  if(rd_data & 0x20)
+    HalLedSet (HAL_LED_12, HAL_LED_MODE_ON);
+  if(rd_data & 0x40)
+    HalLedSet (HAL_LED_13, HAL_LED_MODE_ON);
+  if(rd_data & 0x80)
+    HalLedSet (HAL_LED_14, HAL_LED_MODE_ON);
 }
 #endif

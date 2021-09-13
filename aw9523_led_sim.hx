@@ -8,12 +8,12 @@
 #include "header.h"
 
 #define RSTN_OUT_LOW()  st(gpio_set_output_en(AW9523_RSTN, 1);\
-                           gpio_set_input_en(AW9523_RSTN, 0);\
-                           gpio_write(AW9523_RSTN, 0);)
+    gpio_set_input_en(AW9523_RSTN, 0);\
+    gpio_write(AW9523_RSTN, 0);)
 
 #define RSTN_OUT_HIGH()  st(gpio_set_output_en(AW9523_RSTN, 1);\
-                           gpio_set_input_en(AW9523_RSTN, 0);\
-                           gpio_write(AW9523_RSTN, 1);)
+    gpio_set_input_en(AW9523_RSTN, 0);\
+    gpio_write(AW9523_RSTN, 1);)
 
 
 #define AW9523_ADDRESS 0xb6//write address

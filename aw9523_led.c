@@ -15,6 +15,8 @@ static const u8 aw9523_led_table[] = {
   PORT0_BIT_7
 };
 
+static u8 aw9523_led_bright[16];
+
 static void aw9523_set_conf(u8 conf)
 {
   i2c_write_byte(GCR, 1, conf);
@@ -38,6 +40,74 @@ void aw9523_set_gpio_mode(u8 aw_port)
   i2c_write_byte(port, 1, 0xff);
 }
 
+static void aw9523_set_led_dim(u8 port_bit, u8 level)
+{
+  u8 port;
+  u8 local_level = 0;
+
+  switch(port_bit){
+    case PORT0_BIT_0: port = STEP_DIM_SET4;  local_level = aw9523_led_bright[0];  break;
+    case PORT0_BIT_1: port = STEP_DIM_SET5;  local_level = aw9523_led_bright[1];  break;
+    case PORT0_BIT_2: port = STEP_DIM_SET6;  local_level = aw9523_led_bright[2];  break;
+    case PORT0_BIT_3: port = STEP_DIM_SET7;  local_level = aw9523_led_bright[5];  break;
+    case PORT0_BIT_4: port = STEP_DIM_SET8;  local_level = aw9523_led_bright[6];  break;
+    case PORT0_BIT_5: port = STEP_DIM_SET9;  local_level = aw9523_led_bright[8];  break;
+    case PORT0_BIT_6: port = STEP_DIM_SET10; local_level = aw9523_led_bright[14]; break;
+    case PORT0_BIT_7: port = STEP_DIM_SET11; local_level = aw9523_led_bright[15]; break;
+    case PORT1_BIT_0: port = STEP_DIM_SET0;  local_level = aw9523_led_bright[12]; break;
+    case PORT1_BIT_1: port = STEP_DIM_SET1;  local_level = aw9523_led_bright[7];  break;
+    case PORT1_BIT_2: port = STEP_DIM_SET2;  local_level = aw9523_led_bright[3];  break;
+    case PORT1_BIT_3: port = STEP_DIM_SET3;  local_level = aw9523_led_bright[4];  break;
+    case PORT1_BIT_4: port = STEP_DIM_SET12; local_level = aw9523_led_bright[13]; break;
+    case PORT1_BIT_5: port = STEP_DIM_SET13; local_level = aw9523_led_bright[10]; break;
+    case PORT1_BIT_6: port = STEP_DIM_SET14; local_level = aw9523_led_bright[11]; break;
+    case PORT1_BIT_7: port = STEP_DIM_SET15; local_level = aw9523_led_bright[9];  break;
+    default:port = 0;break;
+  }
+
+  i2c_gpio_set(AW9523_I2C_PORT);  	//SDA/CK : C0/C1
+
+  i2c_master_init(AW9523_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
+
+  if(local_level && level)
+    i2c_write_byte(port, 1, local_level);
+  else
+    i2c_write_byte(port, 1, level);
+}
+
+static void aw9523_led_on(u8 port_bit)
+{
+  aw9523_set_led_dim(port_bit, LED_BRIGHT_LEVEL);
+}
+
+static void aw9523_led_off(u8 port_bit)
+{
+  aw9523_set_led_dim(port_bit, 0);
+}
+
+static void set_led_bright(u32 port_bit, u8 level)
+{
+  switch(port_bit){
+    case PORT0_BIT_0: aw9523_led_bright[0]  = level; break;
+    case PORT0_BIT_1: aw9523_led_bright[1]  = level; break;
+    case PORT0_BIT_2: aw9523_led_bright[2]  = level; break;
+    case PORT0_BIT_3: aw9523_led_bright[5]  = level; break;
+    case PORT0_BIT_4: aw9523_led_bright[6]  = level; break;
+    case PORT0_BIT_5: aw9523_led_bright[8]  = level; break;
+    case PORT0_BIT_6: aw9523_led_bright[14] = level; break;
+    case PORT0_BIT_7: aw9523_led_bright[15] = level; break;
+    case PORT1_BIT_0: aw9523_led_bright[12] = level; break;
+    case PORT1_BIT_1: aw9523_led_bright[7]  = level; break;
+    case PORT1_BIT_2: aw9523_led_bright[3]  = level; break;
+    case PORT1_BIT_3: aw9523_led_bright[4]  = level; break;
+    case PORT1_BIT_4: aw9523_led_bright[13] = level; break;
+    case PORT1_BIT_5: aw9523_led_bright[10] = level; break;
+    case PORT1_BIT_6: aw9523_led_bright[11] = level; break;
+    case PORT1_BIT_7: aw9523_led_bright[9]  = level; break;
+    default:break;
+  }
+}
+
 void aw9523_init()
 {
   //  u8 id;
@@ -49,7 +119,7 @@ void aw9523_init()
 
   WaitUs(100);
 
-  RSTN_OUT_HIGH(); 
+  RSTN_OUT_HIGH();
 
   WaitMs(5);
 
@@ -66,52 +136,19 @@ void aw9523_init()
   aw9523_set_led_mode(1);//port1 as led mode
 }
 
-static void aw9523_led_on(u8 port_bit)
+void aw9523_set_led_bright(u32 leds, u8 level)
 {
-  aw9523_set_led_dim(port_bit, LED_BRIGHT_LEVEL);
-}
+  u8  num = 0;
+  u32 led = HAL_LED_1;
 
-static void aw9523_other_led_on(u8 port_bit)
-{
-  aw9523_set_led_dim(port_bit, 20);
-  //	  aw9523_set_led_dim(port_bit, LED_BRIGHT_LEVEL);
-
-}
-
-static void aw9523_led_off(u8 port_bit)
-{
-  aw9523_set_led_dim(port_bit, 0);
-}
-
-void aw9523_set_led_dim(u8 port_bit, u8 level)
-{
-  u8 port;
-
-  switch(port_bit){
-    case PORT0_BIT_0: port = STEP_DIM_SET4;break;
-    case PORT0_BIT_1: port = STEP_DIM_SET5;break;
-    case PORT0_BIT_2: port = STEP_DIM_SET6;break;
-    case PORT0_BIT_3: port = STEP_DIM_SET7;break;
-    case PORT0_BIT_4: port = STEP_DIM_SET8;break;
-    case PORT0_BIT_5: port = STEP_DIM_SET9;break;
-    case PORT0_BIT_6: port = STEP_DIM_SET10;break;
-    case PORT0_BIT_7: port = STEP_DIM_SET11;break;
-    case PORT1_BIT_0: port = STEP_DIM_SET0;break;
-    case PORT1_BIT_1: port = STEP_DIM_SET1;break;
-    case PORT1_BIT_2: port = STEP_DIM_SET2;break;
-    case PORT1_BIT_3: port = STEP_DIM_SET3;break;
-    case PORT1_BIT_4: port = STEP_DIM_SET12;break;
-    case PORT1_BIT_5: port = STEP_DIM_SET13;break;
-    case PORT1_BIT_6: port = STEP_DIM_SET14;break;
-    case PORT1_BIT_7: port = STEP_DIM_SET15;break;
-    default:port = 0;break;
+  while(leds){
+    if(leds & led){
+      set_led_bright(aw9523_led_table[num], level);
+      leds ^= led;
+    }
+    num++;
+    led <<= 1;
   }
-
-  i2c_gpio_set(AW9523_I2C_PORT);  	//SDA/CK : C0/C1
-
-  i2c_master_init(AW9523_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
-
-  i2c_write_byte(port, 1, level);
 }
 
 void aw9523_led_on_off(u32 leds, u8 mode)
@@ -121,24 +158,11 @@ void aw9523_led_on_off(u32 leds, u8 mode)
 
   while(leds){
     if(leds & led){
-      if((leds == HAL_LED_10) || (leds == HAL_LED_11) || (leds == HAL_LED_12)){
-        if(mode == HAL_LED_MODE_ON)
-          aw9523_other_led_on(aw9523_led_table[num]);
-        else
-          aw9523_led_off(aw9523_led_table[num]);
-        leds ^= led;
-      }else{
-        if(mode == HAL_LED_MODE_ON)
-          aw9523_led_on(aw9523_led_table[num]);
-        else
-          aw9523_led_off(aw9523_led_table[num]);
-        leds ^= led;
-      }
-      //      if(mode == HAL_LED_MODE_ON)
-      //        aw9523_led_on(aw9523_led_table[num]);
-      //      else
-      //        aw9523_led_off(aw9523_led_table[num]);
-      //      leds ^= led;
+      if(mode == HAL_LED_MODE_ON)
+        aw9523_led_on(aw9523_led_table[num]);
+      else
+        aw9523_led_off(aw9523_led_table[num]);
+      leds ^= led;
     }
     num++;
     led <<= 1;

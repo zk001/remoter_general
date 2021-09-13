@@ -1,8 +1,10 @@
 #if defined(GPIO_KEY)
 #include "../../common.h"
+#include "n_timer.h"
 #include "key.h"
 #include "board.h"
 #include "gpio_key.h"
+#include "app.h"
 
 //init
 //row set input with 1m pull_up resistor
@@ -90,19 +92,7 @@ void gpio_key_init(u8 first_key, u8 last_key)
   gpio_last_key   = last_key;
 }
 
-void gpio_key_sleep_setup()
-{
-  if(gpio_key_map.map){
-    for(u8 i = 0; i < gpio_key_map.num; i++){
-      if(gpio_key_map.map[i].is_wake_up_pin == IS_WAKE_UP){
-        SET_COL_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(gpio_key_map.map[i].col);
-        SET_ROW_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(gpio_key_map.map[i].row);
-      }
-    }
-  }
-}
-
-void gpio_key_sleep_set(u8 key)
+void gpio_key_enable_sleep(u8 key)
 {
   u8 local_key;
 
@@ -112,7 +102,7 @@ void gpio_key_sleep_set(u8 key)
     gpio_key_map.map[local_key].is_wake_up_pin = IS_WAKE_UP;
 }
 
-void gpio_key_sleep_unset(u8 key)
+void gpio_key_disable_sleep(u8 key)
 {
   u32 col;
 
@@ -132,16 +122,16 @@ void gpio_key_sleep_unset(u8 key)
   }
 }
 
-void gpio_stuck_key_low_scan(key_status_t* key_s, key_index_t key)
+void gpio_key_sleep_setup()
 {
-  key_map_t *key_row_col;
-  u8 local_key;
-
-  local_gpio_key(key, &local_key);
-
-  key_row_col = key_map(local_key);
-
-  *key_s = (key_low_level_scan(key_row_col))? PRESSING:RELEASE;
+  if(gpio_key_map.map){
+    for(u8 i = 0; i < gpio_key_map.num; i++){
+      if(gpio_key_map.map[i].is_wake_up_pin == IS_WAKE_UP){
+        SET_COL_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(gpio_key_map.map[i].col);
+        SET_ROW_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(gpio_key_map.map[i].row);
+      }
+    }
+  }
 }
 
 void gpio_key_low_scan(key_status_t* key_s, key_index_t key)//key scan rate too low
