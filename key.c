@@ -19,6 +19,12 @@ typedef enum{
   LEADER_KEY_PROCESS
 }current_process_t;
 
+typedef enum{
+  LONG_KEY_OCCURED = 1,
+  LONG_KEY_FINISH,
+  NO_LONG_KEY
+}long_key_event_t;
+
 typedef struct{
   u8 key1;
   u8 key2;
@@ -42,6 +48,7 @@ static u8 key_start_time_window = 255;
 static u8 pressed_times;
 static u8 released_times;
 static u32 pressed_tick;
+static u32 long_key_time;
 
 static void key_status_init()
 {
@@ -98,16 +105,6 @@ static void key_read(key_state_t* key_result, const key_type_t* key)
   key->key_scan(&key_s, key_index);//check the key is pressing or not
 
   cal_key_press_time(key_result, key_s);//cal the key pressing time
-}
-
-static inline void clr_first_key()
-{
-  first_key = 255;
-}
-
-static inline void clr_second_key()
-{
-  second_key = 255;
 }
 
 static inline u8 get_first_key()
@@ -175,61 +172,6 @@ static void get_register_key_comb_action(u8 first_key, u8 second_key, key_action
   }
 }
 
-static inline void set_key_action(u8 key, key_action_t key_ac)
-{
-  key_event[key].key_current_action  |= key_ac;
-}
-
-static inline key_action_t get_key_action(u8 key)
-{
-  return key_event[key].key_current_action;
-}
-
-static inline void clr_key_action(u8 key, u32 action)
-{
-  key_event[key].key_current_action &= ~action;
-}
-
-static inline void set_key_flag(u8 key, u32 flag)
-{
-  key_status[key].flag |= flag;
-}
-
-static inline void set_current_key_flag(key_state_t *key_s, u32 flag)
-{
-  key_s->flag |= flag;
-}
-
-static inline u32 get_current_key_flag(key_state_t *key_s)
-{
-  return key_s->flag;
-}
-
-static inline bool is_current_key_pressing(const key_state_t* key_s)
-{
-  return ((key_s->cur_status == PRESSING) && (key_s->pressing_time));
-}
-
-static inline bool is_key_from_release_to_pressing(const key_state_t* key_s)
-{
-  return ((key_s->cur_status == PRESSING) && (key_s->pre_status == RELEASE));
-}
-
-static inline bool is_current_key_short_immediately(const key_state_t* key_s)
-{
-  return ((key_s->cur_status == PRESSING) && (key_s->pressing_time));
-}
-
-static inline bool is_current_key_no_time_limit_released(const key_state_t* key_s)
-{
-  return ((key_s->cur_status == RELEASE) && (key_s->pressing_time));
-}
-
-static key_state_t *get_key_state(u8 key)
-{
-  return &key_status[key];
-}
-
 static bool is_short_key_released(u8 i, const key_state_t* key_s)
 {
   event_handler_t *pos_ptr = NULL;
@@ -247,63 +189,121 @@ static bool is_short_key_released(u8 i, const key_state_t* key_s)
 
   time = key_handler_time1 ? key_handler_time1:SHORT_TIME;
 
-  return ((key_s->cur_status == RELEASE) && (key_s->pressing_time) && (key_s->pressing_time < time));
+  return (key_s->pressing_time < time);
 }
 
-static bool is_long_key(u8 i, key_state_t* key_s)
+static inline void set_key_action(u8 key, key_action_t key_ac)
+{
+  key_event[key].key_current_action  |= key_ac;
+}
+
+static inline key_action_t get_key_action(u8 key)
+{
+  return key_event[key].key_current_action;
+}
+
+static inline void clr_key_action(u8 key, u32 action)
+{
+  key_event[key].key_current_action &= ~action;
+}
+
+static inline void set_current_key_flag(key_state_t *key_s, u32 flag)
+{
+  key_s->flag |= flag;
+}
+
+static inline u32 get_current_key_flag(key_state_t *key_s)
+{
+  return key_s->flag;
+}
+
+static inline bool get_pressing_time(const key_state_t* key_s)
+{
+  return (key_s->pressing_time);
+}
+
+static inline bool is_key_from_release_to_pressing(const key_state_t* key_s)
+{
+  return ((key_s->cur_status == PRESSING) && (key_s->pre_status == RELEASE));
+}
+
+static inline bool is_current_key_no_time_limit_released(const key_state_t* key_s)
+{
+  return ((key_s->cur_status == RELEASE) && (key_s->pressing_time));
+}
+
+static inline key_state_t *get_key_state(u8 key)
+{
+  return &key_status[key];
+}
+
+static inline u32 get_long_key_time()
+{
+  return long_key_time;
+}
+
+static inline void set_long_key_time(u32 time)
+{
+  long_key_time = time;
+}
+
+static inline bool is_diff_with_prev_time(u32 time)
+{
+  return  time != long_key_time;
+}
+
+static long_key_event_t is_long_key(u8 i, key_state_t* key_s)
 {
   event_handler_t *pos_ptr = NULL;
-  u32  key_handler_time1 = 0;
+  u32 key_handler_time1 = 0;
   u32 time;
+  u8 total_cnt   = 0;
+  u8 resovle_cnt = 0;
 
   list_for_each_entry(pos_ptr, &key_event[i].list, list){
     if(pos_ptr != (event_handler_t*)&key_event[i].list){
-      if((pos_ptr->key_ac == LONG_KEY)){
+      if(pos_ptr->key_ac == LONG_KEY){
         key_handler_time1 = pos_ptr->time1;
-        break;
+        time = key_handler_time1 ? key_handler_time1:LONG_TIME;
+        total_cnt++;
+        if(key_s->pressing_time > time && is_diff_with_prev_time(time)){
+          resovle_cnt++;
+          set_long_key_time(time);
+        }
       }
     }
   }
 
-  time = key_handler_time1 ? key_handler_time1:LONG_TIME;
-
-  return ((key_s->cur_status == PRESSING) && \
-      (key_s->pressing_time > time) && \
-      (key_s->pressing_time < STUCK_TIME));
-}
-
-static bool is_long_key_8s(u8 i, key_state_t* key_s)
-{
-  event_handler_t *pos_ptr = NULL;
-
-  list_for_each_entry(pos_ptr, &key_event[i].list, list){
-    if(pos_ptr != (event_handler_t*)&key_event[i].list){
-      if((pos_ptr->key_ac == LONG_KEY_IN_8S)){
-        break;
-      }
-    }
-  }
-
-  return ((key_s->cur_status == PRESSING) && \
-      (key_s->pressing_time > LONG_KEY_8S) && \
-      (key_s->pressing_time < STUCK_TIME));
+  if(total_cnt == resovle_cnt)
+    return LONG_KEY_FINISH;
+  else if(resovle_cnt)
+    return LONG_KEY_OCCURED;
+  else
+    return NO_LONG_KEY;
 }
 
 static inline bool is_key_stuck(key_state_t* key_s)
 {
-  return ((key_s->cur_status == PRESSING) && (key_s->pressing_time > STUCK_TIME));
+  return (key_s->pressing_time > STUCK_TIME);
 }
 
 static handler get_key_handler(u8 key, key_action_t key_ac, u8 second_key)
 {
   event_handler_t *pos_ptr = NULL;
   handler key_handler = NULL;
+  u32 time;
 
   list_for_each_entry(pos_ptr, &key_event[key].list, list){
     if(pos_ptr != (event_handler_t*)&key_event[key].list){
       if((pos_ptr->key_ac == key_ac)){
         if((key_ac == COMBIN_KEY) || (key_ac  == COMBIN_KEY_IN_TIME) || (key_ac == LEADER_KEY)){
           if(pos_ptr->second_key == second_key){
+            key_handler = pos_ptr->key_handler;
+            break;
+          }
+        }else if(key_ac == LONG_KEY){
+          time = get_long_key_time();
+          if(pos_ptr->time1 == time){
             key_handler = pos_ptr->key_handler;
             break;
           }
@@ -338,11 +338,8 @@ static void wakeup_system_key(u8 key)
   key_s = get_key_state(key);
 
   if(is_wakeup_from_sleep()){
-    if(wakeup_key == 255){
-      if(is_current_key_pressing(key_s)){//if current key is pressing, reload system tick
-        wakeup_key = key;
-      }
-    }
+    if(wakeup_key == 255)//if current key is pressing, reload system tick
+      wakeup_key = key;
   }
 }
 
@@ -516,7 +513,7 @@ static void sutck_key_trigger_process(u32 bit)
       if(is_key_stuck(status) && !(get_current_key_flag(status) & STUCK_KEY_FLAG)){
         clr_wakeup_pin(key);
         set_key_action(key, STUCK_KEY);
-        set_key_flag(key, STUCK_KEY_FLAG);
+        set_current_key_flag(status, STUCK_KEY_FLAG);
       }
     }
   }
@@ -601,7 +598,7 @@ static void leader_key_process(u32 bit)
   status1 = get_key_state(get_first_key());
   status2 = get_key_state(get_second_key());
 
-  if(is_current_key_pressing(status2) && !(get_current_key_flag(status2) & LEADER_KEY_FLAG)){
+  if(!(get_current_key_flag(status2) & LEADER_KEY_FLAG)){
     set_key_action(get_first_key(),  LEADER_KEY | FIRST_KEY_FLAG);
     set_key_action(get_second_key(), LEADER_KEY | SECOND_KEY_FLAG);
     set_current_key_flag(status1, LEADER_KEY_FLAG);
@@ -613,6 +610,7 @@ static void one_key_process(u32 bit)
 {
   key_state_t *status;
   u8 one_key = 255;
+  long_key_event_t long_key_event;
 
   one_bit2key(bit, &one_key);
 
@@ -622,24 +620,23 @@ static void one_key_process(u32 bit)
 
   wakeup_system_key(one_key);
 
-  if(is_current_key_short_immediately(status) && !(get_current_key_flag(status) & SHORT_KEY_IMMEDIATELY_FLAG)){//if current key is pressing,set SHORT_KEY_IMMEDIATELY_FLAG action
+  if(!(get_current_key_flag(status) & SHORT_KEY_IMMEDIATELY_FLAG)){//if current key is pressing,set SHORT_KEY_IMMEDIATELY_FLAG action
     pre_key = cur_key;
     cur_key = one_key;
     set_key_action(one_key, SHORT_KEY_IMMEDIATELY);
     set_current_key_flag(status, SHORT_KEY_IMMEDIATELY_FLAG);
   }
 
-  if(is_current_key_pressing(status))
+  if(get_pressing_time(status))
     set_key_action(one_key, NO_TIME_LIMIT_KEY_ON);
 
-  if(is_long_key_8s(one_key, status) && !(get_current_key_flag(status) & LONG_8S_KEY_FLAG)){
-    set_key_action(one_key, LONG_KEY_IN_8S);
-    set_current_key_flag(status, LONG_8S_KEY_FLAG);
-  }
+  if(!(get_current_key_flag(status) & LONG_KEY_FLAG)){
+    long_key_event = is_long_key(one_key, status);
 
-  if(is_long_key(one_key, status) && !(get_current_key_flag(status) & LONG_KEY_FLAG)){
-    set_key_action(one_key, LONG_KEY);
-    set_current_key_flag(status, LONG_KEY_FLAG);
+    if(long_key_event == LONG_KEY_FINISH)
+      set_current_key_flag(status, LONG_KEY_FLAG);
+	else if(long_key_event == LONG_KEY_OCCURED)
+	  set_key_action(one_key, LONG_KEY);
   }
 }
 
@@ -797,13 +794,10 @@ int key_process(void *data)
   }else if(cur_status == TWO_KEY_PROCESS){
     one_key_twice_finish();
     two_key_process(pressing_key_bit);
-  }else if(cur_status == WAIT_LEADER_KEY_PROCESS){
+  }else if(cur_status == WAIT_LEADER_KEY_PROCESS)
     wait_leader_key_process(pressing_key_bit);
-  }else if(cur_status == LEADER_KEY_PROCESS){
+  else if(cur_status == LEADER_KEY_PROCESS)
     leader_key_process(pressing_key_bit);
-  }else if(cur_status == WAIT_KEY_RELEASED_PROCESS){
-    ;
-  }
 
   return 0;
 }

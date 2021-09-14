@@ -45,7 +45,7 @@ typedef enum {
   NO_TIME_LIMIT_KEY_ON        = 0x80, //note
   ONE_KEY_TWICE               = 0x100,
   ONE_KEY_TWICE_ONLY_ONCE     = 0x200,
-  LONG_KEY_IN_8S              = 0x400,
+  RESERVED_KEY5               = 0x400,
   LEADER_KEY                  = 0x800,
   RESERVED_KEY6            = 0x1000,
   RESERVED_KEY7            = 0x2000,
@@ -61,7 +61,7 @@ typedef enum {
   RESERVED_KEY17           = 0x800000,
   RESERVED_KEY18           = 0x1000000,
   ALL_ACTION               = RELEASE_KEY | SHORT_KEY | SHORT_KEY_IMMEDIATELY | LONG_KEY | COMBIN_KEY | COMBIN_KEY_IN_TIME |\
-                             NO_TIME_LIMIT_KEY_RELEASED | NO_TIME_LIMIT_KEY_ON | ONE_KEY_TWICE | ONE_KEY_TWICE_ONLY_ONCE | LONG_KEY_IN_8S | LEADER_KEY
+                             NO_TIME_LIMIT_KEY_RELEASED | NO_TIME_LIMIT_KEY_ON | ONE_KEY_TWICE | ONE_KEY_TWICE_ONLY_ONCE  | LEADER_KEY
 }key_action_t;
 
 typedef struct {
@@ -132,7 +132,6 @@ typedef struct {
   u8 num;
 }key_table_t;
 
-#define LONG_KEY_8S      MS2TICK(8000)
 #define FIRST_KEY_FLAG   0x80000000
 #define SECOND_KEY_FLAG  0x40000000
 
