@@ -28,6 +28,7 @@ typedef struct{
   u8 key2;
 }two_key_t;
 
+bool exit_peidui;
 u8 wakeup_key = 255;
 current_process_t process_status = INITIAL_PROCESS;
 
@@ -892,11 +893,15 @@ void poll_key_event()
             key_handler();
         }else if(action){//short key short immedia key long key process
           clr_key_action(i, action);
-          key_handler = get_key_handler(i, action, 0);
-          if(key_handler)
-            key_handler();
-          if(normal_handler)
-            normal_handler();
+          if(exit_peidui && action == SHORT_KEY){
+            exit_peidui = 0;
+          }else{
+            key_handler = get_key_handler(i, action, 0);
+            if(key_handler)
+              key_handler();
+            if(normal_handler)
+              normal_handler();
+          }
           key_action ^= key;
         }
         key <<= 1;

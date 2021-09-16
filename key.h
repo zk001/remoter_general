@@ -135,6 +135,7 @@ typedef struct {
 #define FIRST_KEY_FLAG   0x80000000
 #define SECOND_KEY_FLAG  0x40000000
 
+extern bool exit_peidui;
 extern u8 cur_key;
 extern u8 pre_key;
 extern u8 wakeup_key;
