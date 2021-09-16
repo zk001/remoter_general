@@ -10,6 +10,7 @@ extern bool low_bat_chk(u32 threshold, low_bat_warn* cb_warn, low_bat_finish* cb
 extern void low_bat_update();
 extern bool is_bat_warn();
 extern u32 low_power_threshold();
+extern void clr_bat_warn();
 
 #endif
 #endif

@@ -137,7 +137,6 @@ typedef struct {
 
 extern u8 cur_key;
 extern u8 pre_key;
-extern u8 leader_key;
 extern u8 wakeup_key;
 
 extern void register_key(const key_type_t *key, u8 num);
@@ -145,9 +144,8 @@ extern void key_init();
 extern void key_wakeup_init();
 extern int key_process();
 extern void poll_key_event();
-extern void set_leader_key(u8 key);
 extern void register_key_event(u8 first_key, u8 second_key, u32 time1, u32 time2, key_action_t key_ac, handler key_handler);
-extern bool app_read_single_key(u8 first_key);
+extern bool app_read_single_key(u8 first_key, key_action_t my_action);
 extern bool app_read_key(u8 first_key, u8 second_key);
 extern void key_gpio_sleep_init();
 extern void set_stuck_key_handler(handler stuck_handler);

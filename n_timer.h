@@ -12,9 +12,25 @@
 #define time_after(current, timeout) \
   ((int)(timeout) - (int)(current) < 0)
 
+//static inline bool n_clock_time_exceed(u32 ref, u32 us)
+//{
+//  return time_after(clock_time(), (ref + (us*16)));
+//}
+
 static inline bool n_clock_time_exceed(u32 ref, u32 us)
 {
-  return time_after(clock_time(), (ref + (us*16)));
-}
+  u32 time;
+  u32 temp;
 
+  time = clock_time();
+
+  if(time >= ref)
+    temp = time - ref;
+  else{
+    temp = 0xffffffff - ref;
+    temp += time;
+  }
+
+  return (temp > (us * 16));
+}
 #endif

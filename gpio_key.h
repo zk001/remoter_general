@@ -52,6 +52,11 @@
     gpio_setup_up_down_resistor(col, PM_PIN_PULLUP_1M);\
     cpu_set_gpio_wakeup(col, 1, 1);)
 
+#define SET_ROW_GPIO_WITH_DEEPSLEEP_HIGH(row) st(\
+    gpio_set_output_en(row, 0);\
+    gpio_set_input_en(row, 0);\
+    gpio_setup_up_down_resistor(row, PM_PIN_PULLUP_10K);)
+
 enum wake_up_pin_t{
   IS_WAKE_UP = 1,
   NO_WAKE_UP = 2

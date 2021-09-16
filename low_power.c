@@ -22,13 +22,11 @@ bool is_low_power(u32 threshold)
   adc_vbat_init(ADC_INPUT_PIN);
   adc_power_on_sar_adc(1);
 
-  for(u8 i = 0; i < len; i++){
+  for(u8 i = 0; i < len; i++)
     sample_result[i] = adc_sample_and_get_result();
-  }
 
-  for(u8 i = 0; i < len; i++){
+  for(u8 i = 0; i < len; i++)
     sum += sample_result[i];
-  }
 
   avg = sum/len;
 
@@ -66,6 +64,11 @@ void low_bat_update()
 bool is_bat_warn()
 {
   return low_bat_warnning;
+}
+
+void clr_bat_warn()
+{
+  low_bat_warnning = 0;
 }
 
 u32 low_power_threshold()

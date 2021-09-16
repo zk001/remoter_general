@@ -1,3 +1,4 @@
+#if defined(DC)
 #include "../../common.h"
 #include "dc.h"
 #include "board.h"
@@ -18,3 +19,4 @@ void dc_shutdown()
   gpio_set_input_en(DCDC_CE, 0);
   gpio_write(DCDC_CE, ~DC_ENABLE_LEVEL);
 }
+#endif

@@ -126,6 +126,11 @@ void gpio_key_sleep_setup()
 {
   if(gpio_key_map.map){
     for(u8 i = 0; i < gpio_key_map.num; i++){
+      if(gpio_key_map.map[i].is_wake_up_pin == NO_WAKE_UP)
+        SET_ROW_GPIO_WITH_DEEPSLEEP_HIGH(gpio_key_map.map[i].row);
+    }
+
+    for(u8 i = 0; i < gpio_key_map.num; i++){
       if(gpio_key_map.map[i].is_wake_up_pin == IS_WAKE_UP){
         SET_COL_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(gpio_key_map.map[i].col);
         SET_ROW_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(gpio_key_map.map[i].row);
