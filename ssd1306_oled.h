@@ -28,6 +28,15 @@ extern void display_graphic_16x16(u8 page, u8 column, u8 *dp);
 extern void display_graphic_8x16(u8 page, u8 column, u8 *dp);
 extern void display_graphic_128x16(u8 page, u8 column, u8 *dp);
 
+extern void clr_graphic_8x16(u8 page, u8 column);
+extern void clr_graphic_16x16_2(u8 reverse, u8 page, u8 column);
+extern void clr_graphic_128x16(u8 page, u8 column);
+extern void display_graphic_1x16(u8 page, u8 column, u8 *dp);
+extern void clr_graphic_1x16(u8 page, u8 column);
+extern void clear_half_top_screen();
+extern void clear_half_bottom_screen();
+extern void display_graphic_1x8(u8 page, u8 column, u8 *dp);
+
 extern u8 const bmp_12832_0[];
 extern u8 const zhuang1[];
 extern u8 const shi1[];

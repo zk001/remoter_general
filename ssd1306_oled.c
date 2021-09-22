@@ -13,21 +13,21 @@ u8 const ascii_table_5x8[95][5];
 //写指令到OLED显示模块
 static void lcd_command(u8 com)
 {
-  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
+//  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
+//
+//  i2c_master_init(LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
 
-  i2c_master_init(LCD_IIC_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
-
-  i2c_write_series(0x00, 1, (unsigned char *)&com, 1);
+  i2c_write_series(0x00, 1, (u8*)&com, 1);
 }
 
 //写数据到OLED显示模块
 static void lcd_data(u8 data)
 {
-  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
+//  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
+//
+//  i2c_master_init(LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
 
-  i2c_master_init(LCD_IIC_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
-
-  i2c_write_series(0x40, 1, (unsigned char *)&data, 1);
+  i2c_write_series(0x40, 1, (u8*)&data, 1);
 }
 
 static void lcd_address(u8 page, u8 column)
@@ -40,10 +40,28 @@ static void lcd_address(u8 page, u8 column)
   lcd_command(column & 0x0f);				//设置列地址的低4位
 }
 
+void clear_half_top_screen()
+{
+  for(u8 i = 0; i < 2; i++){
+	lcd_address(3 + i, 1);
+	for(u8 j = 0; j < 128; j++)
+	  lcd_data(0x00);
+  }
+}
+
+void clear_half_bottom_screen()
+{
+  for(u8 i = 0; i < 2; i++){
+	lcd_address(1 + i, 1);
+	for(u8 j = 0; j < 128; j++)
+	  lcd_data(0x00);
+  }
+}
+
 /*全屏清屏*/
 void clear_screen()
 {
-  for(u8 i = 0; i < 8; i++){
+  for(u8 i = 0; i < 4; i++){
     lcd_address(1 + i, 1);
     for(u8 j = 0; j < 128; j++)
       lcd_data(0x00);
@@ -74,6 +92,47 @@ void display_graphic_128x32(u8 page, u8 column, u8 *dp)
   }          
 }
 
+
+void display_graphic_1x8(u8 page, u8 column, u8 *dp)
+{
+  for(u8 j = 0; j < 1; j++){		 //8
+	lcd_address(page + j, column);
+	for(u8 i = 0; i < 1; i++){		 //128
+	  lcd_data(*dp);
+	}
+  }
+}
+
+void clr_graphic_1x16(u8 page, u8 column)
+{
+  for(u8 j = 0; j < 2; j++){		 //8
+	lcd_address(page + j, column);
+	for(u8 i = 0; i < 1; i++){		 //128
+	  lcd_data(0);
+	}
+  }
+}
+
+void display_graphic_1x16(u8 page, u8 column, u8 *dp)
+{
+  for(u8 j = 0; j < 2; j++){		 //8
+	lcd_address(page + j, column);
+	for(u8 i = 0; i < 1; i++){		 //128
+	  lcd_data(*dp);
+	  dp++;
+	}
+  }
+}
+
+void clr_graphic_128x16(u8 page, u8 column)
+{
+  for(u8 j = 0; j < 2; j++){		 //8
+	lcd_address(page + j, column);
+	for(u8 i = 0; i < 128; i++)	 //128
+	  lcd_data(0);
+  }
+}
+
 void display_graphic_128x16(u8 page, u8 column, u8 *dp)
 {
   for(u8 j = 0; j < 2; j++){		 //8
@@ -94,6 +153,19 @@ void display_graphic_32x32(u8 page, u8 column, u8 *dp)
       lcd_data(*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
       dp++;	
     }
+  }
+}
+
+void clr_graphic_16x16_2(u8 reverse, u8 page, u8 column)
+{
+  for(u8 j = 0; j < 2; j++){
+	lcd_address(page + j, column);
+	for (u8 i = 0; i < 16; i++){
+	  if(reverse == 1)
+	    lcd_data(0);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+	  else
+		lcd_data(0xff);
+	}
   }
 }
 
@@ -121,6 +193,15 @@ void display_graphic_16x16(u8 page, u8 column, u8 *dp)
       lcd_data(*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
       dp++;
     }
+  }
+}
+
+void clr_graphic_8x16(u8 page, u8 column)
+{
+  for(u8 j = 0; j < 2; j++){
+	lcd_address(page + j, column);
+	for (u8 i = 0; i < 8; i++)
+	  lcd_data(0);					/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
   }
 }
 
@@ -184,6 +265,9 @@ void initial_lcd()
   //	LCD_RST =1;
   //	delay(100);	  //等待RC复位  大约10MS
 
+  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
+  i2c_master_init(LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
+
   lcd_command(0xAE); //Display Off (0xAE/0xAF) 关显示
 
   lcd_command(0x40); //0x40  Set Display Start Line 起始行
@@ -233,6 +317,8 @@ void initial_lcd_no_clr()
   //	delay(100);	  //等待RC复位  大约10MS
 
   //  lcd_command(0xAE); //Display Off (0xAE/0xAF) 关显示
+  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
+  i2c_master_init(LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
 
   lcd_command(0x40); //0x40  Set Display Start Line 起始行
 

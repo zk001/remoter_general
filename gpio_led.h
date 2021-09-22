@@ -3,7 +3,7 @@
 #define _GPIO_LED_H__
 
 typedef struct {
-  const u32 *led_table;
+  const u32* led_table;
   u8 num;
 }low_led_t;
 
@@ -19,7 +19,7 @@ typedef struct {
     gpio_set_input_en(led, 0);\
     gpio_write(led, 0);)
 
-extern void gpio_led_alloc(const u32 *led_arry, u8 num);
+extern void gpio_led_alloc(const u32* led_arry, u8 num);
 extern void gpio_led_on_off(u32 leds, u8 mode);
 extern void pwm_gpio_led_on_off(u32 leds, u8 mode);
 

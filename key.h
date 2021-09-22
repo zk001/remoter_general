@@ -132,6 +132,26 @@ typedef struct {
   u8 num;
 }key_table_t;
 
+typedef enum{
+  INITIAL_PROCESS = 1,
+  ONE_KEY_PROCESS,
+  TWO_KEY_PROCESS,
+  WAIT_KEY_RELEASED_PROCESS,
+  IDLE_PROCESS,
+  WAIT_LEADER_KEY_PROCESS,
+  LEADER_KEY_PROCESS,
+  ONE_KEY_RELEASED_PROCESS,
+}process_status_t;
+
+typedef struct{
+  u8 key1;
+  u8 key2;
+}two_key_t;
+
+#define  LONG_KEY_OCCURED  0x01
+#define  LONG_KEY_FINISH   0x02
+#define  NO_LONG_KEY       0x04
+
 #define FIRST_KEY_FLAG   0x80000000
 #define SECOND_KEY_FLAG  0x40000000
 

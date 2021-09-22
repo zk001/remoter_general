@@ -12,7 +12,7 @@ typedef struct {
 
 _attribute_data_retention_ static low_led_t low_led;
 
-void gpio_led_alloc(const u32 *led_arry, u8 num)
+void gpio_led_alloc(const u32* led_arry, u8 num)
 {
   low_led.led_table = led_arry;
   low_led.num       = num;
@@ -36,7 +36,7 @@ void gpio_led_on_off(u32 leds, u8 mode)
   }
 }
 
-static void choose_pwm(u32 led, pwm_t *pwm)
+static void choose_pwm(u32 led, pwm_t* pwm)
 {
   switch(led){
     case GPIO_PD4: pwm->pwm = AS_PWM2_N; pwm->id = PWM2_ID;break;
@@ -67,9 +67,9 @@ static void pwm_turn_on(u32 led)
   if(pwm.pwm == AS_PWM0_N || pwm.pwm == AS_PWM1_N ||\
       pwm.pwm == AS_PWM2_N || pwm.pwm == AS_PWM3_N ||\
       pwm.pwm == AS_PWM4_N)
-    pwm_set_cycle_and_duty(pwm.id, (unsigned short) (PWM_PERIOD * CLOCK_SYS_CLOCK_1US),  (unsigned short) ((PWM_PERIOD - PWM_ON_DUTY) * CLOCK_SYS_CLOCK_1US));
+    pwm_set_cycle_and_duty(pwm.id, (u16)(PWM_PERIOD * CLOCK_SYS_CLOCK_1US),  (u16)((PWM_PERIOD - PWM_ON_DUTY) * CLOCK_SYS_CLOCK_1US));
   else
-    pwm_set_cycle_and_duty(pwm.id, (unsigned short) (PWM_PERIOD * CLOCK_SYS_CLOCK_1US),  (unsigned short) (PWM_ON_DUTY * CLOCK_SYS_CLOCK_1US));
+    pwm_set_cycle_and_duty(pwm.id, (u16)(PWM_PERIOD * CLOCK_SYS_CLOCK_1US),  (u16)(PWM_ON_DUTY * CLOCK_SYS_CLOCK_1US));
 
   pwm_start(pwm.id);
 }

@@ -8,14 +8,14 @@
 //shuld we set gcr register???
 //P1 ports is output mode as default when power on and P0 ports is high-z
 
+_attribute_data_retention_ static u8 aw9523_led_bright[16];
+
 static const u8 aw9523_led_table[] = {
   PORT0_BIT_0,PORT0_BIT_1,PORT0_BIT_2,PORT1_BIT_2,PORT1_BIT_3,
   PORT0_BIT_3,PORT0_BIT_4,PORT1_BIT_1,PORT0_BIT_5,PORT1_BIT_7,
   PORT1_BIT_5,PORT1_BIT_6,PORT1_BIT_0,PORT1_BIT_4,PORT0_BIT_6,
   PORT0_BIT_7
 };
-
-static u8 aw9523_led_bright[16];
 
 static void aw9523_set_conf(u8 conf)
 {
@@ -67,7 +67,7 @@ static void aw9523_set_led_dim(u8 port_bit, u8 level)
 
   i2c_gpio_set(AW9523_I2C_PORT);  	//SDA/CK : C0/C1
 
-  i2c_master_init(AW9523_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
+  i2c_master_init(AW9523_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
 
   if(local_level && level)
     i2c_write_byte(port, 1, local_level);
@@ -113,7 +113,7 @@ void aw9523_init()
   //  u8 id;
 
   i2c_gpio_set(AW9523_I2C_PORT);  	//SDA/CK : C0/C1
-  i2c_master_init(AW9523_ADDRESS, (unsigned char)(CLOCK_SYS_CLOCK_HZ/(4*200000)) );
+  i2c_master_init(AW9523_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
 
   RSTN_OUT_LOW();
 

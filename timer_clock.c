@@ -9,15 +9,15 @@ void clr_timer_handler()
   timer_handler.para      = 0;
 }
 
-void set_timer_handler(timer_handler_t *timer_hand)
+void set_timer_handler(timer_handler_t* timer_hand)
 {
   timer_handler.t_handler = timer_hand->t_handler;
   timer_handler.para      = timer_hand->para;
 }
 
-void set_timer_handler_para(timer_handler_t *timer_hand)
+void set_timer_handler_para(timer_handler_t* timer_hand)
 {
-  timer_handler.para      = timer_hand->para;
+  timer_handler.para = timer_hand->para;
 }
 
 void run_timer_handler()
