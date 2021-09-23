@@ -1,9 +1,39 @@
+/********************************************************************************************************
+ * @file     rf.c
+ *
+ * @brief    This is the source file for TLSR8258
+ *
+ * @author	 Driver Group
+ * @date     Sep 22, 2021
+ *
+ * @par      Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *
+ *           The information contained herein is confidential property of Telink
+ *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *           Co., Ltd. and the licensee or the terms described here-in. This heading
+ *           MUST NOT be removed from this file.
+ *
+ *           Licensees are granted free, non-transferable use of the information in this
+ *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ * @par      History:
+ * 			 1.initial release(DEC. 26 2018)
+ *
+ * @version  A001
+ *
+ *******************************************************************************************************/
 #include "../../drivers.h"
 #include "../../esb_ll/esb_ll.h"
 #include "rf.h"
 #include "interrupt.h"
 #include "app.h"
 
+/**
+ * @brief      This function serves to configure system rf receive baseband
+ * @param[in]  none
+ * @return     none
+ */
 void rf_8359_set_rx()
 {
   ESB_SetDatarate(ESB_DR_2M);
@@ -39,6 +69,11 @@ void rf_8359_set_rx()
   ESB_PRXTrig();
 }
 
+/**
+ * @brief      This function serves to configure system rf transmit baseband
+ * @param[in]  none
+ * @return     none
+ */
 void rf_8359_set_tx()
 {
   ESB_SetDatarate(ESB_DR_2M);
@@ -79,10 +114,15 @@ void rf_8359_set_tx()
   irq_enable(); //enable general irq
 }
 
+/**
+ * @brief      This function serves to decrease system rf power
+ * @param[in]  none
+ * @return     none
+ */
 void decrease_rf_power_tx()
 {
   ESB_SetDatarate(ESB_DR_2M);
-  ESB_SetOutputPower(ESB_RF_POWER_M_5DBM);
+  ESB_SetOutputPower(ESB_RF_POWER_M_16DBM);
   ESB_SetAddressWidth(ADDRESS_WIDTH_5BYTES);
   ESB_ClosePipe(ESB_PIPE_ALL);
 
@@ -119,6 +159,12 @@ void decrease_rf_power_tx()
   irq_enable(); //enable general irq
 }
 
+/**
+ * @brief      This function serves to send yihe rf data
+ * @param[in]  addr - the data address
+ * @param[in]  len  - the length of the data
+ * @return     none
+ */
 void send_rf_data_yihe(void* addr, u32 len)
 {
   volatile u8 tmp;
@@ -166,6 +212,12 @@ void send_rf_data_yihe(void* addr, u32 len)
   WaitMs(250);
 }
 
+/**
+ * @brief      This function serves to send ruierte rf data
+ * @param[in]  addr - the data address
+ * @param[in]  len  - the length of the data
+ * @return     none
+ */
 void send_rf_data_ruierte(void* addr, u32 len)
 {
   volatile u8 tmp;
@@ -195,9 +247,28 @@ void send_rf_data_ruierte(void* addr, u32 len)
       WaitUs(400);
     }
   }
-  WaitMs(100);
+  WaitMs(10);
+
+  for(u8 i = 0; i < 3; i++){//一共发送3次  2.4*3=7.2ms发送一个循环，接收端8ms才切换信道，所以每次切换信道理论上都能接收端
+    for(u8 j = 0; j < 4; j++){//四个通道发送
+      ESB_ModeSet(ESB_MODE_PTX);
+      ESB_SetNewRFChannel(rf_channel_select[j]);
+      WaitUs(100);
+      tmp = ESB_WriteTxPayload(0, addr, len);
+      if(tmp)
+        ESB_PTXTrig();
+      WaitUs(400);
+    }
+  }
+  WaitMs(90);
 }
 
+/**
+ * @brief      This function serves to send kemu rf data
+ * @param[in]  addr - the data address
+ * @param[in]  len  - the length of the data
+ * @return     none
+ */
 void send_rf_data_kemu(void* addr, u32 len)
 {
   volatile u8 tmp;
@@ -245,6 +316,11 @@ void send_rf_data_kemu(void* addr, u32 len)
   WaitMs(250);
 }
 
+/**
+ * @brief      This function serves to receive rf data
+ * @param[in]  addr - the data address
+ * @return the data length
+ */
 u8 receive_rf_data(void* addr)
 {
   u8 len;
@@ -257,6 +333,11 @@ u8 receive_rf_data(void* addr)
     return 0;
 }
 
+/**
+ * @brief      This function serves to receive peidui information from peer device
+ * @param[in]  uid - the id of the local device
+ * @return true if peidui ok
+ */
 bool receive_from_peer(u32 uid)
 {
   rf_package_t rx_buf;

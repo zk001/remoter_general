@@ -1,3 +1,28 @@
+/********************************************************************************************************
+ * @file     key.c
+ *
+ * @brief    This is the source file for TLSR8258
+ *
+ * @author	 Driver Group
+ * @date     Sep 22, 2021
+ *
+ * @par      Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *
+ *           The information contained herein is confidential property of Telink
+ *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *           Co., Ltd. and the licensee or the terms described here-in. This heading
+ *           MUST NOT be removed from this file.
+ *
+ *           Licensees are granted free, non-transferable use of the information in this
+ *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ * @par      History:
+ * 			 1.initial release(DEC. 26 2018)
+ *
+ * @version  A001
+ *
+ *******************************************************************************************************/
 #include "n_timer.h"
 #include "../../common/mempool.h"
 #include "main.h"
@@ -29,6 +54,11 @@ static u32 pressed_tick;
 static u32 long_key_time;
 static process_status_t process_status = INITIAL_PROCESS;
 
+/**
+ * @brief      This function serves to set key status structure to initial
+ * @param[in]  none
+ * @return     none
+ */
 static void key_status_init()
 {
   for(u8 i = 0; i < key_table.num; i++){
@@ -40,6 +70,11 @@ static void key_status_init()
   }
 }
 
+/**
+ * @brief      This function serves to set key event structure to initial
+ * @param[in]  none
+ * @return     none
+ */
 static void key_event_init()
 {
   for(u8 i = 0; i < key_table.num; i++){
@@ -48,7 +83,13 @@ static void key_event_init()
   }
 }
 
-static void cal_key_press_time(key_state_t* key_result, key_status_t key_s)
+/**
+ * @brief      This function serves to set key state structure
+ * @param[out] key_result - get the key state according to the key_s
+ * @param[in]  key_s      - indicate the key status, PRESSING or RELEASE
+ * @return     none
+ */
+static void set_key_state(key_state_t* key_result, key_status_t key_s)
 {
   key_status_t pre_pre_status;
 
@@ -75,6 +116,12 @@ static void cal_key_press_time(key_state_t* key_result, key_status_t key_s)
   }
 }
 
+/**
+ * @brief      This function serves to read key state structure
+ * @param[out] key_result - get the key state according to the key
+ * @param[in]  key        - the key handler which to be read
+ * @return     none
+ */
 static void key_read(key_state_t* key_result, const key_type_t* key)
 {
   key_status_t key_s;//the current key status
@@ -83,19 +130,131 @@ static void key_read(key_state_t* key_result, const key_type_t* key)
 
   key->key_scan(&key_s, key_index);//check the key is pressing or not
 
-  cal_key_press_time(key_result, key_s);//cal the key pressing time
+  set_key_state(key_result, key_s);//cal the key pressing time
 }
 
+/**
+ * @brief      This function serves to checkout the key pressing time is exceed than the time
+ * @param[in]  status - the status handler of the key,which include pressing time
+ * @param[in]  time   - the time will be compared with the pressing time
+ * @return the result of the compare with the pressing time and time
+ */
 static inline bool is_key_pressing_exceed_time(const key_state_t* status, u32 time)
 {
   return status->pressing_time > time;
 }
 
+/**
+ * @brief      This function serves to checkout the key pressing time is less than the time
+ * @param[in]  status - the status handler of the key,which include pressing time
+ * @param[in]  time   - the time will be compared with the pressing time
+ * @return the result of the compare with the pressing time and time
+ */
 static inline bool is_key_pressing_less_than_time(const key_state_t* status, u32 time)
 {
   return status->pressing_time < time;
 }
 
+/**
+ * @brief      This function serves to set the key action
+ * @param[in]  key     - the key will be set
+ * @param[in]  action  - the action will be set to the key
+ * @return     none
+ */
+static inline void set_key_action(u8 key, key_action_t action)
+{
+  key_event[key].key_current_action  |= action;
+}
+
+/**
+ * @brief      This function serves to get the key action
+ * @param[in]  key     - the key will be get
+ * @return the action which will be get from the key
+ */
+static inline key_action_t get_key_action(u8 key)
+{
+  return key_event[key].key_current_action;
+}
+
+/**
+ * @brief      This function serves to clear the key action
+ * @param[in]  key     - the key will be clear
+ * @param[in]  action  - the action will be clear
+ * @return     none
+ */
+static inline void clr_key_action(u8 key, u32 action)
+{
+  key_event[key].key_current_action &= ~action;
+}
+
+/**
+ * @brief      This function serves to set the key flag
+ * @param[out] key_s - the key handler
+ * @param[in]  flag  - the key flag will be set to the key_s
+ * @return     none
+ */
+static inline void set_current_key_flag(key_state_t* key_s, u32 flag)
+{
+  key_s->flag |= flag;
+}
+
+/**
+ * @brief      This function serves to get the key flag
+ * @param[in]  key_s - the key flag which will be get from the key_s
+ * @return the key flag
+ */
+static inline u32 get_current_key_flag(const key_state_t* key_s)
+{
+  return key_s->flag;
+}
+
+/**
+ * @brief      This function serves to get the key pressing time
+ * @param[in]  key_s - the key pressing time which will be get form the key_s
+ * @return the key pressing time
+ */
+static inline u32 get_pressing_time(const key_state_t* key_s)
+{
+  return key_s->pressing_time;
+}
+
+/**
+ * @brief      This function serves to checkout if the key status is from release to pressing
+ * @param[in]  key_s - the key handler which will be checkout
+ * @return true if the key status is from release to pressing
+ */
+static inline bool is_key_from_release_to_pressing(const key_state_t* key_s)
+{
+  return key_s->cur_status == PRESSING && key_s->pre_status == RELEASE;
+}
+
+/**
+ * @brief      This function serves to checkout if the key status is from pressing to release ignore the pressing time
+ * @param[in]  key_s - the key handler which will be checkout
+ * @return true if the key status is from pressing to release
+ */
+static inline bool is_current_key_no_time_limit_released(const key_state_t* key_s)
+{
+  return key_s->cur_status == RELEASE && key_s->pressing_time;
+}
+
+/**
+ * @brief      This function serves to get the key state structure
+ * @param[in]  key - the key number
+ * @return the key state structure
+ */
+static inline key_state_t* get_key_status(u8 key)
+{
+  return &key_status[key];
+}
+
+/**
+ * @brief      This function serves to get the key setup time and combin time
+ * @param[in]  key      - which key will be getting the setup time and combin time
+ * @param[out] st_time  - key setup time
+ * @param[out] cmb_time - key combin time
+ * @return     none
+ */
 static void get_key_combin_setup_time_and_combin_time(u8 key, u32* st_time, u32* cmb_time)
 {
   event_handler_t* pos_ptr = NULL;
@@ -117,6 +276,13 @@ static void get_key_combin_setup_time_and_combin_time(u8 key, u32* st_time, u32*
   *cmb_time = combin_time? combin_time:COMBIN_TIME;//last time
 }
 
+/**
+ * @brief      This function serves to get the two key action
+ * @param[in]  first_key   - the first  key of the two key action
+ * @param[in]  second_key  - the second key of the two key action
+ * @param[out] action      - get the first key and second key action
+ * @return     none
+ */
 static void get_register_key_comb_action(u8 first_key, u8 second_key, key_action_t* action)
 {
   event_handler_t* pos_ptr = NULL;
@@ -131,6 +297,12 @@ static void get_register_key_comb_action(u8 first_key, u8 second_key, key_action
   }
 }
 
+/**
+ * @brief      This function serves to checkout if the key is short key
+ * @param[in]  key    - the key will be checkout
+ * @param[in]  key_s  - the key handler
+ * @return the result if it is short key or not
+ */
 static bool is_short_key_released(u8 key, const key_state_t* key_s)
 {
   event_handler_t* pos_ptr = NULL;
@@ -151,51 +323,12 @@ static bool is_short_key_released(u8 key, const key_state_t* key_s)
   return key_s->pressing_time < time;
 }
 
-static inline void set_key_action(u8 key, key_action_t key_ac)
-{
-  key_event[key].key_current_action  |= key_ac;
-}
-
-static inline key_action_t get_key_action(u8 key)
-{
-  return key_event[key].key_current_action;
-}
-
-static inline void clr_key_action(u8 key, u32 action)
-{
-  key_event[key].key_current_action &= ~action;
-}
-
-static inline void set_current_key_flag(key_state_t* key_s, u32 flag)
-{
-  key_s->flag |= flag;
-}
-
-static inline u32 get_current_key_flag(const key_state_t* key_s)
-{
-  return key_s->flag;
-}
-
-static inline u32 get_pressing_time(const key_state_t* key_s)
-{
-  return key_s->pressing_time;
-}
-
-static inline bool is_key_from_release_to_pressing(const key_state_t* key_s)
-{
-  return key_s->cur_status == PRESSING && key_s->pre_status == RELEASE;
-}
-
-static inline bool is_current_key_no_time_limit_released(const key_state_t* key_s)
-{
-  return key_s->cur_status == RELEASE && key_s->pressing_time;
-}
-
-static inline key_state_t* get_key_state(u8 key)
-{
-  return &key_status[key];
-}
-
+/**
+ * @brief      This function serves to checkout if the key is long key
+ * @param[in]  key    - the key will be checkout
+ * @param[in]  key_s  - the key handler
+ * @return the result if it is long key or not
+ */
 static u8 is_long_key(u8 key, const key_state_t* key_s)
 {
   event_handler_t* pos_ptr = NULL;
@@ -227,20 +360,27 @@ static u8 is_long_key(u8 key, const key_state_t* key_s)
     return NO_LONG_KEY;
 }
 
-static handler get_key_handler(u8 key, u8 second_key, key_action_t key_ac)
+/**
+ * @brief      This function serves to get the registered key handler
+ * @param[in]  first_key   - the first key
+ * @param[in]  second_key  - the second key
+ * @param[in]  action      - the key handler
+ * @return the key handler of the first key and second key
+ */
+static handler get_key_handler(u8 first_key, u8 second_key, key_action_t action)
 {
   event_handler_t* pos_ptr = NULL;
   handler key_handler = NULL;
 
-  list_for_each_entry(pos_ptr, &key_event[key].list, list){
-    if(pos_ptr != (event_handler_t*)&key_event[key].list){
-      if((pos_ptr->key_ac == key_ac)){
-        if(key_ac == COMBIN_KEY || key_ac  == COMBIN_KEY_IN_TIME || key_ac == LEADER_KEY){
+  list_for_each_entry(pos_ptr, &key_event[first_key].list, list){
+    if(pos_ptr != (event_handler_t*)&key_event[first_key].list){
+      if((pos_ptr->key_ac == action)){
+        if(action == COMBIN_KEY || action  == COMBIN_KEY_IN_TIME || action == LEADER_KEY){
           if(pos_ptr->second_key == second_key){
             key_handler = pos_ptr->key_handler;
             break;
           }
-        }else if(key_ac == LONG_KEY){
+        }else if(action == LONG_KEY){
           if(pos_ptr->time1 == long_key_time){
             key_handler = pos_ptr->key_handler;
             break;
@@ -255,21 +395,41 @@ static handler get_key_handler(u8 key, u8 second_key, key_action_t key_ac)
   return key_handler;
 }
 
+/**
+ * @brief      This function serves to get the registered stuck key handler
+ * @param[in]  none
+ * @return     none
+ */
 static inline handler get_stuck_key_handler()
 {
   return stuck_key_handler;
 }
 
+/**
+ * @brief      This function serves to set the key which can wakeup the system
+ * @param[in]  key - the key number
+ * @return     none
+ */
 static inline void set_wakeup_key(u8 key)
 {
   key_table.key[key].key_enable_sleep(key);
 }
 
+/**
+ * @brief      This function serves to clear the key which can't wakeup the system
+ * @param[in]  key - the key number
+ * @return     none
+ */
 static inline void clr_wakeup_key(u8 key)
 {
   key_table.key[key].key_disable_sleep(key);
 }
 
+/**
+ * @brief      This function serves to set the key which wakeup the system
+ * @param[in]  key - the key number
+ * @return     none
+ */
 static void wakeup_system_key(u8 key)
 {
   if(is_wakeup_from_sleep()){
@@ -278,6 +438,12 @@ static void wakeup_system_key(u8 key)
   }
 }
 
+/**
+ * @brief      This function serves to get the key number from key bit value
+ * @param[out]  bit - the key bit value
+ * @param[out]  key - the key number
+ * @return      none
+ */
 static bool get_key_from_bit(u32* bit, u8* key)
 {
   u32  bit_indicate = 1;
@@ -303,6 +469,12 @@ static bool get_key_from_bit(u32* bit, u8* key)
   return has_key;
 }
 
+/**
+ * @brief      This function serves to get the two key numbers from key bit value
+ * @param[in]  bit - the key bit value
+ * @param[out] key - the key number
+ * @return     none
+ */
 static void two_bit2key(u32 bit, two_key_t* key)
 {
   for(u8 i = 0; i < 32; i++){
@@ -317,6 +489,12 @@ static void two_bit2key(u32 bit, two_key_t* key)
   }
 }
 
+/**
+ * @brief      This function serves to get the one key numbers from key bit value
+ * @param[in]  bit - the key bit value
+ * @param[out] key - the key number
+ * @return     none
+ */
 static void one_bit2key(u32 bit, u8* key)
 {
   for(u8 i = 0; i < 32; i++){
@@ -327,12 +505,22 @@ static void one_bit2key(u32 bit, u8* key)
   }
 }
 
+/**
+ * @brief      This function serves to scan matrix key
+ * @param[in]  none
+ * @return     none
+ */
 static void matrix_key_read()
 {
   for(u8 i = 0; i < key_table.num; i++)
     key_read(&key_status[i], &key_table.key[i]);
 }
 
+/**
+ * @brief      This function serves to read how many keys are pressing
+ * @param[out] key_cnt - how many keys are pressing
+ * @return the pressing key bit value
+ */
 static u32 matrix_key_read_pressing(u8* key_cnt)
 {
   u32 key_bit = 0;
@@ -348,6 +536,11 @@ static u32 matrix_key_read_pressing(u8* key_cnt)
   return key_bit;
 }
 
+/**
+ * @brief      This function serves to read how many keys are from pressing to releasing
+ * @param[out] key_cnt - how many keys are from pressing to releasing
+ * @return the releasing key bit value
+ */
 static u32 matrix_key_read_released(u8* key_cnt)
 {
   u32 key_bit = 0;
@@ -363,6 +556,11 @@ static u32 matrix_key_read_released(u8* key_cnt)
   return key_bit;
 }
 
+/**
+ * @brief      This function serves to read how many keys are from stucking to releasing
+ * @param[in]  none
+ * @return the releasing key bit value
+ */
 static u32 matrix_key_read_stuck_key_released()
 {
   u32 key_stuck_bit = 0;
@@ -374,6 +572,11 @@ static u32 matrix_key_read_stuck_key_released()
   return key_stuck_bit;
 }
 
+/**
+ * @brief      This function serves to processing one key pressing twice when the key is pressing
+ * @param[in]  bit - the key bit value
+ * @return     none
+ */
 static void one_key_twice_pressing_update(u32 bit)
 {
   u8 key = 255;
@@ -381,7 +584,7 @@ static void one_key_twice_pressing_update(u32 bit)
 
   one_bit2key(bit, &key);
 
-  status = get_key_state(key);
+  status = get_key_status(key);
 
   //single key pressing
   //key from released to pressing && time window is not start, then start time windows
@@ -395,11 +598,21 @@ static void one_key_twice_pressing_update(u32 bit)
   }
 }
 
+/**
+ * @brief      This function serves to processing one key pressing twice when the key is pressing
+ * @param[in]  bit - the key bit value
+ * @return     none
+ */
 static inline void one_key_twice_released_update()
 {
   released_times = pressed_times;
 }
 
+/**
+ * @brief      This function serves to processing one key pressing twice when the key is release
+ * @param[in]  none
+ * @return     none
+ */
 void one_key_twice_normal_update()
 {
   u32 interval;
@@ -428,6 +641,11 @@ void one_key_twice_normal_update()
   }
 }
 
+/**
+ * @brief      This function serves to finish one key pressing twice when the key is entered two key processing
+ * @param[in]  none
+ * @return     none
+ */
 static void one_key_twice_finish()
 {
   released_times = 0;
@@ -435,14 +653,19 @@ static void one_key_twice_finish()
   key_start_time_window = 255;//stop
 }
 
-static void sutck_key_trigger_process(u32 bit)
+/**
+ * @brief      This function serves to checkout whether the key is stuck
+ * @param[in]  bit - the key bit value
+ * @return     none
+ */
+static void stuck_key_trigger_process(u32 bit)
 {
   u8 key;
   key_state_t* status;
 
   while(bit){
     if(get_key_from_bit(&bit, &key)){
-      status = get_key_state(key);
+      status = get_key_status(key);
       if(is_key_pressing_exceed_time(status, STUCK_TIME)){
         clr_wakeup_key(key);
         set_key_action(key, STUCK_KEY);
@@ -452,6 +675,11 @@ static void sutck_key_trigger_process(u32 bit)
   }
 }
 
+/**
+ * @brief      This function serves to clear key stuck status when stuck key is released
+ * @param[in]  bit - the key bit value
+ * @return     none
+ */
 static void stuck_key_released_process(u32 bit)
 {
   u8 key;
@@ -462,6 +690,11 @@ static void stuck_key_released_process(u32 bit)
   }
 }
 
+/**
+ * @brief      This function serves to handler when two keys are pressing
+ * @param[in]  bit - the key bit value
+ * @return     none
+ */
 static void two_key_process(u32 bit)
 {
   static bool setup_time_valid;
@@ -474,8 +707,9 @@ static void two_key_process(u32 bit)
   two_bit2key(bit, &two_key);
 
   if((first_key == two_key.key1 && second_key == two_key.key2) || (first_key == two_key.key2 && second_key == two_key.key1)){
-    status1 = get_key_state(first_key);
-    status2 = get_key_state(second_key);
+    status1 = get_key_status(first_key);
+    status2 = get_key_status(second_key);
+    get_key_combin_setup_time_and_combin_time(first_key, &st_time, &cmb_time);
   }else{
     setup_time_valid = 0;
 
@@ -484,13 +718,13 @@ static void two_key_process(u32 bit)
     else
       second_key = two_key.key1;
 
-    status1 = get_key_state(first_key);
-    status2 = get_key_state(second_key);
+    status1 = get_key_status(first_key);
+    status2 = get_key_status(second_key);
+
+    get_key_combin_setup_time_and_combin_time(first_key, &st_time, &cmb_time);
 
     if(is_key_pressing_less_than_time(status1, st_time))//two key is pressing, and first key pressing time is less than st_time
       setup_time_valid = 1;
-
-    get_key_combin_setup_time_and_combin_time(first_key, &st_time, &cmb_time);
 
     if(is_key_pressing_less_than_time(status1, cmb_time)){//two key is pressing, and first key pressing time is less than cmb_time
       set_key_action(first_key,  COMBIN_KEY | FIRST_KEY_FLAG);
@@ -507,6 +741,11 @@ static void two_key_process(u32 bit)
   }
 }
 
+/**
+ * @brief      This function serves to wait leader key action processing
+ * @param[in]  bit - the key bit value
+ * @return     none
+ */
 static void wait_leader_key_process(u32 bit)
 {
   u8 key = 255;
@@ -516,6 +755,11 @@ static void wait_leader_key_process(u32 bit)
   first_key = key;
 }
 
+/**
+ * @brief      This function serves to process leader key action
+ * @param[in]  bit - the key bit value
+ * @return     none
+ */
 static void leader_key_process(u32 bit)
 {
   two_key_t two_key = {255, 255};
@@ -529,8 +773,8 @@ static void leader_key_process(u32 bit)
   else
     second_key = two_key.key1;
 
-  status1 = get_key_state(first_key);
-  status2 = get_key_state(second_key);
+  status1 = get_key_status(first_key);
+  status2 = get_key_status(second_key);
 
   if(!(get_current_key_flag(status2) & LEADER_KEY_FLAG)){
     set_key_action(first_key,  LEADER_KEY | FIRST_KEY_FLAG);
@@ -540,6 +784,11 @@ static void leader_key_process(u32 bit)
   }
 }
 
+/**
+ * @brief      This function serves to process when one key is pressing
+ * @param[in]  bit - the key bit value
+ * @return     none
+ */
 static void one_key_process(u32 bit)
 {
   key_state_t* status;
@@ -548,7 +797,7 @@ static void one_key_process(u32 bit)
 
   one_bit2key(bit, &key);
 
-  status = get_key_state(key);
+  status = get_key_status(key);
 
   if(is_key_from_release_to_pressing(status)){
     if(key != cur_key){
@@ -575,6 +824,11 @@ static void one_key_process(u32 bit)
   }
 }
 
+/**
+ * @brief      This function serves to process when key is from pressing to releasing
+ * @param[in]  bit - the key bit value
+ * @return     none
+ */
 static void released_key_process(u32 bit)
 {
   u8 key = 255;
@@ -582,7 +836,7 @@ static void released_key_process(u32 bit)
 
   one_bit2key(bit, &key);
 
-  status = get_key_state(key);
+  status = get_key_status(key);
 
   set_key_action(key, NO_TIME_LIMIT_KEY_RELEASED);
 
@@ -590,11 +844,22 @@ static void released_key_process(u32 bit)
     set_key_action(key, SHORT_KEY);
 }
 
+/**
+ * @brief      This function serves to get the process status
+ * @param[in]  none
+ * @return the current key process status
+ */
 static inline process_status_t get_process_status()
 {
   return process_status;
 }
 
+/**
+ * @brief      This function serves to change the status with previous status and pressing key numbers
+ * @param[in]  pre_status - the previous process status
+ * @param[in]  key_num    - the current pressing key numbers
+ * @return the adjusted current key process status
+ */
 static  process_status_t change_current_process(process_status_t pre_status, u8 key_num)
 {
   switch(pre_status){
@@ -646,6 +911,11 @@ static  process_status_t change_current_process(process_status_t pre_status, u8 
   return process_status;
 }
 
+/**
+ * @brief      This function serves to set high level key initial status
+ * @param[in]  none
+ * @return     none
+ */
 void key_init()
 {
   u8 type = 0;
@@ -673,6 +943,11 @@ void key_init()
   }
 }
 
+/**
+ * @brief      This function serves to set initial status when system is wakeup
+ * @param[in]  none
+ * @return     none
+ */
 void key_wakeup_init()
 {
   u8 type = 0;
@@ -698,6 +973,11 @@ void key_wakeup_init()
    }
 }
 
+/**
+ * @brief      This function serves to process high level key numbers and actions
+ * @param[in]  data - if you want to process something, you should register a callback function when all key process finished.
+ * @return the key numbers are processing
+ */
 int key_process(void* data)
 {
   u32 pressing_key_bit;
@@ -715,7 +995,7 @@ int key_process(void* data)
     pressing_key_bit = matrix_key_read_pressing(&pressing_key_num);//key_cur_status:pressing
     released_key_bit = matrix_key_read_released(&released_key_num);//key_cur_status:released pressing_time valid
 
-    sutck_key_trigger_process(pressing_key_bit);
+    stuck_key_trigger_process(pressing_key_bit);
 
     stuck_key_released_process(matrix_key_read_stuck_key_released());
 
@@ -749,7 +1029,17 @@ int key_process(void* data)
   return pressing_key_num || released_key_num;
 }
 
-void register_key_event(u8 first_key, u8 second_key, u32 time1, u32 time2, key_action_t key_ac, handler key_handler)
+/**
+ * @brief      This function serves to register key callback which can be invoked when specified action and time are occured
+ * @param[in]  first_key   - the first  key number
+ * @param[in]  second_key  - the second key number
+ * @param[in]  time1       - if action is short action or long action,the time1 specified pressing time
+ * @param[in]  time2       - if action is combin action, the time1 is setup time, the time2 is combin time
+ * @param[in]  action      - the key action which should be registerd to the key event structure
+ * @param[in]  key_handler - the callback will be invoked when above statement are occured
+ * @return     none
+ */
+void register_key_event(u8 first_key, u8 second_key, u32 time1, u32 time2, key_action_t action, handler key_handler)
 {
   event_handler_t* key_hand;
 
@@ -759,7 +1049,7 @@ void register_key_event(u8 first_key, u8 second_key, u32 time1, u32 time2, key_a
     return;
 
   key_hand->second_key  = second_key;
-  key_hand->key_ac      = key_ac;
+  key_hand->key_ac      = action;
   key_hand->key_handler = key_handler;
   key_hand->time1       = time1;
   key_hand->time2       = time2;
@@ -769,22 +1059,43 @@ void register_key_event(u8 first_key, u8 second_key, u32 time1, u32 time2, key_a
   g_list_add_tail(&key_hand->list, &key_event[first_key].list);
 }
 
+/**
+ * @brief      This function serves to register low level key process function
+ * @param[in]  key - the low level key process function array
+ * @param[in]  num - the length of the key process funciton array
+ * @return     none
+ */
 void register_key(const key_type_t* key, u8 num)
 {
   key_table.key = key;
   key_table.num = num;
 }
 
+/**
+ * @brief      This function serves to register the stuck key handler
+ * @param[in]  stuck_handler - when stuck key is occured, the registered callback will be invoked
+ * @return     none
+ */
 void set_stuck_key_handler(handler stuck_handler)
 {
   stuck_key_handler = stuck_handler;
 }
 
+/**
+ * @brief      This function serves to register something you want to do,when key action occured
+ * @param[in]  normal_cb - when key action occured, the registered callback will be invoked
+ * @return     none
+ */
 void register_normal_sys_event(handler normal_cb)
 {
   normal_handler = normal_cb;
 }
 
+/**
+ * @brief      This function serves to poll key event, if key action is occured,it will invoked registered key handler with relative key action
+ * @param[in]  none
+ * @return     none
+ */
 void poll_key_event()
 {
   handler key_handler = NULL;
@@ -846,6 +1157,12 @@ void poll_key_event()
   }
 }
 
+/**
+ * @brief      This function serves to exit peidui mode when first key and second key are pressing
+ * @param[in]  first_key  - the first key number
+ * @param[in]  second_key - the second key number
+ * @return     none
+ */
 bool app_read_key(u8 first_key, u8 second_key)
 {
   key_action_t key_action;
@@ -903,6 +1220,12 @@ bool app_read_key(u8 first_key, u8 second_key)
   return 0;
 }
 
+/**
+ * @brief      This function serves to exit peidui mode when first key is pressing
+ * @param[in]  first_key  - the first key number
+ * @param[in]  my_action  - the key action when exit peidui mode
+ * @return     none
+ */
 bool app_read_single_key(u8 first_key, key_action_t my_action)
 {
   key_action_t key_action;

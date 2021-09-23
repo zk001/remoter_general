@@ -1,3 +1,28 @@
+/********************************************************************************************************
+ * @file     aw9523_led.c
+ *
+ * @brief    This is the source file for TLSR8258
+ *
+ * @author	 Driver Group
+ * @date     Sep 22, 2021
+ *
+ * @par      Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *
+ *           The information contained herein is confidential property of Telink
+ *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *           Co., Ltd. and the licensee or the terms described here-in. This heading
+ *           MUST NOT be removed from this file.
+ *
+ *           Licensees are granted free, non-transferable use of the information in this
+ *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ * @par      History:
+ * 			 1.initial release(DEC. 26 2018)
+ *
+ * @version  A001
+ *
+ *******************************************************************************************************/
 #if defined(AW9523_LED)
 #include "aw9523_led.h"
 #include "main.h"
@@ -17,11 +42,21 @@ static const u8 aw9523_led_table[] = {
   PORT0_BIT_7
 };
 
+/**
+ * @brief      This function serves to write one byte to the GCR register
+ * @param[in]  conf - the data will be written to the GCR register
+ * @return     none
+ */
 static void aw9523_set_conf(u8 conf)
 {
   i2c_write_byte(GCR, 1, conf);
 }
 
+/**
+ * @brief      This function serves to select port which to be configured to be led mode
+ * @param[in]  aw_port - the port will be configured to be the led mode
+ * @return     none
+ */
 static void aw9523_set_led_mode(u8 aw_port)
 {
   u8 port;
@@ -31,6 +66,11 @@ static void aw9523_set_led_mode(u8 aw_port)
   i2c_write_byte(port, 1, 0);
 }
 
+/**
+ * @brief      This function serves to select port which to be configured to be gpio mode
+ * @param[in]  aw_port - the port will be configured to be the gpio mode
+ * @return     none
+ */
 void aw9523_set_gpio_mode(u8 aw_port)
 {
   u8 port;
@@ -40,6 +80,12 @@ void aw9523_set_gpio_mode(u8 aw_port)
   i2c_write_byte(port, 1, 0xff);
 }
 
+/**
+ * @brief      This function serves to set led dim register
+ * @param[in]  port_bit - the port_bit which will be set by level parameter
+ * @param[in]  level - the led brightness level,ranger 0~255
+ * @return     none
+ */
 static void aw9523_set_led_dim(u8 port_bit, u8 level)
 {
   u8 port;
@@ -75,16 +121,32 @@ static void aw9523_set_led_dim(u8 port_bit, u8 level)
     i2c_write_byte(port, 1, level);
 }
 
+/**
+ * @brief      This function serves to set led on
+ * @param[in]  port_bit - the port_bit which  will be set on
+ * @return     none
+ */
 static void aw9523_led_on(u8 port_bit)
 {
   aw9523_set_led_dim(port_bit, LED_BRIGHT_LEVEL);
 }
 
+/**
+ * @brief      This function serves to set led off
+ * @param[in]  port_bit - the port_bit which  will be set off
+ * @return     none
+ */
 static void aw9523_led_off(u8 port_bit)
 {
   aw9523_set_led_dim(port_bit, 0);
 }
 
+/**
+ * @brief      This function serves to set led brightness level
+ * @param[in]  port_bit - the port_bit which will be set by level parameter
+ * @param[in]  level - the led brightness level,ranger 0~255
+ * @return     none
+ */
 static void set_led_bright(u32 port_bit, u8 level)
 {
   switch(port_bit){
@@ -108,6 +170,11 @@ static void set_led_bright(u32 port_bit, u8 level)
   }
 }
 
+/**
+ * @brief      This function serves to initial aw9523
+ * @param[in]  none
+ * @return     none
+ */
 void aw9523_init()
 {
   //  u8 id;
@@ -136,6 +203,12 @@ void aw9523_init()
   aw9523_set_led_mode(1);//port1 as led mode
 }
 
+/**
+ * @brief      This function serves to set led brightness level
+ * @param[in]  leds  - the leds which will be set by level parameter
+ * @param[in]  level - the led brightness level,ranger 0~255
+ * @return     none
+ */
 void aw9523_set_led_bright(u32 leds, u8 level)
 {
   u8  num = 0;
@@ -151,6 +224,12 @@ void aw9523_set_led_bright(u32 leds, u8 level)
   }
 }
 
+/**
+ * @brief      This function serves to set led on or off
+ * @param[in]  leds  - the leds which will be set on or off
+ * @param[in]  mode  - the led mode, HAL_LED_MODE_ON or HAL_LED_MODE_OFF
+ * @return     none
+ */
 void aw9523_led_on_off(u32 leds, u8 mode)
 {
   u8  num = 0;
@@ -169,6 +248,12 @@ void aw9523_led_on_off(u32 leds, u8 mode)
   }
 }
 
+/**
+ * @brief      This function serves to set led breathe
+ * @param[in]  leds  - the leds which will be set breathe or not
+ * @param[in]  tim   - the led level, ranger 0~255
+ * @return     none
+ */
 void aw9523_led_breath(u32 leds, u8 tim)
 {
   u8  num = 0;

@@ -1,3 +1,28 @@
+/********************************************************************************************************
+ * @file     ssd1306_oled.c
+ *
+ * @brief    This is the source file for TLSR8258
+ *
+ * @author	 Driver Group
+ * @date     Sep 22, 2021
+ *
+ * @par      Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *
+ *           The information contained herein is confidential property of Telink
+ *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *           Co., Ltd. and the licensee or the terms described here-in. This heading
+ *           MUST NOT be removed from this file.
+ *
+ *           Licensees are granted free, non-transferable use of the information in this
+ *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ * @par      History:
+ * 			 1.initial release(DEC. 26 2018)
+ *
+ * @version  A001
+ *
+ *******************************************************************************************************/
 #if defined(SSD1306_OLED)
 // 液晶模块型号：12832，I2C接口
 // 驱动IC是:SSD1306
@@ -10,26 +35,32 @@
 u8 const ascii_table_8x16[95][16];
 u8 const ascii_table_5x8[95][5];
 
-//写指令到OLED显示模块
+/**
+ * @brief      This function serves to write instruction to oled
+ * @param[in]  com - the instruction will be write to oled
+ * @return     none
+ */
 static void lcd_command(u8 com)
 {
-//  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
-//
-//  i2c_master_init(LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
-
   i2c_write_series(0x00, 1, (u8*)&com, 1);
 }
 
-//写数据到OLED显示模块
+/**
+ * @brief      This function serves to write data to oled
+ * @param[in]  com - the data will be write to oled
+ * @return     none
+ */
 static void lcd_data(u8 data)
 {
-//  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
-//
-//  i2c_master_init(LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
-
   i2c_write_series(0x40, 1, (u8*)&data, 1);
 }
 
+/**
+ * @brief      This function serves to write address to oled
+ * @param[in]  page   - the page will be write to oled
+ * @param[in]  column - the column will be write to oled
+ * @return     none
+ */
 static void lcd_address(u8 page, u8 column)
 {
   column -=1;
@@ -40,6 +71,11 @@ static void lcd_address(u8 page, u8 column)
   lcd_command(column & 0x0f);				//设置列地址的低4位
 }
 
+/**
+ * @brief      This function serves to clear oled half top screen
+ * @param[in]  none
+ * @return     none
+ */
 void clear_half_top_screen()
 {
   for(u8 i = 0; i < 2; i++){
@@ -49,6 +85,11 @@ void clear_half_top_screen()
   }
 }
 
+/**
+ * @brief      This function serves to clear oled half bottom screen
+ * @param[in]  none
+ * @return     none
+ */
 void clear_half_bottom_screen()
 {
   for(u8 i = 0; i < 2; i++){
@@ -58,7 +99,11 @@ void clear_half_bottom_screen()
   }
 }
 
-/*全屏清屏*/
+/**
+ * @brief      This function serves to clear all oled screen
+ * @param[in]  none
+ * @return     none
+ */
 void clear_screen()
 {
   for(u8 i = 0; i < 4; i++){
@@ -69,6 +114,11 @@ void clear_screen()
 }
 
 //===显示测试画面：例如全显示，隔行显示，隔列显示，雪花显示=====
+/**
+ * @brief      This function serves to test oled
+ * @param[in]  none
+ * @return     none
+ */
 void test_display(u8 data1, u8 data2)
 {
   for(u8 j = 0; j < 4; j++){
@@ -81,7 +131,14 @@ void test_display(u8 data1, u8 data2)
 }
 
 /*显示128x32点阵图像*/
-void display_graphic_128x32(u8 page, u8 column, u8 *dp)
+/**
+ * @brief      This function serves to display 128*32
+ * @param[in]  page   - the page will be write to oled
+ * @param[in]  column - the column will be write to oled
+ * @param[in]  dp     - the data will be write to oled
+ * @return     none
+ */
+void display_graphic_128x32(u8 page, u8 column, u8* dp)
 {
   for(u8 j = 0; j < 4; j++){		 //8
     lcd_address(page + j, column);
@@ -92,8 +149,14 @@ void display_graphic_128x32(u8 page, u8 column, u8 *dp)
   }          
 }
 
-
-void display_graphic_1x8(u8 page, u8 column, u8 *dp)
+/**
+ * @brief      This function serves to display 1*8
+ * @param[in]  page   - the page will be write to oled
+ * @param[in]  column - the column will be write to oled
+ * @param[in]  dp     - the data will be write to oled
+ * @return     none
+ */
+void display_graphic_1x8(u8 page, u8 column, u8* dp)
 {
   for(u8 j = 0; j < 1; j++){		 //8
 	lcd_address(page + j, column);
@@ -103,6 +166,12 @@ void display_graphic_1x8(u8 page, u8 column, u8 *dp)
   }
 }
 
+/**
+ * @brief      This function serves to clear 1*16
+ * @param[in]  page    - the page will be write to oled
+ * @param[in]  column  - the column will be write to oled
+ * @return     none
+ */
 void clr_graphic_1x16(u8 page, u8 column)
 {
   for(u8 j = 0; j < 2; j++){		 //8
@@ -113,7 +182,14 @@ void clr_graphic_1x16(u8 page, u8 column)
   }
 }
 
-void display_graphic_1x16(u8 page, u8 column, u8 *dp)
+/**
+ * @brief      This function serves to display 1*16
+ * @param[in]  page   - the page will be write to oled
+ * @param[in]  column - the column will be write to oled
+ * @param[in]  dp     - the data will be write to oled
+ * @return     none
+ */
+void display_graphic_1x16(u8 page, u8 column, u8* dp)
 {
   for(u8 j = 0; j < 2; j++){		 //8
 	lcd_address(page + j, column);
@@ -124,6 +200,12 @@ void display_graphic_1x16(u8 page, u8 column, u8 *dp)
   }
 }
 
+/**
+ * @brief      This function serves to clear 128*16
+ * @param[in]  page    - the page will be write to oled
+ * @param[in]  column  - the column will be write to oled
+ * @return     none
+ */
 void clr_graphic_128x16(u8 page, u8 column)
 {
   for(u8 j = 0; j < 2; j++){		 //8
@@ -133,7 +215,14 @@ void clr_graphic_128x16(u8 page, u8 column)
   }
 }
 
-void display_graphic_128x16(u8 page, u8 column, u8 *dp)
+/**
+ * @brief      This function serves to display 128*16
+ * @param[in]  page   - the page will be write to oled
+ * @param[in]  column - the column will be write to oled
+ * @param[in]  dp     - the data will be write to oled
+ * @return     none
+ */
+void display_graphic_128x16(u8 page, u8 column, u8* dp)
 {
   for(u8 j = 0; j < 2; j++){		 //8
     lcd_address(page + j, column);
@@ -145,7 +234,14 @@ void display_graphic_128x16(u8 page, u8 column, u8 *dp)
 }
 
 /*显示32x32点阵图像、汉字、生僻字或32x32点阵的其他图标*/
-void display_graphic_32x32(u8 page, u8 column, u8 *dp)
+/**
+ * @brief      This function serves to display 32*32
+ * @param[in]  page   - the page will be write to oled
+ * @param[in]  column - the column will be write to oled
+ * @param[in]  dp     - the data will be write to oled
+ * @return     none
+ */
+void display_graphic_32x32(u8 page, u8 column, u8* dp)
 {
   for(u8 j = 0; j < 4; j++){
     lcd_address(page + j, column);
@@ -156,6 +252,12 @@ void display_graphic_32x32(u8 page, u8 column, u8 *dp)
   }
 }
 
+/**
+ * @brief      This function serves to clear 16*16
+ * @param[in]  page    - the page will be write to oled
+ * @param[in]  column  - the column will be write to oled
+ * @return     none
+ */
 void clr_graphic_16x16_2(u8 reverse, u8 page, u8 column)
 {
   for(u8 j = 0; j < 2; j++){
@@ -170,7 +272,15 @@ void clr_graphic_16x16_2(u8 reverse, u8 page, u8 column)
 }
 
 /*显示16x16点阵图像、汉字、生僻字或16x16点阵的其他图标*/
-void display_graphic_16x16_2(u8 reverse, u8 page, u8 column, u8 *dp)
+/**
+ * @brief      This function serves to display 16*16
+ * @param[in]  reverse - reverse the display
+ * @param[in]  page    - the page will be write to oled
+ * @param[in]  column  - the column will be write to oled
+ * @param[in]  dp      - the data will be write to oled
+ * @return     none
+ */
+void display_graphic_16x16_2(u8 reverse, u8 page, u8 column, u8* dp)
 {
   for(u8 j = 0; j < 2; j++){
     lcd_address(page + j, column);
@@ -185,7 +295,14 @@ void display_graphic_16x16_2(u8 reverse, u8 page, u8 column, u8 *dp)
 }
 
 /*显示16x16点阵图像、汉字、生僻字或16x16点阵的其他图标*/
-void display_graphic_16x16(u8 page, u8 column, u8 *dp)
+/**
+ * @brief      This function serves to display 16*16
+ * @param[in]  page    - the page will be write to oled
+ * @param[in]  column  - the column will be write to oled
+ * @param[in]  dp      - the data will be write to oled
+ * @return     none
+ */
+void display_graphic_16x16(u8 page, u8 column, u8* dp)
 {
   for(u8 j = 0; j < 2; j++){
     lcd_address(page + j, column);
@@ -196,6 +313,12 @@ void display_graphic_16x16(u8 page, u8 column, u8 *dp)
   }
 }
 
+/**
+ * @brief      This function serves to clear 8*16
+ * @param[in]  page    - the page will be write to oled
+ * @param[in]  column  - the column will be write to oled
+ * @return     none
+ */
 void clr_graphic_8x16(u8 page, u8 column)
 {
   for(u8 j = 0; j < 2; j++){
@@ -206,7 +329,14 @@ void clr_graphic_8x16(u8 page, u8 column)
 }
 
 /*显示8x16点阵图像、ASCII, 或8x16点阵的自造字符、其他图标*/
-void display_graphic_8x16(u8 page, u8 column, u8 *dp)
+/**
+ * @brief      This function serves to display 8*16
+ * @param[in]  page    - the page will be write to oled
+ * @param[in]  column  - the column will be write to oled
+ * @param[in]  dp      - the data will be write to oled
+ * @return     none
+ */
+void display_graphic_8x16(u8 page, u8 column, u8* dp)
 {
   for(u8 j = 0; j < 2; j++){
     lcd_address(page + j, column);
@@ -217,7 +347,14 @@ void display_graphic_8x16(u8 page, u8 column, u8 *dp)
   }
 }
 
-void display_string_8x16(u32 page, u32 column, u8 *text)
+/**
+ * @brief      This function serves to display 8*16
+ * @param[in]  page    - the page will be write to oled
+ * @param[in]  column  - the column will be write to oled
+ * @param[in]  text    - the data will be write to oled
+ * @return     none
+ */
+void display_string_8x16(u32 page, u32 column, u8* text)
 {
   u32 i = 0;
   u32 j;
@@ -238,7 +375,14 @@ void display_string_8x16(u32 page, u32 column, u8 *text)
   }
 }
 
-void display_string_5x8(u32 page, u32 column, u8 *text)
+/**
+ * @brief      This function serves to display 5*8
+ * @param[in]  page    - the page will be write to oled
+ * @param[in]  column  - the column will be write to oled
+ * @param[in]  text    - the data will be write to oled
+ * @return     none
+ */
+void display_string_5x8(u32 page, u32 column, u8* text)
 {
   u32 i = 0;
   u32 j;
@@ -258,6 +402,11 @@ void display_string_5x8(u32 page, u32 column, u8 *text)
 }
 
 //LCD模块初始化
+/**
+ * @brief      This function serves to init the oled
+ * @param[in]  none
+ * @return     none
+ */
 void initial_lcd()
 {
   //	LCD_RST =0;
@@ -309,6 +458,11 @@ void initial_lcd()
   //	delay(200);
 }
 
+/**
+ * @brief      This function serves to init the oled without clear screen
+ * @param[in]  none
+ * @return     none
+ */
 void initial_lcd_no_clr()
 {
   //	LCD_RST =0;

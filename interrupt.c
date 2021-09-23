@@ -1,3 +1,28 @@
+/********************************************************************************************************
+ * @file     interrupt.c
+ *
+ * @brief    This is the source file for TLSR8258
+ *
+ * @author	 Driver Group
+ * @date     Sep 22, 2021
+ *
+ * @par      Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *
+ *           The information contained herein is confidential property of Telink
+ *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *           Co., Ltd. and the licensee or the terms described here-in. This heading
+ *           MUST NOT be removed from this file.
+ *
+ *           Licensees are granted free, non-transferable use of the information in this
+ *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ * @par      History:
+ * 			 1.initial release(DEC. 26 2018)
+ *
+ * @version  A001
+ *
+ *******************************************************************************************************/
 #include "../drivers.h"
 #include "led.h"
 #include "../../esb_ll/esb_ll.h"
@@ -22,6 +47,11 @@ const u8 rf_channel_select[] = {10, 44, 100, 140};
 volatile unsigned char timer0_expire_flg = 0;
 unsigned int timer0_irq_cnt = 0;
 
+/**
+ * @brief      This function serves to handler irq_handler
+ * @param[in]  none
+ * @return     none
+ */
 __attribute__((section(".ram_code")))__attribute__((optimize("-Os"))) void irq_handler(void)
 {
   unsigned short src_rf = rf_irq_src_get();

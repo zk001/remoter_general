@@ -1,3 +1,28 @@
+/********************************************************************************************************
+ * @file     apt8l08_key.c
+ *
+ * @brief    This is the source file for TLSR8258
+ *
+ * @author	 Driver Group
+ * @date     Sep 22, 2021
+ *
+ * @par      Copyright (c) 2021, Telink Semiconductor (Shanghai) Co., Ltd.
+ *           All rights reserved.
+ *
+ *           The information contained herein is confidential property of Telink
+ *           Semiconductor (Shanghai) Co., Ltd. and is available under the terms
+ *           of Commercial License Agreement between Telink Semiconductor (Shanghai)
+ *           Co., Ltd. and the licensee or the terms described here-in. This heading
+ *           MUST NOT be removed from this file.
+ *
+ *           Licensees are granted free, non-transferable use of the information in this
+ *           file under Mutual Non-Disclosure Agreement. NO WARRENTY of ANY KIND is provided.
+ * @par      History:
+ * 			 1.initial release(DEC. 26 2018)
+ *
+ * @version  A001
+ *
+ *******************************************************************************************************/
 #if defined(APT8_KEY)
 #include "led.h"
 #include "apt8l08_key.h"
@@ -16,7 +41,12 @@ _attribute_data_retention_ static u8 apt8_first_key;
 _attribute_data_retention_ static u8 apt8_last_key;
 _attribute_data_retention_ static bool touch_key_set_sleep = 1;
 
-//write one byte data to apt8 register
+/**
+ * @brief      This function serves to write one byte from the slave device at the specified address
+ * @param[in]  addr - i2c slave address where the one byte data will be read
+ * @param[in]  data - the one byte data will be written via I2C interface
+ * @return     none
+ */
 static void apt8_set_reg(u8 addr, u8 data)
 {
   u8 rd_data; 
@@ -33,18 +63,31 @@ static void apt8_set_reg(u8 addr, u8 data)
   }while(rd_data != data && cnt);
 }
 
-//apt8 enter config mode
+/**
+ * @brief     This function serves to enter apt8 config mode
+ * @param[in] none.
+ * @return    none
+ */
 static void apt8_set_cfg()
 {
   apt8_set_reg(SYS_CON, 0x5a);
 }
 
-//apt8 enter active mode
+/**
+ * @brief     This function serves to enter apt8 active mode
+ * @param[in] none.
+ * @return    none
+ */
 static void apt_set_active()
 {
   apt8_set_reg(SYS_CON, 0);
 }
 
+/**
+ * @brief      This function serves to translate from global key to local key
+ * @param[in]  key - global key
+ * @return     the local key translated from global key
+ */
 static key_index_t local_touch_key(key_index_t key)
 {
   if(key < apt8_first_key)
@@ -56,6 +99,11 @@ static key_index_t local_touch_key(key_index_t key)
   return key - apt8_first_key;
 }
 
+/**
+ * @brief     This function serves to enter apt8 sleep mode
+ * @param[in] none.
+ * @return    none
+ */
 void apt8_enter_sleep()
 {
   i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
@@ -65,6 +113,11 @@ void apt8_enter_sleep()
   apt8_set_cfg();
 }
 
+/**
+ * @brief     This function serves to exit apt8 sleep mode
+ * @param[in] none.
+ * @return    none
+ */
 void apt8_exit_sleep()
 {
   i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
@@ -74,6 +127,14 @@ void apt8_exit_sleep()
   apt_set_active();
 }
 
+/**
+ * @brief      This function serves to write one byte from the slave device at the specified address
+ * @param[in]  cap_sense - the address of the cap_sense value array
+ * @param[in]  cap_sense_cnt - the length of the cap_sense value array
+ * @param[in]  reg_data - the address of the apt8 register data array
+ * @param[in]  reg_data_cnt - the length of the reg_data value array
+ * @return     none
+ */
 void apt8_set_cap_sense_and_reg_data(const u8* cap_sense, u8 cap_sense_cnt, const u8* reg_data, u8 reg_data_cnt)
 {
   if(cap_sense && cap_sense_cnt == 8)
@@ -83,6 +144,12 @@ void apt8_set_cap_sense_and_reg_data(const u8* cap_sense, u8 cap_sense_cnt, cons
     apt8_reg_data = reg_data;
 }
 
+/**
+ * @brief      This function serves to init apt8
+ * @param[in]  first_key - the global first key of apt8
+ * @param[in]  last_key - the global last key of apt8
+ * @return     none
+ */
 void apt8_init(u8 first_key, u8 last_key)
 {
   i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
@@ -115,6 +182,11 @@ void apt8_init(u8 first_key, u8 last_key)
   apt8_last_key  = last_key;
 }
 
+/**
+ * @brief     This function serves to reset apt8
+ * @param[in] none.
+ * @return    none
+ */
 void apt8_reset()
 {
   i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
@@ -130,7 +202,12 @@ void apt8_reset()
   WaitMs(5);
 }
 
-//read key value
+/**
+ * @brief      This function serves to read the specified apt8 key whether is pressing or not
+ * @param[out]  key_s - specified the key is pressing or not
+ * @param[in]   key   - the global key of apt8
+ * @return     none
+ */
 void apt8_read(key_status_t* key_s, key_index_t key)
 {
   u8 rd_data;
@@ -147,18 +224,33 @@ void apt8_read(key_status_t* key_s, key_index_t key)
   *key_s = (rd_data & (1 << touch_key)) ? PRESSING:RELEASE;
 }
 
+/**
+ * @brief     This function serves to set apt8 if wakeup system or not
+ * @param[in] none.
+ * @return    none
+ */
 void apt8_touch_key_sleep_setup()
 {
   if(touch_key_set_sleep)
     SET_COL_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(APT8L08_INT);
 }
 
+/**
+ * @brief     This function serves to enable apt8 wakeup system
+ * @param[in] key - the global key of apt8.
+ * @return    none
+ */
 void apt8_touch_key_enable_sleep(u8 key)
 {
   (void)key;
   touch_key_set_sleep = 1;
 }
 
+/**
+ * @brief     This function serves to disable apt8 wakeup system
+ * @param[in] key - the global key of apt8.
+ * @return    none
+ */
 void apt8_touch_key_disable_sleep(u8 key)
 {
   (void)key;
