@@ -83,7 +83,7 @@ void aw9523_set_gpio_mode(u8 aw_port)
 /**
  * @brief      This function serves to set led dim register
  * @param[in]  port_bit - the port_bit which will be set by level parameter
- * @param[in]  level - the led brightness level,ranger 0~255
+ * @param[in]  level    - the led brightness level,ranger 0~255
  * @return     none
  */
 static void aw9523_set_led_dim(u8 port_bit, u8 level)

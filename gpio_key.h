@@ -24,8 +24,8 @@
  *
  *******************************************************************************************************/
 #if defined(GPIO_KEY)
-#ifndef __MECHANICAL_H_
-#define __MECHANICAL_H_
+#ifndef __GPIO_KEY_H__
+#define __GPIO_KEY_H__
 
 #define SET_ROW_GPIO_OUTPUT_HIGH(row) st(\
     gpio_set_func(row, AS_GPIO);\
@@ -82,7 +82,7 @@
     gpio_set_input_en(row, 0);\
     gpio_setup_up_down_resistor(row, PM_PIN_PULLUP_10K);)
 
-enum wake_up_pin_t{
+enum wake_up_pin_t {
   IS_WAKE_UP = 1,
   NO_WAKE_UP = 2
 };

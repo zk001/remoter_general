@@ -49,7 +49,7 @@ _attribute_data_retention_ static u8 gpio_first_key;
 _attribute_data_retention_ static u8 gpio_last_key;
 
 _attribute_data_retention_ static struct {
-  key_map_t *map;
+  key_map_t* map;
   u8 num;
 }gpio_key_map;
 
@@ -240,10 +240,10 @@ void gpio_key_sleep_setup()
 void gpio_key_low_scan(key_status_t* key_s, key_index_t key)//key scan rate too low
 {
   static bool wakeup_fast_scan = 1;
+  u8 local_key;
   u32 time;
   u32 cur_time;
   key_map_t* key_row_col;
-  u8 local_key;
 
   if(gpio_key_map.map && gpio_key_map.num){
     local_gpio_key(key, &local_key);

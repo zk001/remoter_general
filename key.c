@@ -810,8 +810,7 @@ static void one_key_process(u32 bit)
     long_key_time = 0;
   }
 
-  if(get_pressing_time(status))
-    set_key_action(key, NO_TIME_LIMIT_KEY_ON);
+  set_key_action(key, NO_TIME_LIMIT_KEY_ON);
 
   if(!(get_current_key_flag(status) & LONG_KEY_FLAG)){
     long_key_event = is_long_key(key, status);

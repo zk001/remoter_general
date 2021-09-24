@@ -42,8 +42,8 @@ _attribute_data_retention_ static u8 apt8_last_key;
 _attribute_data_retention_ static bool touch_key_set_sleep = 1;
 
 /**
- * @brief      This function serves to write one byte from the slave device at the specified address
- * @param[in]  addr - i2c slave address where the one byte data will be read
+ * @brief      This function serves to write one byte from the master device at the specified slave address
+ * @param[in]  addr - i2c slave address where the one byte data will be written
  * @param[in]  data - the one byte data will be written via I2C interface
  * @return     none
  */
@@ -64,7 +64,7 @@ static void apt8_set_reg(u8 addr, u8 data)
 }
 
 /**
- * @brief     This function serves to enter apt8 config mode
+ * @brief     This function serves to enter apt8 configured mode
  * @param[in] none.
  * @return    none
  */
@@ -84,9 +84,9 @@ static void apt_set_active()
 }
 
 /**
- * @brief      This function serves to translate from global key to local key
- * @param[in]  key - global key
- * @return     the local key translated from global key
+ * @brief      This function serves to translate global key to local key
+ * @param[in]  key - the global key
+ * @return the local key translated from the global key
  */
 static key_index_t local_touch_key(key_index_t key)
 {
@@ -129,10 +129,10 @@ void apt8_exit_sleep()
 
 /**
  * @brief      This function serves to write one byte from the slave device at the specified address
- * @param[in]  cap_sense - the address of the cap_sense value array
+ * @param[in]  cap_sense     - the address of the cap_sense value array
  * @param[in]  cap_sense_cnt - the length of the cap_sense value array
- * @param[in]  reg_data - the address of the apt8 register data array
- * @param[in]  reg_data_cnt - the length of the reg_data value array
+ * @param[in]  reg_data      - the address of the apt8 register data array
+ * @param[in]  reg_data_cnt  - the length of the reg_data value array
  * @return     none
  */
 void apt8_set_cap_sense_and_reg_data(const u8* cap_sense, u8 cap_sense_cnt, const u8* reg_data, u8 reg_data_cnt)
@@ -147,7 +147,7 @@ void apt8_set_cap_sense_and_reg_data(const u8* cap_sense, u8 cap_sense_cnt, cons
 /**
  * @brief      This function serves to init apt8
  * @param[in]  first_key - the global first key of apt8
- * @param[in]  last_key - the global last key of apt8
+ * @param[in]  last_key  - the global last key of apt8
  * @return     none
  */
 void apt8_init(u8 first_key, u8 last_key)
