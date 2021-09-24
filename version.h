@@ -1,3 +1,3 @@
 #ifndef _VERSION_
-#define _VERSION_ "version: 16dd6e5 commit: 2021-09-22 09:21:14 build: 2021-09-22 13:48:18"
+#define _VERSION_ "version: v2.0 commit_id: 8248f24 commit_date: 2021-09-24 14:27:23 build_date: 2021-09-24 14:44:39"
 #endif
