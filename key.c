@@ -803,12 +803,10 @@ static void one_key_process(u32 bit)
   status = get_key_status(key);
 
   if(is_key_from_release_to_pressing(status)){
-    if(key != cur_key){
-      wakeup_system_key(key);
-      pre_key = cur_key;
-      cur_key = key;
-    }
+    wakeup_system_key(key);
     first_key = key;
+    pre_key = cur_key;
+    cur_key = key;
     set_key_action(key, SHORT_KEY_IMMEDIATELY);
     long_key_time = 0;
   }
