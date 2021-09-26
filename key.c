@@ -860,50 +860,61 @@ static inline process_status_t get_process_status()
  * @brief      This function serves to change the status with previous status and pressing key numbers
  * @param[in]  pre_status - the previous process status
  * @param[in]  key_num    - the current pressing key numbers
+ * @param[in]  key_released_num - the current released key numbers
  * @return the adjusted current key process status
  */
-static  process_status_t change_current_process(process_status_t pre_status, u8 key_num)
+static process_status_t change_current_process(process_status_t pre_status, u8 key_pressing_num, u8 key_released_num)
 {
   switch(pre_status){
-    case INITIAL_PROCESS:
-      if(key_num == 1)
+    case INITIAL_PROCESS://ok
+      if(key_pressing_num == 1)
         process_status = ONE_KEY_PROCESS;
       break;
-    case ONE_KEY_PROCESS:
-      if(!key_num)
+    case ONE_KEY_PROCESS://ok
+     if(key_released_num)
         process_status = ONE_KEY_RELEASED_PROCESS;
-      else if(key_num == 2)
+      else if(key_pressing_num == 2)
         process_status = TWO_KEY_PROCESS;
+      else if(!key_pressing_num && !key_released_num)
+        process_status = IDLE_PROCESS;
       break;
-    case ONE_KEY_RELEASED_PROCESS:
-      if(key_num == 1)
+    case ONE_KEY_RELEASED_PROCESS://ok
+      if(key_pressing_num == 1)
         process_status = ONE_KEY_PROCESS;
       else
         process_status = IDLE_PROCESS;
-    case TWO_KEY_PROCESS:
-      if(key_num == 1)
+    case TWO_KEY_PROCESS://ok
+      if(key_pressing_num == 1 && key_released_num)
         process_status = WAIT_LEADER_KEY_PROCESS;
-      else if(key_num != 2)
+      else if(key_pressing_num == 1 && !key_released_num)
+        process_status = ONE_KEY_PROCESS;
+      else if(!key_pressing_num)
+        process_status = IDLE_PROCESS;
+      else if(key_pressing_num != 2)
         process_status = WAIT_KEY_RELEASED_PROCESS;
       break;
-    case WAIT_LEADER_KEY_PROCESS:
-      if(key_num == 2)
+    case WAIT_LEADER_KEY_PROCESS://ok
+      if(key_pressing_num == 2)
         process_status = LEADER_KEY_PROCESS;
-      else if(key_num != 1)
-        process_status = WAIT_KEY_RELEASED_PROCESS;
+      else if(key_pressing_num != 1)
+        process_status = IDLE_PROCESS;
       break;
     case LEADER_KEY_PROCESS:
-      if(key_num == 1)
+      if(key_pressing_num == 1 && key_released_num)
         process_status = WAIT_LEADER_KEY_PROCESS;
-      else if(key_num != 2)
+      else if(key_pressing_num == 1 && !key_released_num)
+        process_status = ONE_KEY_PROCESS;
+      else if(!key_pressing_num)
+        process_status = IDLE_PROCESS;
+      else if(key_pressing_num != 2)
         process_status = WAIT_KEY_RELEASED_PROCESS;
       break;
     case WAIT_KEY_RELEASED_PROCESS:
-      if(!key_num)
+      if(!key_pressing_num)
         process_status = IDLE_PROCESS;
       break;
     case IDLE_PROCESS:
-      if(!key_num)
+      if(!key_pressing_num)
         process_status = INITIAL_PROCESS;
       else
         process_status = WAIT_KEY_RELEASED_PROCESS;
@@ -982,9 +993,9 @@ void key_wakeup_init()
  */
 int key_process(void* data)
 {
-  u32 pressing_key_bit;
-  u32 released_key_bit;
-  u32 stuck_bit;
+  u32 pressing_key_bit = 0;
+  u32 released_key_bit = 0;
+  u32 stuck_bit = 0;
 
   u8 pressing_key_num = 0;
   u8 released_key_num = 0;
@@ -998,21 +1009,12 @@ int key_process(void* data)
     pressing_key_bit = matrix_key_read_pressing(&pressing_key_num);//key_cur_status:pressing
     released_key_bit = matrix_key_read_released(&released_key_num);//key_cur_status:released pressing_time valid
 
-    stuck_bit = stuck_key_trigger_process(pressing_key_bit);
-
-    if(stuck_bit){
-      process_status = INITIAL_PROCESS;
-      return (stuck_bit ^ pressing_key_bit) || released_key_num;
-    }
-
-    stuck_key_released_process(matrix_key_read_stuck_key_released());
-
     if(pressing_key_num)
       reload_sys_time();
 
     pre_status = get_process_status();
 
-    cur_status = change_current_process(pre_status, pressing_key_num);
+    cur_status = change_current_process(pre_status, pressing_key_num, released_key_num);
 
     one_key_twice_normal_update();
 
@@ -1034,6 +1036,10 @@ int key_process(void* data)
       second_key = 255;
     }
   }
+
+  stuck_bit = stuck_key_trigger_process(pressing_key_bit);
+  stuck_key_released_process(matrix_key_read_stuck_key_released());
+
   return pressing_key_num || released_key_num;
 }
 
