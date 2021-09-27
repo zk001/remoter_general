@@ -30,6 +30,7 @@
 #include "board.h"
 #include "gpio_key.h"
 #include "app.h"
+#include "sleep_gpio_set.h"
 
 //init
 //row set input with 1m pull_up resistor
