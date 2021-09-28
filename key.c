@@ -656,11 +656,10 @@ static void one_key_twice_finish()
 /**
  * @brief      This function serves to checkout whether the key is stuck
  * @param[in]  bit - the key bit value
- * @return the stuck key bit value
+ * @return     none
  */
-static u32 stuck_key_trigger_process(u32 bit)
+static void stuck_key_trigger_process(u32 bit)
 {
-  u32 stuck_bit = 0;
   u8 key;
   key_state_t* status;
 
@@ -671,11 +670,9 @@ static u32 stuck_key_trigger_process(u32 bit)
         clr_wakeup_key(key);
         set_key_action(key, STUCK_KEY);
         set_current_key_flag(status, STUCK_KEY_FLAG);
-        stuck_bit |= 1 << key;
       }
     }
   }
-  return stuck_bit;
 }
 
 /**
@@ -993,7 +990,6 @@ int key_process(void* data)
 {
   u32 pressing_key_bit = 0;
   u32 released_key_bit = 0;
-  u32 stuck_bit = 0;
 
   u8 pressing_key_num = 0;
   u8 released_key_num = 0;
@@ -1035,7 +1031,7 @@ int key_process(void* data)
     }
   }
 
-  stuck_bit = stuck_key_trigger_process(pressing_key_bit);
+  stuck_key_trigger_process(pressing_key_bit);
   stuck_key_released_process(matrix_key_read_stuck_key_released());
 
   return pressing_key_num || released_key_num;

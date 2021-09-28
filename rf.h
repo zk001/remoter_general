@@ -25,7 +25,7 @@
  *******************************************************************************************************/
 #ifndef __RF_H__
 #define __RF_H__
-
+extern void send_rf_data_yihe_peidui(void* addr, u32 len);
 extern void send_rf_data(void *addr, u32 len);
 extern u8 receive_rf_data(void *addr);
 extern void rf_8359_set_tx(void);
