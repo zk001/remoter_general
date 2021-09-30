@@ -38,6 +38,8 @@ bool exit_peidui;
 u8 wakeup_key = 255;
 u8 pre_key    = 255;
 u8 cur_key    = 255;
+u32 pressing_key_bit;
+u32 released_key_bit;
 
 _attribute_data_retention_ static handler       stuck_key_handler;
 _attribute_data_retention_ static key_state_t   key_status[MAX_KEYS];
@@ -591,10 +593,10 @@ static void one_key_twice_pressing_update(u32 bit)
   //key from released to pressing && is other key is pressing, then start time windows
   if(is_key_from_release_to_pressing(status)){
     if(key_start_time_window == 255 || key_start_time_window != key){
-      key_start_time_window = key;//which key starts the time windows
-      pressed_tick = clock_time();
-    }
-    pressed_times++;
+	  key_start_time_window = key;//which key starts the time windows
+	  pressed_tick = clock_time();
+	}
+	pressed_times++;
   }
 }
 
@@ -710,35 +712,38 @@ static void two_key_process(u32 bit)
     status1 = get_key_status(first_key);
     status2 = get_key_status(second_key);
     get_key_combin_setup_time_and_combin_time(first_key, &st_time, &cmb_time);
-  }else{
-    setup_time_valid = 0;
+   }else{
+     setup_time_valid = 0;
 
-    if(first_key == two_key.key1)
-      second_key = two_key.key2;
-    else
-      second_key = two_key.key1;
+     if(first_key == 255){
+       first_key  = two_key.key1;
+       second_key = two_key.key2;
+     }else if(first_key == two_key.key1)
+       second_key = two_key.key2;
+     else
+       second_key = two_key.key1;
 
-    status1 = get_key_status(first_key);
-    status2 = get_key_status(second_key);
+     status1 = get_key_status(first_key);
+     status2 = get_key_status(second_key);
 
-    get_key_combin_setup_time_and_combin_time(first_key, &st_time, &cmb_time);
+     get_key_combin_setup_time_and_combin_time(first_key, &st_time, &cmb_time);
 
-    if(is_key_pressing_less_than_time(status1, st_time))//two key is pressing, and first key pressing time is less than st_time
-      setup_time_valid = 1;
+     if(is_key_pressing_less_than_time(status1, st_time))//two key is pressing, and first key pressing time is less than st_time
+       setup_time_valid = 1;
 
-    if(is_key_pressing_less_than_time(status1, cmb_time)){//two key is pressing, and first key pressing time is less than cmb_time
-      set_key_action(first_key,  COMBIN_KEY | FIRST_KEY_FLAG);
-      set_key_action(second_key, COMBIN_KEY | SECOND_KEY_FLAG);
-    }
-  }
+     if(is_key_pressing_less_than_time(status1, cmb_time)){//two key is pressing, and first key pressing time is less than cmb_time
+       set_key_action(first_key,  COMBIN_KEY | FIRST_KEY_FLAG);
+       set_key_action(second_key, COMBIN_KEY | SECOND_KEY_FLAG);
+     }
+   }
 
-  if(setup_time_valid){
-    if(is_key_pressing_exceed_time(status2, cmb_time)){//if pressing time is more than cmb_time
-      setup_time_valid = 0;
-      set_key_action(first_key,   COMBIN_KEY_IN_TIME | FIRST_KEY_FLAG );//bit31 used as firstkey flag
-      set_key_action(second_key,  COMBIN_KEY_IN_TIME | SECOND_KEY_FLAG);//bit30 used as secondkey flag
-    }
-  }
+   if(setup_time_valid){
+     if(is_key_pressing_exceed_time(status2, cmb_time)){//if pressing time is more than cmb_time
+       setup_time_valid = 0;
+       set_key_action(first_key,   COMBIN_KEY_IN_TIME | FIRST_KEY_FLAG );//bit31 used as firstkey flag
+       set_key_action(second_key,  COMBIN_KEY_IN_TIME | SECOND_KEY_FLAG);//bit30 used as secondkey flag
+     }
+   }
 }
 
 /**
@@ -768,7 +773,10 @@ static void leader_key_process(u32 bit)
 
   two_bit2key(bit, &two_key);
 
-  if(first_key == two_key.key1)
+  if(first_key == 255){
+    first_key = two_key.key1;
+    second_key = two_key.key2;
+  }else if(first_key == two_key.key1)
     second_key = two_key.key2;
   else
     second_key = two_key.key1;
@@ -861,37 +869,49 @@ static inline process_status_t get_process_status()
 static process_status_t change_current_process(process_status_t pre_status, u8 key_pressing_num, u8 key_released_num)
 {
   switch(pre_status){
-    case INITIAL_PROCESS://ok
+    case INITIAL_PROCESS:
       if(key_pressing_num == 1)
         process_status = ONE_KEY_PROCESS;
+      else if(key_pressing_num == 2)
+    	process_status = TWO_KEY_PROCESS;
+      else if(key_pressing_num > 2)
+    	process_status = WAIT_KEY_RELEASED_PROCESS;
       break;
-    case ONE_KEY_PROCESS://ok
-     if(key_released_num)
+    case ONE_KEY_PROCESS:
+      if(key_released_num)
         process_status = ONE_KEY_RELEASED_PROCESS;
       else if(key_pressing_num == 2)
         process_status = TWO_KEY_PROCESS;
+      else if(key_pressing_num > 2)
+    	process_status = WAIT_KEY_RELEASED_PROCESS;
       else if(!key_pressing_num && !key_released_num)
         process_status = IDLE_PROCESS;
       break;
-    case ONE_KEY_RELEASED_PROCESS://ok
+    case ONE_KEY_RELEASED_PROCESS:
       if(key_pressing_num == 1)
         process_status = ONE_KEY_PROCESS;
+      else if(key_pressing_num == 2)
+    	process_status = TWO_KEY_PROCESS;
+      else if(key_pressing_num > 2)
+        process_status = WAIT_KEY_RELEASED_PROCESS;
       else
-        process_status = IDLE_PROCESS;
-    case TWO_KEY_PROCESS://ok
+    	process_status = IDLE_PROCESS;
+    case TWO_KEY_PROCESS:
       if(key_pressing_num == 1 && key_released_num)
         process_status = WAIT_LEADER_KEY_PROCESS;
       else if(key_pressing_num == 1 && !key_released_num)
         process_status = ONE_KEY_PROCESS;
       else if(!key_pressing_num)
         process_status = IDLE_PROCESS;
-      else if(key_pressing_num != 2)
+      else if(key_pressing_num > 2)
         process_status = WAIT_KEY_RELEASED_PROCESS;
       break;
-    case WAIT_LEADER_KEY_PROCESS://ok
+    case WAIT_LEADER_KEY_PROCESS:
       if(key_pressing_num == 2)
         process_status = LEADER_KEY_PROCESS;
-      else if(key_pressing_num != 1)
+      else if(key_pressing_num > 2)
+    	process_status = WAIT_KEY_RELEASED_PROCESS;
+      else if(!key_pressing_num)
         process_status = IDLE_PROCESS;
       break;
     case LEADER_KEY_PROCESS:
@@ -901,7 +921,7 @@ static process_status_t change_current_process(process_status_t pre_status, u8 k
         process_status = ONE_KEY_PROCESS;
       else if(!key_pressing_num)
         process_status = IDLE_PROCESS;
-      else if(key_pressing_num != 2)
+      else if(key_pressing_num > 2)
         process_status = WAIT_KEY_RELEASED_PROCESS;
       break;
     case WAIT_KEY_RELEASED_PROCESS:
@@ -988,14 +1008,10 @@ void key_wakeup_init()
  */
 int key_process(void* data)
 {
-  u32 pressing_key_bit = 0;
-  u32 released_key_bit = 0;
-
-  u8 pressing_key_num = 0;
-  u8 released_key_num = 0;
-
   process_status_t pre_status;
   process_status_t cur_status;
+  u8 pressing_key_num = 0;
+  u8 released_key_num = 0;
 
   if(key_table.key && key_table.num){
     matrix_key_read();
@@ -1029,11 +1045,9 @@ int key_process(void* data)
       first_key  = 255;
       second_key = 255;
     }
+    stuck_key_trigger_process(pressing_key_bit);
+    stuck_key_released_process(matrix_key_read_stuck_key_released());
   }
-
-  stuck_key_trigger_process(pressing_key_bit);
-  stuck_key_released_process(matrix_key_read_stuck_key_released());
-
   return pressing_key_num || released_key_num;
 }
 

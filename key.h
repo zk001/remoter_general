@@ -184,6 +184,8 @@ extern bool exit_peidui;
 extern u8 cur_key;
 extern u8 pre_key;
 extern u8 wakeup_key;
+extern u32 pressing_key_bit;
+extern u32 released_key_bit;
 
 extern void register_key(const key_type_t* key, u8 num);
 extern void key_init();
