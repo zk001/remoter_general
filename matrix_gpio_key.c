@@ -28,7 +28,7 @@
 #include "n_timer.h"
 #include "key.h"
 #include "board.h"
-#include "gpio_key.h"
+#include "matrix_gpio_key.h"
 #include "app.h"
 #include "sleep_gpio_set.h"
 

@@ -24,8 +24,8 @@
  *
  *******************************************************************************************************/
 #if defined(GPIO_KEY)
-#ifndef __GPIO_KEY_H__
-#define __GPIO_KEY_H__
+#ifndef __MATRIX_GPIO_KEY_H__
+#define __MATRIX_GPIO_KEY_H__
 
 enum wake_up_pin_t {
   IS_WAKE_UP = 1,
