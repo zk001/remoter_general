@@ -28,7 +28,7 @@
 #include "apt8l08_key.h"
 #include "main.h"
 #include "../drivers.h"
-#include "gpio_key.h"
+#include "matrix_gpio_key.h"
 #include "n_timer.h"
 #include "sleep_gpio_set.h"
 #include "board.h"

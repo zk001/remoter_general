@@ -27,7 +27,7 @@
 #include "../../common/mempool.h"
 #include "main.h"
 #include "board.h"
-#include "gpio_key.h"
+#include "matrix_gpio_key.h"
 #include "apt8l08_key.h"
 #include "power_saving.h"
 #include "key.h"
