@@ -43,6 +43,10 @@ _attribute_data_retention_ static u8 apt8_first_key;
 _attribute_data_retention_ static u8 apt8_last_key;
 _attribute_data_retention_ static bool touch_key_set_sleep = 1;
 
+#if defined(APT_DEBOUNCE)
+static u32 debounce_time[MAX_TOUCH_KEYS];
+#endif
+
 /**
  * @brief      This function serves to write one byte from the master device at the specified slave address
  * @param[in]  addr - i2c slave address where the one byte data will be written
@@ -223,7 +227,28 @@ void apt8_read(key_status_t* key_s, key_index_t key)
 
   touch_key = local_touch_key(key);
 
+#if defined(APT_DEBOUNCE)
+  u32 time;
+  u32 cur_time;
+
+  time = debounce_time[touch_key];
+  cur_time = clock_time();
+
+  if((rd_data & (1 << touch_key))){
+    if(!time){
+      debounce_time[touch_key] = clock_time();
+      *key_s = RELEASE;
+    }else if(((u32)((int)cur_time - (int)time)) >= APT_DEBOUNCE_TIME)
+      *key_s = PRESSING;
+    else
+      *key_s = RELEASE;
+  }else{
+    debounce_time[touch_key] = 0;
+    *key_s = RELEASE;
+  }
+#else
   *key_s = (rd_data & (1 << touch_key)) ? PRESSING:RELEASE;
+#endif
 }
 
 /**
