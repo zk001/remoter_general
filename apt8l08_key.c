@@ -33,15 +33,15 @@
 #include "sleep_gpio_set.h"
 #include "board.h"
 
-static const u8 APTT8L16ArrySensing[8]= {0x03,0x04,0x04,0x03,0x03,0x04,0x04,0x04};
-static const u8 APTTouchRegAdd[14]={0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d};
-static const u8 APTTouchRegDat[14]={0x03,0x50,0x20,0x00,0x00,0x00,0x08,0x02,0x02,0x10,0x10,0x04,0x00,0x00};
+static const u8 APTT8L16ArrySensing[8] = {0x03,0x04,0x04,0x03,0x03,0x04,0x04,0x04};
+static const u8 APTTouchRegAdd[14] = {0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d};
+static const u8 APTTouchRegDat[14] = {0x03,0x50,0x20,0x00,0x00,0x00,0x08,0x02,0x02,0x10,0x10,0x04,0x00,0x00};
 _attribute_data_retention_ static const u8* apt8_cap_sense = APTT8L16ArrySensing;
 _attribute_data_retention_ static const u8* apt8_reg_data  = APTTouchRegDat;
 
 _attribute_data_retention_ static u8 apt8_first_key;
 _attribute_data_retention_ static u8 apt8_last_key;
-_attribute_data_retention_ static bool touch_key_set_sleep = 1;
+_attribute_data_retention_ static bool touch_key_set_sleep = true;
 
 #if defined(APT_DEBOUNCE)
 static u32 debounce_time[MAX_TOUCH_KEYS];
@@ -270,7 +270,7 @@ void apt8_touch_key_sleep_setup()
 void apt8_touch_key_enable_sleep(u8 key)
 {
   (void)key;
-  touch_key_set_sleep = 1;
+  touch_key_set_sleep = true;
 }
 
 /**
@@ -281,7 +281,7 @@ void apt8_touch_key_enable_sleep(u8 key)
 void apt8_touch_key_disable_sleep(u8 key)
 {
   (void)key;
-  touch_key_set_sleep = 0;
+  touch_key_set_sleep = false;
 }
 
 #endif

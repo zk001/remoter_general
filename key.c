@@ -231,16 +231,6 @@ static inline bool is_key_from_release_to_pressing(const key_state_t* key_s)
 }
 
 /**
- * @brief      This function serves to checkout if the key status is from pressing to release ignore the pressing time
- * @param[in]  key_s - the key handler which will be checkout
- * @return true if the key status is from pressing to release
- */
-static inline bool is_current_key_no_time_limit_released(const key_state_t* key_s)
-{
-  return key_s->cur_status == RELEASE && key_s->pressing_time;
-}
-
-/**
  * @brief      This function serves to get the key state structure
  * @param[in]  key - the key number
  * @return the key state structure
@@ -450,7 +440,7 @@ static bool get_key_from_bit(u32* bit, u8* key)
 {
   u32  bit_indicate = 1;
   u32  tmp_itor = 0;
-  bool has_key = 0;
+  bool has_key = false;
   u8 real_key = 0;
 
   while(*bit){
@@ -463,7 +453,7 @@ static bool get_key_from_bit(u32* bit, u8* key)
       }
       real_key--;
       *key = real_key;
-      has_key = 1;
+      has_key = true;
       break;
     }
     bit_indicate <<= 1;
@@ -713,7 +703,7 @@ static void two_key_process(u32 bit)
     status2 = get_key_status(second_key);
     get_key_combin_setup_time_and_combin_time(first_key, &st_time, &cmb_time);
    }else{
-     setup_time_valid = 0;
+     setup_time_valid = false;
 
      if(first_key == 255){
        first_key  = two_key.key1;
@@ -729,7 +719,7 @@ static void two_key_process(u32 bit)
      get_key_combin_setup_time_and_combin_time(first_key, &st_time, &cmb_time);
 
      if(is_key_pressing_less_than_time(status1, st_time))//two key is pressing, and first key pressing time is less than st_time
-       setup_time_valid = 1;
+       setup_time_valid = true;
 
      if(is_key_pressing_less_than_time(status1, cmb_time)){//two key is pressing, and first key pressing time is less than cmb_time
        set_key_action(first_key,  COMBIN_KEY | FIRST_KEY_FLAG);
@@ -739,7 +729,7 @@ static void two_key_process(u32 bit)
 
    if(setup_time_valid){
      if(is_key_pressing_exceed_time(status2, cmb_time)){//if pressing time is more than cmb_time
-       setup_time_valid = 0;
+       setup_time_valid = false;
        set_key_action(first_key,   COMBIN_KEY_IN_TIME | FIRST_KEY_FLAG );//bit31 used as firstkey flag
        set_key_action(second_key,  COMBIN_KEY_IN_TIME | SECOND_KEY_FLAG);//bit30 used as secondkey flag
      }

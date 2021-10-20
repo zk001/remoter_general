@@ -133,7 +133,7 @@ bool key_low_level_scan(const key_map_t* key)
 
   gpio_key_for_scan(key);
 
-  status = read_col_gpio(key->col) ? 0:1;
+  status = read_col_gpio(key->col) ? false:true;
 
   gpio_key_for_no_scan(key);
 
@@ -240,7 +240,7 @@ void gpio_key_sleep_setup()
  */
 void gpio_key_low_scan(key_status_t* key_s, key_index_t key)//key scan rate too low
 {
-  static bool wakeup_fast_scan = 1;
+  static bool wakeup_fast_scan = true;
   u8 local_key;
   u32 time;
   u32 cur_time;
@@ -264,7 +264,7 @@ void gpio_key_low_scan(key_status_t* key_s, key_index_t key)//key scan rate too 
         *key_s = RELEASE;
       }
       if(is_last_local_key(local_key)){
-        wakeup_fast_scan = 0;
+        wakeup_fast_scan = false;
         WaitMs(20);//wait for debounce scan
       }
     }else{

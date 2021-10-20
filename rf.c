@@ -394,7 +394,7 @@ bool receive_from_peer(u32 uid)
 
   if(receive_rf_data((u8*)&rx_buf)){
     if((rx_buf.pid == uid || rx_buf.pid == 0) && rx_buf.control_key == 0x88)
-      return 1;
+      return true;
   }
-  return 0;
+  return false;
 }

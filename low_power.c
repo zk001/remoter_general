@@ -78,7 +78,7 @@ bool low_bat_chk(u32 threshold, low_bat_warn* cb_warn, low_bat_finish* cb_finsis
       cb_warn();
     if(cb_finsish)
       low_bat_finish_cb = cb_finsish;
-    low_bat_warnning = 1;
+    low_bat_warnning = true;
     power_threshold = threshold;
     low_bat_process_time = low_bat_time;
     low_bat_start_time = clock_time();
@@ -97,7 +97,7 @@ void low_bat_update()
   if(low_bat_start_time){
     if(n_clock_time_exceed(low_bat_start_time, low_bat_process_time)){
       low_bat_start_time = 0;
-      low_bat_warnning = 0;
+      low_bat_warnning = false;
       if(low_bat_finish_cb)
         low_bat_finish_cb();
     }
@@ -121,7 +121,7 @@ bool is_bat_warn()
  */
 void clr_bat_warn()
 {
-  low_bat_warnning = 0;
+  low_bat_warnning = false;
 }
 
 /**

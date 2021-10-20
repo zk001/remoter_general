@@ -39,7 +39,7 @@ volatile unsigned char ds_flag = 0;
 volatile unsigned char maxretry_flag = 0;
 
 #if defined(YIHE) || defined(YIHE_0932) || defined(RUIERTE)
-const u8 rf_channel_select[] = {140, 170, 190, 198};
+const u8 rf_channel_select[] = {130, 140, 150, 160};
 #else
 const u8 rf_channel_select[] = {10, 44, 100, 140};
 #endif

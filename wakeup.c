@@ -46,7 +46,7 @@ bool is_wakeup_from_sleep()
  */
 void clr_wakeup_flag()
 {
-  wake_up = 0;
+  wake_up = false;
 }
 
 /**
@@ -56,5 +56,5 @@ void clr_wakeup_flag()
  */
 void set_wakeup_flag()
 {
-  wake_up = 1;
+  wake_up = true;
 }
