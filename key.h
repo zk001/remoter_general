@@ -146,10 +146,10 @@ enum key_type_e{
 typedef struct {
   u8 key;
   enum key_type_e type;
-  void (*key_init)(u8 first_key, u8 last_key);
-  void (*key_scan)(key_status_t* key_s, key_index_t key);
-  void (*key_enable_sleep)(u8 key);
-  void (*key_disable_sleep)(u8 key);
+  void (*key_init) (u8 first_key, u8 last_key);
+  void (*key_scan) (key_status_t* key_s, key_index_t key);
+  void (*key_enable_sleep) (u8 key);
+  void (*key_disable_sleep) (u8 key);
 }key_type_t;
 
 typedef struct {
@@ -187,16 +187,16 @@ extern u8 wakeup_key;
 extern u32 pressing_key_bit;
 extern u32 released_key_bit;
 
-extern void register_key(const key_type_t* key, u8 num);
-extern void key_init();
-extern void key_wakeup_init();
-extern int key_process();
-extern void poll_key_event();
-extern void register_key_event(u8 first_key, u8 second_key, u32 time1, u32 time2, key_action_t key_ac, handler key_handler);
-extern bool app_read_single_key(u8 first_key, key_action_t my_action);
-extern bool app_read_key(u8 first_key, u8 second_key);
-extern void key_gpio_sleep_init();
-extern void set_stuck_key_handler(handler stuck_handler);
-extern void register_normal_sys_event(handler noraml_cb);
+extern void register_key (const key_type_t* key, u8 num);
+extern void key_init ();
+extern void key_wakeup_init ();
+extern int key_process ();
+extern void poll_key_event ();
+extern void register_key_event (u8 first_key, u8 second_key, u32 time1, u32 time2, key_action_t key_ac, handler key_handler);
+extern bool app_read_single_key (u8 first_key, key_action_t my_action);
+extern bool app_read_key (u8 first_key, u8 second_key);
+extern void key_gpio_sleep_init ();
+extern void set_stuck_key_handler (handler stuck_handler);
+extern void register_normal_sys_event (handler noraml_cb);
 
 #endif

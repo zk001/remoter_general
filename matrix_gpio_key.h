@@ -38,11 +38,11 @@ typedef struct {
   enum wake_up_pin_t is_wake_up_pin;
 }key_map_t;
 
-extern void gpio_key_alloc(key_map_t* key_arry, u8 num);
-extern void gpio_key_init(u8 first_key, u8 last_key);
-extern void gpio_key_sleep_setup();
-extern void gpio_key_enable_sleep(u8 key);
-extern void gpio_key_disable_sleep(u8 key);
-extern void gpio_key_low_scan(key_status_t* key_s, key_index_t key);
+extern void gpio_key_alloc (key_map_t* key_arry, u8 num);
+extern void gpio_key_init (u8 first_key, u8 last_key);
+extern void gpio_key_sleep_setup ();
+extern void gpio_key_enable_sleep (u8 key);
+extern void gpio_key_disable_sleep (u8 key);
+extern void gpio_key_low_scan (key_status_t* key_s, key_index_t key);
 #endif
 #endif

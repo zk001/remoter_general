@@ -39,9 +39,9 @@ volatile unsigned char ds_flag = 0;
 volatile unsigned char maxretry_flag = 0;
 
 #if defined(YIHE) || defined(YIHE_0932) || defined(RUIERTE)
-const u8 rf_channel_select[] = {130, 140, 150, 160};
+const u8 rf_channel_select [] = {130, 140, 150, 160};
 #else
-const u8 rf_channel_select[] = {10, 44, 100, 140};
+const u8 rf_channel_select [] = {10, 44, 100, 140};
 #endif
 
 volatile unsigned char timer0_expire_flg = 0;
@@ -54,8 +54,8 @@ unsigned int timer0_irq_cnt = 0;
  */
 __attribute__((section(".ram_code")))__attribute__((optimize("-Os"))) void irq_handler(void)
 {
-  unsigned short src_rf = rf_irq_src_get();
-  unsigned char pipe = ESB_GetTXPipe();
+  unsigned short src_rf = rf_irq_src_get ();
+  unsigned char pipe = ESB_GetTXPipe ();
 
   if (src_rf & FLD_RF_IRQ_TX)
   {
@@ -100,7 +100,7 @@ __attribute__((section(".ram_code")))__attribute__((optimize("-Os"))) void irq_h
     rx_flag = 1;
   }
 
-  if(reg_tmr_sta & FLD_TMR_STA_TMR0){
+  if (reg_tmr_sta & FLD_TMR_STA_TMR0) {
     reg_tmr_sta = FLD_TMR_STA_TMR0; //clear irq status
     timer0_irq_cnt ++;;
     timer0_expire_flg = 1;

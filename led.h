@@ -86,29 +86,29 @@ extern "C"
   /*
    * Initialize LED Service.
    */
-  extern void HalLedInit( void );
+  extern void HalLedInit ( void );
 
   /*
    * Set the LED ON/OFF/TOGGLE.
    */
-  extern u32 HalLedSet( u32 led, u8 mode );
+  extern u32 HalLedSet ( u32 led, u8 mode );
 
   /*
    * Blink the LED.
    */
-  extern void HalLedBlink( u32 leds, u8 cnt, u8 duty, u32 time );
+  extern void HalLedBlink ( u32 leds, u8 cnt, u8 duty, u32 time );
 
   extern int HalLedUpdate (void *data);
 
   /*
    * Put LEDs in sleep state - store current values
    */
-  extern void HalLedEnterSleep( void );
+  extern void HalLedEnterSleep ( void );
 
   /*
    * Retore LEDs from sleep state
    */
-  extern void HalLedExitSleep( void );
+  extern void HalLedExitSleep ( void );
 
   /*
    * Return LED state
@@ -117,7 +117,7 @@ extern "C"
 
   extern void HalLedBreathe (u32 leds, u8 numBreathe, u32 step, u32 period);
   extern int HalLedUpdateBreath (void *data);
-  extern void register_led(const hal_led_t *led, u8 num);
+  extern void register_led (const hal_led_t *led, u8 num);
   //extern u8 HalLedGetMode(u32 leds);
 
   /*********************************************************************

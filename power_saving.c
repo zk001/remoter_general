@@ -36,7 +36,7 @@ static u32 sys_tick;
  * @param[in]  ms   - the millisecond
  * @return     none
  */
-void idle_time_for_sleep(u32 ms)
+void idle_time_for_sleep (u32 ms)
 {
   idle_tick = MS2TICK(ms);
 }
@@ -46,9 +46,9 @@ void idle_time_for_sleep(u32 ms)
  * @param[in]  none
  * @return true if the system time is more than idle time
  */
-bool poll_idle_time()
+bool poll_idle_time ()
 {
-  return n_clock_time_exceed(sys_tick, TICK2US(idle_tick));
+  return n_clock_time_exceed (sys_tick, TICK2US(idle_tick));
 }
 
 /**
@@ -56,8 +56,8 @@ bool poll_idle_time()
  * @param[in]  none
  * @return     none
  */
-void reload_sys_time()
+void reload_sys_time ()
 {
-  sys_tick = clock_time();
+  sys_tick = clock_time ();
 }
 

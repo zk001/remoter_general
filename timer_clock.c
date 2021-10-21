@@ -33,7 +33,7 @@ timer_handler_t timer_handler;
  * @param[in]  none
  * @return     none
  */
-void clr_timer_handler()
+void clr_timer_handler ()
 {
   timer_handler.t_handler = NULL;
   timer_handler.para      = 0;
@@ -44,7 +44,7 @@ void clr_timer_handler()
  * @param[in]  timer_hand - the timer handler
  * @return     none
  */
-void set_timer_handler(timer_handler_t* timer_hand)
+void set_timer_handler (timer_handler_t* timer_hand)
 {
   timer_handler.t_handler = timer_hand->t_handler;
   timer_handler.para      = timer_hand->para;
@@ -55,7 +55,7 @@ void set_timer_handler(timer_handler_t* timer_hand)
  * @param[in]  timer_hand - the timer handler
  * @return     none
  */
-void set_timer_handler_para(timer_handler_t* timer_hand)
+void set_timer_handler_para (timer_handler_t* timer_hand)
 {
   timer_handler.para = timer_hand->para;
 }
@@ -65,7 +65,7 @@ void set_timer_handler_para(timer_handler_t* timer_hand)
  * @param[in]  none
  * @return     none
  */
-void run_timer_handler()
+void run_timer_handler ()
 {
   timer_event_handler t_handler;
   u32 para;
@@ -73,8 +73,8 @@ void run_timer_handler()
   t_handler  = timer_handler.t_handler;
   para       = timer_handler.para;
 
-  if(t_handler)
-    t_handler(para);
+  if (t_handler)
+    t_handler (para);
 }
 
 /**
@@ -82,11 +82,11 @@ void run_timer_handler()
  * @param[in]  us  - the timer interrupt interval,microsecond
  * @return     none
  */
-void timer0_clock_init(u32 us)
+void timer0_clock_init (u32 us)
 {
-  timer0_set_mode(TIMER_MODE_SYSCLK, 0, us*CLOCK_SYS_CLOCK_1US);
-  timer_start(TIMER0);
-  irq_enable();
+  timer0_set_mode (TIMER_MODE_SYSCLK, 0, us*CLOCK_SYS_CLOCK_1US);
+  timer_start (TIMER0);
+  irq_enable ();
 }
 
 /**
@@ -94,7 +94,7 @@ void timer0_clock_init(u32 us)
  * @param[in]  none
  * @return     none
  */
-void timer0_clock_stop()
+void timer0_clock_stop ()
 {
-  timer_stop(TIMER0);
+  timer_stop (TIMER0);
 }

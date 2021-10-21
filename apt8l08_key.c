@@ -33,9 +33,9 @@
 #include "sleep_gpio_set.h"
 #include "board.h"
 
-static const u8 APTT8L16ArrySensing[8] = {0x03,0x04,0x04,0x03,0x03,0x04,0x04,0x04};
-static const u8 APTTouchRegAdd[14] = {0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,0x28,0x29,0x2a,0x2b,0x2c,0x2d};
-static const u8 APTTouchRegDat[14] = {0x03,0x50,0x20,0x00,0x00,0x00,0x08,0x02,0x02,0x10,0x10,0x04,0x00,0x00};
+static const u8 APTT8L16ArrySensing [8] = {0x03, 0x04, 0x04, 0x03, 0x03, 0x04, 0x04, 0x04};
+static const u8 APTTouchRegAdd [14] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d};
+static const u8 APTTouchRegDat [14] = {0x03, 0x50, 0x20, 0x00, 0x00, 0x00, 0x08, 0x02, 0x02, 0x10, 0x10, 0x04, 0x00, 0x00};
 _attribute_data_retention_ static const u8* apt8_cap_sense = APTT8L16ArrySensing;
 _attribute_data_retention_ static const u8* apt8_reg_data  = APTTouchRegDat;
 
@@ -44,7 +44,7 @@ _attribute_data_retention_ static u8 apt8_last_key;
 _attribute_data_retention_ static bool touch_key_set_sleep = true;
 
 #if defined(APT_DEBOUNCE)
-static u32 debounce_time[MAX_TOUCH_KEYS];
+static u32 debounce_time [MAX_TOUCH_KEYS];
 #endif
 
 /**
@@ -53,20 +53,20 @@ static u32 debounce_time[MAX_TOUCH_KEYS];
  * @param[in]  data - the one byte data will be written via I2C interface
  * @return     none
  */
-static void apt8_set_reg(u8 addr, u8 data)
+static void apt8_set_reg (u8 addr, u8 data)
 {
   u8 rd_data; 
   u8 cnt = 10;
 
-  do{
-    i2c_write_series(addr, 1, (u8*)&data, 1);
-    WaitUs(5);
-    i2c_read_series(addr, 1, (u8*)&rd_data, 1);
-    if(rd_data != data){
-      WaitMs(20);
+  do {
+    i2c_write_series (addr, 1, (u8*)&data, 1);
+    WaitUs (5);
+    i2c_read_series (addr, 1, (u8*)&rd_data, 1);
+    if (rd_data != data) {
+      WaitMs (20);
       cnt--;
     }
-  }while(rd_data != data && cnt);
+  } while (rd_data != data && cnt);
 }
 
 /**
@@ -74,9 +74,9 @@ static void apt8_set_reg(u8 addr, u8 data)
  * @param[in] none.
  * @return    none
  */
-static void apt8_set_cfg()
+static void apt8_set_cfg ()
 {
-  apt8_set_reg(SYS_CON, 0x5a);
+  apt8_set_reg (SYS_CON, 0x5a);
 }
 
 /**
@@ -84,9 +84,9 @@ static void apt8_set_cfg()
  * @param[in] none.
  * @return    none
  */
-static void apt_set_active()
+static void apt_set_active ()
 {
-  apt8_set_reg(SYS_CON, 0);
+  apt8_set_reg (SYS_CON, 0);
 }
 
 /**
@@ -94,12 +94,12 @@ static void apt_set_active()
  * @param[in]  key - the global key
  * @return the local key translated from the global key
  */
-static key_index_t local_touch_key(key_index_t key)
+static key_index_t local_touch_key (key_index_t key)
 {
-  if(key < apt8_first_key)
+  if (key < apt8_first_key)
     return 0;
 
-  if(key > apt8_last_key)
+  if (apt8_last_key < key)
     return apt8_last_key - apt8_first_key;
 
   return key - apt8_first_key;
@@ -110,13 +110,13 @@ static key_index_t local_touch_key(key_index_t key)
  * @param[in] none.
  * @return    none
  */
-void apt8_enter_sleep()
+void apt8_enter_sleep ()
 {
-  i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
+  i2c_gpio_set (APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
-  i2c_master_init(APT8_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
+  i2c_master_init (APT8_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
 
-  apt8_set_cfg();
+  apt8_set_cfg ();
 }
 
 /**
@@ -124,13 +124,13 @@ void apt8_enter_sleep()
  * @param[in] none.
  * @return    none
  */
-void apt8_exit_sleep()
+void apt8_exit_sleep ()
 {
-  i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
+  i2c_gpio_set (APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
-  i2c_master_init(APT8_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
+  i2c_master_init (APT8_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
 
-  apt_set_active();
+  apt_set_active ();
 }
 
 /**
@@ -141,12 +141,12 @@ void apt8_exit_sleep()
  * @param[in]  reg_data_cnt  - the length of the reg_data value array
  * @return     none
  */
-void apt8_set_cap_sense_and_reg_data(const u8* cap_sense, u8 cap_sense_cnt, const u8* reg_data, u8 reg_data_cnt)
+void apt8_set_cap_sense_and_reg_data (const u8* cap_sense, u8 cap_sense_cnt, const u8* reg_data, u8 reg_data_cnt)
 {
-  if(cap_sense && cap_sense_cnt == 8)
+  if (cap_sense && cap_sense_cnt == 8)
     apt8_cap_sense = cap_sense;  
 
-  if(reg_data && reg_data_cnt == 14)
+  if (reg_data && reg_data_cnt == 14)
     apt8_reg_data = reg_data;
 }
 
@@ -156,33 +156,33 @@ void apt8_set_cap_sense_and_reg_data(const u8* cap_sense, u8 cap_sense_cnt, cons
  * @param[in]  last_key  - the global last key of apt8
  * @return     none
  */
-void apt8_init(u8 first_key, u8 last_key)
+void apt8_init (u8 first_key, u8 last_key)
 {
-  i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
+  i2c_gpio_set (APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
-  i2c_master_init(APT8_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
+  i2c_master_init (APT8_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
 
-  WaitMs(5);
+  WaitMs (5);
 
-  apt8_set_cfg();
+  apt8_set_cfg ();
 
-  WaitMs(5);
+  WaitMs (5);
 
-  apt_set_active();
+  apt_set_active ();
 
-  WaitMs(5);
+  WaitMs (5);
 
-  apt8_set_cfg();
+  apt8_set_cfg ();
 
-  for(u8 i = 0; i < 14; i++)
-    apt8_set_reg(APTTouchRegAdd[i], apt8_reg_data[i]);
+  for (u8 i = 0; i < 14; i++)
+    apt8_set_reg (APTTouchRegAdd[i], apt8_reg_data[i]);
 
-  for(u8 i = 0; i < 8; i++)
-    apt8_set_reg(i, apt8_cap_sense[i]);
+  for (u8 i = 0; i < 8; i++)
+    apt8_set_reg (i, apt8_cap_sense[i]);
 
-  apt_set_active();
+  apt_set_active ();
 
-  WaitMs(300);
+  WaitMs (300);
 
   apt8_first_key = first_key;
   apt8_last_key  = last_key;
@@ -193,19 +193,19 @@ void apt8_init(u8 first_key, u8 last_key)
  * @param[in] none.
  * @return    none
  */
-void apt8_reset()
+void apt8_reset ()
 {
-  i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
+  i2c_gpio_set (APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
-  i2c_master_init(APT8_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
+  i2c_master_init (APT8_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
 
-  apt8_set_cfg();
+  apt8_set_cfg ();
 
-  WaitMs(5);
+  WaitMs (5);
 
-  apt_set_active();
+  apt_set_active ();
 
-  WaitMs(5);
+  WaitMs (5);
 }
 
 /**
@@ -214,35 +214,35 @@ void apt8_reset()
  * @param[in]   key   - the global key of apt8
  * @return     none
  */
-void apt8_read(key_status_t* key_s, key_index_t key)
+void apt8_read (key_status_t* key_s, key_index_t key)
 {
   u8 rd_data;
   u8 touch_key;
 
-  i2c_gpio_set(APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
+  i2c_gpio_set (APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
-  i2c_master_init(APT8_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
+  i2c_master_init (APT8_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*200000)));
 
-  i2c_read_series(KVR0, 1, (u8*)&rd_data, 1);
+  i2c_read_series (KVR0, 1, (u8*)&rd_data, 1);
 
-  touch_key = local_touch_key(key);
+  touch_key = local_touch_key (key);
 
-#if defined(APT_DEBOUNCE)
+#if defined (APT_DEBOUNCE)
   u32 time;
   u32 cur_time;
 
   time = debounce_time[touch_key];
   cur_time = clock_time();
 
-  if((rd_data & (1 << touch_key))){
-    if(!time){
+  if ((rd_data & (1 << touch_key))) {
+    if (!time) {
       debounce_time[touch_key] = clock_time();
       *key_s = RELEASE;
-    }else if(((u32)((int)cur_time - (int)time)) >= APT_DEBOUNCE_TIME)
+    } else if (((u32)((int)cur_time - (int)time)) >= APT_DEBOUNCE_TIME)
       *key_s = PRESSING;
     else
       *key_s = RELEASE;
-  }else{
+  } else {
     debounce_time[touch_key] = 0;
     *key_s = RELEASE;
   }
@@ -256,10 +256,10 @@ void apt8_read(key_status_t* key_s, key_index_t key)
  * @param[in] none.
  * @return    none
  */
-void apt8_touch_key_sleep_setup()
+void apt8_touch_key_sleep_setup ()
 {
-  if(touch_key_set_sleep)
-    SET_COL_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP(APT8L08_INT);
+  if (touch_key_set_sleep)
+    SET_COL_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP (APT8L08_INT);
 }
 
 /**
@@ -267,9 +267,9 @@ void apt8_touch_key_sleep_setup()
  * @param[in] key - the global key of apt8.
  * @return    none
  */
-void apt8_touch_key_enable_sleep(u8 key)
+void apt8_touch_key_enable_sleep (u8 key)
 {
-  (void)key;
+  (void) key;
   touch_key_set_sleep = true;
 }
 
@@ -278,9 +278,9 @@ void apt8_touch_key_enable_sleep(u8 key)
  * @param[in] key - the global key of apt8.
  * @return    none
  */
-void apt8_touch_key_disable_sleep(u8 key)
+void apt8_touch_key_disable_sleep (u8 key)
 {
-  (void)key;
+  (void) key;
   touch_key_set_sleep = false;
 }
 

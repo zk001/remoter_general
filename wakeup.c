@@ -34,7 +34,7 @@ _attribute_data_retention_ static bool wake_up;
  * @param[in]  none
  * @return true if the system is wakeup from sleep
  */
-bool is_wakeup_from_sleep()
+bool is_wakeup_from_sleep ()
 {
   return wake_up;
 }
@@ -44,7 +44,7 @@ bool is_wakeup_from_sleep()
  * @param[in]  none
  * @return     none
  */
-void clr_wakeup_flag()
+void clr_wakeup_flag ()
 {
   wake_up = false;
 }
@@ -54,7 +54,7 @@ void clr_wakeup_flag()
  * @param[in]  none
  * @return     none
  */
-void set_wakeup_flag()
+void set_wakeup_flag ()
 {
   wake_up = true;
 }

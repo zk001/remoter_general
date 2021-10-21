@@ -23,7 +23,7 @@
  * @version  A001
  *
  *******************************************************************************************************/
-#if defined(AW9523_LED)
+#if defined (AW9523_LED)
 #ifndef _AW9523_LED_H_
 #define _AW9523_LED_H_
 
@@ -32,14 +32,14 @@
 #include "board.h"
 
 #define RSTN_OUT_LOW()  st(\
-    gpio_set_output_en(AW9523_RSTN, 1);\
-    gpio_set_input_en(AW9523_RSTN, 0);\
-    gpio_write(AW9523_RSTN, 0);)
+    gpio_set_output_en (AW9523_RSTN, 1);\
+    gpio_set_input_en (AW9523_RSTN, 0);\
+    gpio_write (AW9523_RSTN, 0);)
 
 #define RSTN_OUT_HIGH()  st(\
-    gpio_set_output_en(AW9523_RSTN, 1);\
-    gpio_set_input_en(AW9523_RSTN, 0);\
-    gpio_write(AW9523_RSTN, 1);)
+    gpio_set_output_en (AW9523_RSTN, 1);\
+    gpio_set_input_en (AW9523_RSTN, 0);\
+    gpio_write (AW9523_RSTN, 1);)
 
 #define P0_IN_STATE    0x00
 #define P1_IN_STATE    0x01
@@ -90,9 +90,9 @@
 #define PORT1_BIT_6  14
 #define PORT1_BIT_7  15
 
-extern void aw9523_init();
-extern void aw9523_led_on_off(u32 leds, u8 mode);
-extern void aw9523_led_breath(u32 leds, u8 tim);
-extern void aw9523_set_led_bright(u32 leds, u8 level);
+extern void aw9523_init ();
+extern void aw9523_led_on_off (u32 leds, u8 mode);
+extern void aw9523_led_breath (u32 leds, u8 tim);
+extern void aw9523_set_led_bright (u32 leds, u8 level);
 #endif
 #endif

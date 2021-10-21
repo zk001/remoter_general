@@ -30,7 +30,7 @@
 #include "app.h"
 #include "n_timer.h"
 
-u32 sample_result[32];
+u32 sample_result [32];
 u32 low_bat_process_time;
 u32 low_bat_start_time;
 low_bat_finish* low_bat_finish_cb;
@@ -42,20 +42,20 @@ u32  power_threshold;
  * @param[in]  threshold - the low power threshold
  * @return 1 if it is in low power status, otherwise it is in normal power status
  */
-bool is_low_power(u32 threshold)
+bool is_low_power (u32 threshold)
 {
   u32 sum = 0;
   u32 avg;
   u8 len = sizeof(sample_result)/sizeof(sample_result[0]);
 
-  adc_init();
-  adc_vbat_init(ADC_INPUT_PIN);
-  adc_power_on_sar_adc(1);
+  adc_init ();
+  adc_vbat_init (ADC_INPUT_PIN);
+  adc_power_on_sar_adc (1);
 
-  for(u8 i = 0; i < len; i++)
+  for (u8 i = 0; i < len; i++)
     sample_result[i] = adc_sample_and_get_result();
 
-  for(u8 i = 0; i < len; i++)
+  for (u8 i = 0; i < len; i++)
     sum += sample_result[i];
 
   avg = sum/len;
@@ -71,17 +71,17 @@ bool is_low_power(u32 threshold)
  * @param[in]  low_bat_time - the low power warning last time
  * @return 1 if it is in low power status, otherwise it is in normal power status
  */
-bool low_bat_chk(u32 threshold, low_bat_warn* cb_warn, low_bat_finish* cb_finsish, u32 low_bat_time)
+bool low_bat_chk (u32 threshold, low_bat_warn* cb_warn, low_bat_finish* cb_finsish, u32 low_bat_time)
 {
-  if(is_low_power(threshold)){
-    if(cb_warn)
+  if (is_low_power (threshold)) {
+    if (cb_warn)
       cb_warn();
-    if(cb_finsish)
+    if (cb_finsish)
       low_bat_finish_cb = cb_finsish;
     low_bat_warnning = true;
     power_threshold = threshold;
     low_bat_process_time = low_bat_time;
-    low_bat_start_time = clock_time();
+    low_bat_start_time = clock_time ();
     return 1;
   }
   return 0;
@@ -92,14 +92,14 @@ bool low_bat_chk(u32 threshold, low_bat_warn* cb_warn, low_bat_finish* cb_finsis
  * @param[in]  none
  * @return     none
  */
-void low_bat_update()
+void low_bat_update ()
 {
-  if(low_bat_start_time){
-    if(n_clock_time_exceed(low_bat_start_time, low_bat_process_time)){
+  if (low_bat_start_time) {
+    if (n_clock_time_exceed(low_bat_start_time, low_bat_process_time)) {
       low_bat_start_time = 0;
       low_bat_warnning = false;
-      if(low_bat_finish_cb)
-        low_bat_finish_cb();
+      if (low_bat_finish_cb)
+        low_bat_finish_cb ();
     }
   }
 }
@@ -109,7 +109,7 @@ void low_bat_update()
  * @param[in]  none
  * @return 1 if it is in low power status, otherwise it is in normal power status
  */
-bool is_bat_warn()
+bool is_bat_warn ()
 {
   return low_bat_warnning;
 }
@@ -119,7 +119,7 @@ bool is_bat_warn()
  * @param[in]  none
  * @return     none
  */
-void clr_bat_warn()
+void clr_bat_warn ()
 {
   low_bat_warnning = false;
 }
@@ -129,7 +129,7 @@ void clr_bat_warn()
  * @param[in]  none
  * @return the low power threshold
  */
-u32 low_power_threshold()
+u32 low_power_threshold ()
 {
   return power_threshold;
 }

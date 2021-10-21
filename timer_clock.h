@@ -43,10 +43,10 @@ typedef struct {
   u32 para;
 }timer_handler_t;
 
-extern void timer0_clock_init(u32 us);
-extern void timer0_clock_stop();
-extern void run_timer_handler();
-extern void set_timer_handler(timer_handler_t *timer_hand);
-extern void clr_timer_handler();
+extern void timer0_clock_init (u32 us);
+extern void timer0_clock_stop ();
+extern void run_timer_handler ();
+extern void set_timer_handler (timer_handler_t *timer_hand);
+extern void clr_timer_handler ();
 
 #endif

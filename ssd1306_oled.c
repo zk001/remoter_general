@@ -32,17 +32,17 @@
 #include "main.h"
 #include "board.h"
 
-u8 const ascii_table_8x16[95][16];
-u8 const ascii_table_5x8[95][5];
+u8 const ascii_table_8x16 [95][16];
+u8 const ascii_table_5x8 [95][5];
 
 /**
  * @brief      This function serves to write instruction to oled
  * @param[in]  com - the instruction will be write to oled
  * @return     none
  */
-static void lcd_command(u8 com)
+static void lcd_command (u8 com)
 {
-  i2c_write_series(0x00, 1, (u8*)&com, 1);
+  i2c_write_series (0x00, 1, (u8*)&com, 1);
 }
 
 /**
@@ -50,9 +50,9 @@ static void lcd_command(u8 com)
  * @param[in]  com - the data will be write to oled
  * @return     none
  */
-static void lcd_data(u8 data)
+static void lcd_data (u8 data)
 {
-  i2c_write_series(0x40, 1, (u8*)&data, 1);
+  i2c_write_series (0x40, 1, (u8*)&data, 1);
 }
 
 /**
@@ -61,14 +61,14 @@ static void lcd_data(u8 data)
  * @param[in]  column - the column will be write to oled
  * @return     none
  */
-static void lcd_address(u8 page, u8 column)
+static void lcd_address (u8 page, u8 column)
 {
   column -=1;
   page   -=1;
 
-  lcd_command(0xb0 + page);   				//设置页地址。每页是8行。一个画面的64行被分成8个页。我们平常所说的第1页，在LCD驱动IC里是第0页，所以在这里减去1*/
-  lcd_command(((column >> 4) & 0x0f) + 0x10);	//设置列地址的高4位
-  lcd_command(column & 0x0f);				//设置列地址的低4位
+  lcd_command (0xb0 + page);   				//设置页地址。每页是8行。一个画面的64行被分成8个页。我们平常所说的第1页，在LCD驱动IC里是第0页，所以在这里减去1*/
+  lcd_command (((column >> 4) & 0x0f) + 0x10);	//设置列地址的高4位
+  lcd_command (column & 0x0f);				//设置列地址的低4位
 }
 
 /**
@@ -76,12 +76,12 @@ static void lcd_address(u8 page, u8 column)
  * @param[in]  none
  * @return     none
  */
-void clear_half_top_screen()
+void clear_half_top_screen ()
 {
-  for(u8 i = 0; i < 2; i++){
-	lcd_address(3 + i, 1);
-	for(u8 j = 0; j < 128; j++)
-	  lcd_data(0x00);
+  for (u8 i = 0; i < 2; i++) {
+	lcd_address (3 + i, 1);
+	for (u8 j = 0; j < 128; j++)
+	  lcd_data (0x00);
   }
 }
 
@@ -90,12 +90,12 @@ void clear_half_top_screen()
  * @param[in]  none
  * @return     none
  */
-void clear_half_bottom_screen()
+void clear_half_bottom_screen ()
 {
-  for(u8 i = 0; i < 2; i++){
-	lcd_address(1 + i, 1);
-	for(u8 j = 0; j < 128; j++)
-	  lcd_data(0x00);
+  for (u8 i = 0; i < 2; i++) {
+	lcd_address (1 + i, 1);
+	for (u8 j = 0; j < 128; j++)
+	  lcd_data (0x00);
   }
 }
 
@@ -104,12 +104,12 @@ void clear_half_bottom_screen()
  * @param[in]  none
  * @return     none
  */
-void clear_screen()
+void clear_screen ()
 {
-  for(u8 i = 0; i < 4; i++){
-    lcd_address(1 + i, 1);
-    for(u8 j = 0; j < 128; j++)
-      lcd_data(0x00);
+  for (u8 i = 0; i < 4; i++) {
+    lcd_address (1 + i, 1);
+    for (u8 j = 0; j < 128; j++)
+      lcd_data (0x00);
   }
 }
 
@@ -119,13 +119,13 @@ void clear_screen()
  * @param[in]  none
  * @return     none
  */
-void test_display(u8 data1, u8 data2)
+void test_display (u8 data1, u8 data2)
 {
-  for(u8 j = 0; j < 4; j++){
-    lcd_address(j + 1, 1);
-    for(u8 i = 0; i < 128; i++){
-      lcd_data(data1);
-      lcd_data(data2);
+  for (u8 j = 0; j < 4; j++) {
+    lcd_address (j + 1, 1);
+    for (u8 i = 0; i < 128; i++) {
+      lcd_data (data1);
+      lcd_data (data2);
     }
   }          
 }
@@ -138,12 +138,12 @@ void test_display(u8 data1, u8 data2)
  * @param[in]  dp     - the data will be write to oled
  * @return     none
  */
-void display_graphic_128x32(u8 page, u8 column, u8* dp)
+void display_graphic_128x32 (u8 page, u8 column, u8* dp)
 {
-  for(u8 j = 0; j < 4; j++){		 //8
-    lcd_address(page + j, column);
-    for(u8 i = 0; i < 128; i++){		 //128
-      lcd_data(*dp);
+  for (u8 j = 0; j < 4; j++) {		 //8
+    lcd_address (page + j, column);
+    for (u8 i = 0; i < 128; i++) {		 //128
+      lcd_data (*dp);
       dp++;
     }
   }          
@@ -156,12 +156,12 @@ void display_graphic_128x32(u8 page, u8 column, u8* dp)
  * @param[in]  dp     - the data will be write to oled
  * @return     none
  */
-void display_graphic_1x8(u8 page, u8 column, u8* dp)
+void display_graphic_1x8 (u8 page, u8 column, u8* dp)
 {
-  for(u8 j = 0; j < 1; j++){		 //8
-	lcd_address(page + j, column);
-	for(u8 i = 0; i < 1; i++){		 //128
-	  lcd_data(*dp);
+  for(u8 j = 0; j < 1; j++) {		 //8
+	lcd_address (page + j, column);
+	for (u8 i = 0; i < 1; i++) {		 //128
+	  lcd_data (*dp);
 	}
   }
 }
@@ -172,12 +172,12 @@ void display_graphic_1x8(u8 page, u8 column, u8* dp)
  * @param[in]  column  - the column will be write to oled
  * @return     none
  */
-void clr_graphic_1x16(u8 page, u8 column)
+void clr_graphic_1x16 (u8 page, u8 column)
 {
-  for(u8 j = 0; j < 2; j++){		 //8
-	lcd_address(page + j, column);
-	for(u8 i = 0; i < 1; i++){		 //128
-	  lcd_data(0);
+  for (u8 j = 0; j < 2; j++) {		 //8
+	lcd_address (page + j, column);
+	for (u8 i = 0; i < 1; i++) {		 //128
+	  lcd_data (0);
 	}
   }
 }
@@ -189,12 +189,12 @@ void clr_graphic_1x16(u8 page, u8 column)
  * @param[in]  dp     - the data will be write to oled
  * @return     none
  */
-void display_graphic_1x16(u8 page, u8 column, u8* dp)
+void display_graphic_1x16 (u8 page, u8 column, u8* dp)
 {
-  for(u8 j = 0; j < 2; j++){		 //8
-	lcd_address(page + j, column);
-	for(u8 i = 0; i < 1; i++){		 //128
-	  lcd_data(*dp);
+  for (u8 j = 0; j < 2; j++) {		 //8
+	lcd_address (page + j, column);
+	for (u8 i = 0; i < 1; i++) {		 //128
+	  lcd_data (*dp);
 	  dp++;
 	}
   }
@@ -206,12 +206,12 @@ void display_graphic_1x16(u8 page, u8 column, u8* dp)
  * @param[in]  column  - the column will be write to oled
  * @return     none
  */
-void clr_graphic_128x16(u8 page, u8 column)
+void clr_graphic_128x16 (u8 page, u8 column)
 {
-  for(u8 j = 0; j < 2; j++){		 //8
-	lcd_address(page + j, column);
-	for(u8 i = 0; i < 128; i++)	 //128
-	  lcd_data(0);
+  for (u8 j = 0; j < 2; j++) {		 //8
+	lcd_address (page + j, column);
+	for (u8 i = 0; i < 128; i++)	 //128
+	  lcd_data (0);
   }
 }
 
@@ -222,12 +222,12 @@ void clr_graphic_128x16(u8 page, u8 column)
  * @param[in]  dp     - the data will be write to oled
  * @return     none
  */
-void display_graphic_128x16(u8 page, u8 column, u8* dp)
+void display_graphic_128x16 (u8 page, u8 column, u8* dp)
 {
-  for(u8 j = 0; j < 2; j++){		 //8
-    lcd_address(page + j, column);
-    for(u8 i = 0; i < 128; i++){		 //128
-      lcd_data(*dp);
+  for (u8 j = 0; j < 2; j++) {		 //8
+    lcd_address (page + j, column);
+    for (u8 i = 0; i < 128; i++) {		 //128
+      lcd_data (*dp);
       dp++;
     }
   }
@@ -241,12 +241,12 @@ void display_graphic_128x16(u8 page, u8 column, u8* dp)
  * @param[in]  dp     - the data will be write to oled
  * @return     none
  */
-void display_graphic_32x32(u8 page, u8 column, u8* dp)
+void display_graphic_32x32 (u8 page, u8 column, u8* dp)
 {
-  for(u8 j = 0; j < 4; j++){
-    lcd_address(page + j, column);
-    for (u8 i = 0; i < 31; i++){
-      lcd_data(*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+  for (u8 j = 0; j < 4; j++) {
+    lcd_address (page + j, column);
+    for (u8 i = 0; i < 31; i++) {
+      lcd_data (*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
       dp++;	
     }
   }
@@ -258,15 +258,15 @@ void display_graphic_32x32(u8 page, u8 column, u8* dp)
  * @param[in]  column  - the column will be write to oled
  * @return     none
  */
-void clr_graphic_16x16_2(u8 reverse, u8 page, u8 column)
+void clr_graphic_16x16_2 (u8 reverse, u8 page, u8 column)
 {
-  for(u8 j = 0; j < 2; j++){
-	lcd_address(page + j, column);
-	for (u8 i = 0; i < 16; i++){
-	  if(reverse == 1)
-	    lcd_data(0);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+  for (u8 j = 0; j < 2; j++) {
+	lcd_address (page + j, column);
+	for (u8 i = 0; i < 16; i++) {
+	  if (reverse == 1)
+	    lcd_data (0);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
 	  else
-		lcd_data(0xff);
+		lcd_data (0xff);
 	}
   }
 }
@@ -280,15 +280,15 @@ void clr_graphic_16x16_2(u8 reverse, u8 page, u8 column)
  * @param[in]  dp      - the data will be write to oled
  * @return     none
  */
-void display_graphic_16x16_2(u8 reverse, u8 page, u8 column, u8* dp)
+void display_graphic_16x16_2 (u8 reverse, u8 page, u8 column, u8* dp)
 {
-  for(u8 j = 0; j < 2; j++){
-    lcd_address(page + j, column);
-    for (u8 i = 0; i < 16; i++){
-      if(reverse == 1)
-        lcd_data(*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+  for (u8 j = 0; j < 2; j++) {
+    lcd_address (page + j, column);
+    for (u8 i = 0; i < 16; i++) {
+      if (reverse == 1)
+        lcd_data (*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
       else
-        lcd_data(~*dp);	/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+        lcd_data (~*dp);	/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
       dp++;
     }
   }
@@ -302,12 +302,12 @@ void display_graphic_16x16_2(u8 reverse, u8 page, u8 column, u8* dp)
  * @param[in]  dp      - the data will be write to oled
  * @return     none
  */
-void display_graphic_16x16(u8 page, u8 column, u8* dp)
+void display_graphic_16x16 (u8 page, u8 column, u8* dp)
 {
-  for(u8 j = 0; j < 2; j++){
-    lcd_address(page + j, column);
-    for (u8 i =0; i < 16; i++){
-      lcd_data(*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+  for (u8 j = 0; j < 2; j++) {
+    lcd_address (page + j, column);
+    for (u8 i =0; i < 16; i++) {
+      lcd_data (*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
       dp++;
     }
   }
@@ -319,12 +319,12 @@ void display_graphic_16x16(u8 page, u8 column, u8* dp)
  * @param[in]  column  - the column will be write to oled
  * @return     none
  */
-void clr_graphic_8x16(u8 page, u8 column)
+void clr_graphic_8x16 (u8 page, u8 column)
 {
-  for(u8 j = 0; j < 2; j++){
-	lcd_address(page + j, column);
+  for (u8 j = 0; j < 2; j++) {
+	lcd_address (page + j, column);
 	for (u8 i = 0; i < 8; i++)
-	  lcd_data(0);					/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+	  lcd_data (0);					/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
   }
 }
 
@@ -336,12 +336,12 @@ void clr_graphic_8x16(u8 page, u8 column)
  * @param[in]  dp      - the data will be write to oled
  * @return     none
  */
-void display_graphic_8x16(u8 page, u8 column, u8* dp)
+void display_graphic_8x16 (u8 page, u8 column, u8* dp)
 {
-  for(u8 j = 0; j < 2; j++){
-    lcd_address(page + j, column);
-    for (u8 i = 0; i < 8; i++){
-      lcd_data(*dp);					/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+  for (u8 j = 0; j < 2; j++) {
+    lcd_address (page + j, column);
+    for (u8 i = 0; i < 8; i++) {
+      lcd_data (*dp);					/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
       dp++;
     }
   }
@@ -354,23 +354,22 @@ void display_graphic_8x16(u8 page, u8 column, u8* dp)
  * @param[in]  text    - the data will be write to oled
  * @return     none
  */
-void display_string_8x16(u32 page, u32 column, u8* text)
+void display_string_8x16 (u32 page, u32 column, u8* text)
 {
   u32 i = 0;
   u32 j;
 
-  while(text[i] > 0x00){
-    if((text[i] >= 0x20) && (text[i] <= 0x7e)){
+  while (text[i] > 0x00) {
+    if ((text[i] >= 0x20) && (text[i] <= 0x7e)) {
       j = text[i] - 0x20;
-      for(u8 n = 0; n < 2; n++){
-        lcd_address(page + n, column);
-        for(u8 k = 0; k < 8; k++)
-          lcd_data(ascii_table_8x16[j][k+8*n]);/*显示5x7的ASCII字到LCD上，y为页地址，x为列地址，最后为数据*/
+      for (u8 n = 0; n < 2; n++) {
+        lcd_address (page + n, column);
+        for (u8 k = 0; k < 8; k++)
+          lcd_data (ascii_table_8x16[j][k+8*n]);/*显示5x7的ASCII字到LCD上，y为页地址，x为列地址，最后为数据*/
       }
       i++;
-      column+=8;		
-    }
-    else
+      column += 8;
+    } else
       i++;
   }
 }
@@ -382,21 +381,20 @@ void display_string_8x16(u32 page, u32 column, u8* text)
  * @param[in]  text    - the data will be write to oled
  * @return     none
  */
-void display_string_5x8(u32 page, u32 column, u8* text)
+void display_string_5x8 (u32 page, u32 column, u8* text)
 {
   u32 i = 0;
   u32 j;
 
-  while(text[i] > 0x00){
-    if((text[i] >= 0x20) && (text[i] < 0x7e)){
+  while (text[i] > 0x00) {
+    if ((text[i] >= 0x20) && (text[i] < 0x7e)) {
       j = text[i] - 0x20;
-      lcd_address(page, column);
-      for(u8 k = 0; k < 5; k++)
-        lcd_data(ascii_table_5x8[j][k]);/*显示5x7的ASCII字到LCD上，y为页地址，x为列地址，最后为数据*/
+      lcd_address (page, column);
+      for (u8 k = 0; k < 5; k++)
+        lcd_data (ascii_table_5x8[j][k]);/*显示5x7的ASCII字到LCD上，y为页地址，x为列地址，最后为数据*/
       i++;
       column += 6;
-    }
-    else
+    }else
       i++;
   }
 }
@@ -414,47 +412,47 @@ void initial_lcd()
   //	LCD_RST =1;
   //	delay(100);	  //等待RC复位  大约10MS
 
-  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
-  i2c_master_init(LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
+  i2c_gpio_set (SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
+  i2c_master_init (LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
 
-  lcd_command(0xAE); //Display Off (0xAE/0xAF) 关显示
+  lcd_command (0xAE); //Display Off (0xAE/0xAF) 关显示
 
-  lcd_command(0x40); //0x40  Set Display Start Line 起始行
+  lcd_command (0x40); //0x40  Set Display Start Line 起始行
 
-  lcd_command(0x81); //Set Contrast Control,本指令的0x81不要改动，改下面的值
-  lcd_command(0x8F); // 0xff 微调对比度的值，可设置范围0x00～0xff
+  lcd_command (0x81); //Set Contrast Control,本指令的0x81不要改动，改下面的值
+  lcd_command (0x8F); // 0xff 微调对比度的值，可设置范围0x00～0xff
 
-  lcd_command(0xA1); //(0XA1/0XA0) Set Segment Re-Map  列扫描顺序：从左到右
-  lcd_command(0xC8); //(0xC0/0xC8) Set COM Output Scan Direction  行扫描顺序：从上到下
+  lcd_command (0xA1); //(0XA1/0XA0) Set Segment Re-Map  列扫描顺序：从左到右
+  lcd_command (0xC8); //(0xC0/0xC8) Set COM Output Scan Direction  行扫描顺序：从上到下
 
-  lcd_command(0xA6);	//Set Normal/Inverse Display
+  lcd_command (0xA6);	//Set Normal/Inverse Display
 
-  lcd_command(0xA8); //Set Multiplex Ratio
-  lcd_command(0x1F); // 1/64 Duty (0x0F~0x3F) duty=1/64	 3F
+  lcd_command (0xA8); //Set Multiplex Ratio
+  lcd_command (0x1F); // 1/64 Duty (0x0F~0x3F) duty=1/64	 3F
 
-  lcd_command(0xD3);  //Set Display Offset 显示偏移
-  lcd_command(0x00);	 //Shift Mapping RAM Counter (0x00~0x3F)
+  lcd_command (0xD3);  //Set Display Offset 显示偏移
+  lcd_command (0x00);	 //Shift Mapping RAM Counter (0x00~0x3F)
 
-  lcd_command(0xD5);  //Set Display Clock Divide Ratio/Oscillator Frequency
-  lcd_command(0x80);	 // Set Clock as 100 Frames/Sec
+  lcd_command (0xD5);  //Set Display Clock Divide Ratio/Oscillator Frequency
+  lcd_command (0x80);	 // Set Clock as 100 Frames/Sec
 
-  lcd_command(0xD9); //Set Pre-Charge Period
-  lcd_command(0x1F);	 //0xf1
+  lcd_command (0xD9); //Set Pre-Charge Period
+  lcd_command (0x1F);	 //0xf1
 
-  lcd_command(0xDA); //Set COM Pins Hardware Configuration
-  lcd_command(0x00); 	  //12
+  lcd_command (0xDA); //Set COM Pins Hardware Configuration
+  lcd_command (0x00); 	  //12
 
-  lcd_command(0xDB); //Set VCOMH Deselect Level
-  lcd_command(0x40);	//0x40
+  lcd_command (0xDB); //Set VCOMH Deselect Level
+  lcd_command (0x40);	//0x40
 
-  clear_screen();	  	//clear all dots
+  clear_screen ();	  	//clear all dots
   //	delay(20);
 
-  lcd_command(0x8D); //Set Charge Pump
-  lcd_command(0x14);
+  lcd_command (0x8D); //Set Charge Pump
+  lcd_command (0x14);
   //lcd_command(0x10);
 
-  lcd_command(0xaf);   //Set Display On
+  lcd_command (0xaf);   //Set Display On
   //	delay(200);
 }
 
@@ -463,7 +461,7 @@ void initial_lcd()
  * @param[in]  none
  * @return     none
  */
-void initial_lcd_no_clr()
+void initial_lcd_no_clr ()
 {
   //	LCD_RST =0;
   //	delay(30);
@@ -471,45 +469,45 @@ void initial_lcd_no_clr()
   //	delay(100);	  //等待RC复位  大约10MS
 
   //  lcd_command(0xAE); //Display Off (0xAE/0xAF) 关显示
-  i2c_gpio_set(SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
-  i2c_master_init(LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
+  i2c_gpio_set (SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
+  i2c_master_init (LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
 
-  lcd_command(0x40); //0x40  Set Display Start Line 起始行
+  lcd_command (0x40); //0x40  Set Display Start Line 起始行
 
-  lcd_command(0x81); //Set Contrast Control,本指令的0x81不要改动，改下面的值
-  lcd_command(0x8F); // 0xff 微调对比度的值，可设置范围0x00～0xff
+  lcd_command (0x81); //Set Contrast Control,本指令的0x81不要改动，改下面的值
+  lcd_command (0x8F); // 0xff 微调对比度的值，可设置范围0x00～0xff
 
-  lcd_command(0xA1); //(0XA1/0XA0) Set Segment Re-Map  列扫描顺序：从左到右
-  lcd_command(0xC8); //(0xC0/0xC8) Set COM Output Scan Direction  行扫描顺序：从上到下
+  lcd_command (0xA1); //(0XA1/0XA0) Set Segment Re-Map  列扫描顺序：从左到右
+  lcd_command (0xC8); //(0xC0/0xC8) Set COM Output Scan Direction  行扫描顺序：从上到下
 
-  lcd_command(0xA6);	//Set Normal/Inverse Display
+  lcd_command (0xA6);	//Set Normal/Inverse Display
 
-  lcd_command(0xA8); //Set Multiplex Ratio
-  lcd_command(0x1F); // 1/64 Duty (0x0F~0x3F) duty=1/64	 3F
+  lcd_command (0xA8); //Set Multiplex Ratio
+  lcd_command (0x1F); // 1/64 Duty (0x0F~0x3F) duty=1/64	 3F
 
-  lcd_command(0xD3);  //Set Display Offset 显示偏移
-  lcd_command(0x00);	 //Shift Mapping RAM Counter (0x00~0x3F)
+  lcd_command (0xD3);  //Set Display Offset 显示偏移
+  lcd_command (0x00);	 //Shift Mapping RAM Counter (0x00~0x3F)
 
-  lcd_command(0xD5);  //Set Display Clock Divide Ratio/Oscillator Frequency
-  lcd_command(0x80);	 // Set Clock as 100 Frames/Sec
+  lcd_command (0xD5);  //Set Display Clock Divide Ratio/Oscillator Frequency
+  lcd_command (0x80);	 // Set Clock as 100 Frames/Sec
 
-  lcd_command(0xD9); //Set Pre-Charge Period
-  lcd_command(0x1F);	 //0xf1
+  lcd_command (0xD9); //Set Pre-Charge Period
+  lcd_command (0x1F);	 //0xf1
 
   lcd_command(0xDA); //Set COM Pins Hardware Configuration
-  lcd_command(0x00); 	  //12
+  lcd_command (0x00); 	  //12
 
-  lcd_command(0xDB); //Set VCOMH Deselect Level
-  lcd_command(0x40);	//0x40
+  lcd_command (0xDB); //Set VCOMH Deselect Level
+  lcd_command (0x40);	//0x40
 
   //  clear_screen();	  	//clear all dots
   //	delay(20);
 
-  lcd_command(0x8D); //Set Charge Pump
-  lcd_command(0x14);
+  lcd_command (0x8D); //Set Charge Pump
+  lcd_command (0x14);
   //lcd_command(0x10);
 
-  lcd_command(0xaf);   //Set Display On
+  lcd_command (0xaf);   //Set Display On
   //	delay(200);
 }
 #endif

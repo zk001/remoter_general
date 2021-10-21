@@ -33,14 +33,14 @@
  * @param[in]  none
  * @return 1 if it is not set, otherwise it is set
  */
-static bool is_original_id()
+static bool is_original_id ()
 {
-  u8 data[8] = {0,0,0,0,0x12,0x34,0x56,0x78};
-  u8 raw_data[8] = {0};
+  u8 data [8] = {0,0,0,0,0x12,0x34,0x56,0x78};
+  u8 raw_data [8] = {0};
 
-  flash_read_page(ID_Flash_Addr, sizeof(raw_data), (u8*)raw_data);
+  flash_read_page (ID_Flash_Addr, sizeof(raw_data), (u8*)raw_data);
 
-  return (!memcmp((const void*)&data[4], (const void*)&raw_data[4], 4))? 0:1;
+  return (!memcmp ((const void*)&data[4], (const void*)&raw_data[4], 4))? 0:1;
 }
 
 /**
@@ -49,9 +49,9 @@ static bool is_original_id()
  * @param[in]  len  - the id length
  * @return     none
  */
-void read_id(void* addr, u8 len)
+void read_id (void* addr, u8 len)
 {
-  flash_read_page(ID_Flash_Addr, len, (u8*)addr);
+  flash_read_page (ID_Flash_Addr, len, (u8*)addr);
 }
 
 /**
@@ -60,15 +60,15 @@ void read_id(void* addr, u8 len)
  * @param[in]  len  - the id length
  * @return     none
  */
-void write_id(void* addr, u8 len)
+void write_id (void* addr, u8 len)
 {
-  u8 data[8] = {0,0,0,0,0x12,0x34,0x56,0x78};
+  u8 data [8] = {0,0,0,0,0x12,0x34,0x56,0x78};
 
-  memcpy(data, addr, len);
+  memcpy (data, addr, len);
 
-  flash_erase_sector(ID_Flash_Addr);
+  flash_erase_sector (ID_Flash_Addr);
 
-  flash_write_page(ID_Flash_Addr, sizeof(data), (u8*)data);
+  flash_write_page (ID_Flash_Addr, sizeof(data), (u8*)data);
 }
 
 /**
@@ -76,10 +76,10 @@ void write_id(void* addr, u8 len)
  * @param[out] data - the generated id
  * @return     none
  */
-void gen_random_id(u32* data)
+void gen_random_id (u32* data)
 {
-  random_generator_init();
-  generateRandomNum(4, (u8*)data);
+  random_generator_init ();
+  generateRandomNum (4, (u8*)data);
 }
 
 /**
@@ -87,11 +87,11 @@ void gen_random_id(u32* data)
  * @param[in]  none
  * @return     none
  */
-void id_init()
+void id_init ()
 {
-  u8 data[8] = {0,0,0,0,0x12,0x34,0x56,0x78};
-  if(is_original_id()){
-    gen_random_id((u32*)data);
-    write_id(data, sizeof(data));
+  u8 data [8] = {0,0,0,0,0x12,0x34,0x56,0x78};
+  if (is_original_id ()) {
+    gen_random_id ((u32*)data);
+    write_id (data, sizeof(data));
   }
 }
