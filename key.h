@@ -70,7 +70,7 @@ typedef enum {
   NO_TIME_LIMIT_KEY_ON        = 0x80, //note
   ONE_KEY_TWICE               = 0x100,
   ONE_KEY_TWICE_ONLY_ONCE     = 0x200,
-  RESERVED_KEY5               = 0x400,
+  SHORT_KEY_EXCEED_TIME       = 0x400,
   LEADER_KEY                  = 0x800,
   RESERVED_KEY6            = 0x1000,
   RESERVED_KEY7            = 0x2000,

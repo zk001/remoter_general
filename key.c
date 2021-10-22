@@ -316,6 +316,35 @@ static bool is_short_key_released (u8 key, const key_state_t* key_s)
 }
 
 /**
+ * @brief      This function serves to checkout if the key is short key exceed specified time
+ * @param[in]  key    - the key will be checkout
+ * @param[in]  key_s  - the key handler
+ * @return the result if it is short key or not
+ */
+static bool is_short_key_released_exceed_time (u8 key, const key_state_t* key_s)
+{
+  event_handler_t* pos_ptr = NULL;
+  u32  key_handler_time1 = 0;
+  u32  key_handler_time2 = 0;
+  u32 time1;
+  u32 time2;
+
+  list_for_each_entry(pos_ptr, &key_event[key].list, list) {
+    if (pos_ptr != (event_handler_t*)&key_event[key].list) {
+      if (pos_ptr->key_ac == SHORT_KEY_EXCEED_TIME) {
+        key_handler_time1 = pos_ptr->time1;
+        key_handler_time2 = pos_ptr->time2;
+        break;
+      }
+    }
+  }
+
+  time1 = key_handler_time1 ? key_handler_time1:SHORT_KEY_OVER_TIME;
+  time2 = key_handler_time2 ? key_handler_time2:SHORT_KEY_IN_TIME;
+
+  return  time1 < key_s->pressing_time && key_s->pressing_time < time2;
+}
+/**
  * @brief      This function serves to checkout if the key is long key
  * @param[in]  key    - the key will be checkout
  * @param[in]  key_s  - the key handler
@@ -837,6 +866,9 @@ static void released_key_process (u32 bit)
 
   if (is_short_key_released (key, status))
     set_key_action (key, SHORT_KEY);
+
+  if(is_short_key_released_exceed_time(key, status))
+    set_key_action(key, SHORT_KEY_EXCEED_TIME);
 }
 
 /**
