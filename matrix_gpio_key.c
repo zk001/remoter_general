@@ -30,7 +30,7 @@
 #include "board.h"
 #include "matrix_gpio_key.h"
 #include "app.h"
-#include "sleep_gpio_set.h"
+#include "gpio_set.h"
 
 //init
 //row set input with 1m pull_up resistor
@@ -180,7 +180,7 @@ void gpio_key_enable_sleep (u8 key)
   u8 local_key;
 
   if (gpio_key_map.map && gpio_key_map.num) {
-    local_gpio_key(key, &local_key);
+    local_gpio_key (key, &local_key);
     gpio_key_map.map[local_key].is_wake_up_pin = IS_WAKE_UP;
   }
 }

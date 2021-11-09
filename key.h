@@ -26,7 +26,7 @@
 #ifndef __KEY_H__
 #define __KEY_H__
 #include "../common.h"
-#include "list.h"
+#include "types.h"
 
 typedef enum {
   RELEASE = 1,

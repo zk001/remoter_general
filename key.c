@@ -33,6 +33,7 @@
 #include "key.h"
 #include "led.h"
 #include "wakeup.h"
+#include "list.h"
 
 bool exit_peidui;
 u8 wakeup_key = 255;
