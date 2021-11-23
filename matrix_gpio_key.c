@@ -52,7 +52,7 @@ _attribute_data_retention_ static u8 gpio_last_key;
 _attribute_data_retention_ static struct {
   key_map_t* map;
   u8 num;
-}gpio_key_map;
+} gpio_key_map;
 
 /**
  * @brief      This function serves to translate global key to local key

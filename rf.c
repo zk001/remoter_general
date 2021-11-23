@@ -28,6 +28,7 @@
 #include "rf.h"
 #include "interrupt.h"
 #include "app.h"
+#include "pkg.h"
 
 /**
  * @brief      This function serves to configure system rf receive baseband

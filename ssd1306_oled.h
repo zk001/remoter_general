@@ -53,6 +53,11 @@ extern void display_graphic_16x16_2 (u8 reverse, u8 page, u8 column, u8 *dp);
 extern void display_graphic_16x16 (u8 page, u8 column, u8 *dp);
 extern void display_graphic_8x16 (u8 page, u8 column, u8 *dp);
 extern void display_graphic_128x16 (u8 page, u8 column, u8 *dp);
+extern void display_graphic_64x32 (u8 page, u8 column, u8* dp);
+extern void display_graphic_32x32 (u8 page, u8 column, u8* dp);
+extern void display_graphic_24x24 (u8 page, u8 column, u8* dp);
+extern void display_graphic_20x16 (u8 page, u8 column, u8* dp);
+
 
 extern void clr_graphic_8x16 (u8 page, u8 column);
 extern void clr_graphic_16x16_2 (u8 reverse, u8 page, u8 column);
