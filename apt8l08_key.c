@@ -24,14 +24,16 @@
  *
  *******************************************************************************************************/
 #if defined(APT8_KEY)
-#include "led.h"
+#include "common.h"
 #include "apt8l08_key.h"
-#include "main.h"
-#include "../drivers.h"
-#include "matrix_gpio_key.h"
+
+//general
 #include "n_timer.h"
-#include "sleep_gpio_set.h"
+#include "gpio_set.h"
+
+//vendor
 #include "board.h"
+#include "main.h"
 
 static const u8 APTT8L16ArrySensing [8] = {0x03, 0x04, 0x04, 0x03, 0x03, 0x04, 0x04, 0x04};
 static const u8 APTTouchRegAdd [14] = {0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d};

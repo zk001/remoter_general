@@ -1,5 +1,8 @@
 #ifndef __SLEEP_GPIO_SET_H__
 #define __SLEEP_GPIO_SET_H__
+
+#include "common.h"
+
 #define SET_ROW_GPIO_OUTPUT_HIGH(row) st(\
     gpio_set_func (row, AS_GPIO);\
     gpio_set_input_en (row, 0);\

@@ -23,9 +23,8 @@
  * @version  A001
  *
  *******************************************************************************************************/
-#include "../common.h"
+#include "common.h"
 #include "wakeup.h"
-#include "app.h"
 
 _attribute_data_retention_ static bool wake_up;
 

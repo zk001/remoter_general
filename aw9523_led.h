@@ -27,8 +27,7 @@
 #ifndef _AW9523_LED_H_
 #define _AW9523_LED_H_
 
-#include "../drivers.h"
-#include "../common.h"
+#include "common.h"
 #include "board.h"
 
 #define RSTN_OUT_LOW()  st(\

@@ -27,7 +27,7 @@
 // 液晶模块型号：12832，I2C接口
 // 驱动IC是:SSD1306
 
-#include "../../common.h"
+#include "common.h"
 #include "ssd1306_oled.h"
 #include "main.h"
 #include "board.h"

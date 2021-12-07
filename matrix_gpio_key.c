@@ -24,13 +24,17 @@
  *
  *******************************************************************************************************/
 #if defined (GPIO_KEY)
-#include "../../common.h"
+#include "common.h"
+#include "matrix_gpio_key.h"
+
+//general
 #include "n_timer.h"
 #include "key.h"
-#include "board.h"
-#include "matrix_gpio_key.h"
-#include "app.h"
 #include "gpio_set.h"
+
+//vendor
+#include "board.h"
+#include "app.h"
 
 //init
 //row set input with 1m pull_up resistor

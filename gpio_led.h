@@ -27,6 +27,8 @@
 #ifndef _GPIO_LED_H__
 #define _GPIO_LED_H__
 
+#include "common.h"
+
 typedef struct {
   const u32* led_table;
   u8 num;

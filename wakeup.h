@@ -25,6 +25,8 @@
  *******************************************************************************************************/
 #ifndef __WAKEUP_H__
 
+#include "common.h"
+
 extern bool is_wakeup_from_sleep ();
 extern void clr_wakeup_flag ();
 extern void set_wakeup_flag ();

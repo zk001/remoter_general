@@ -24,10 +24,15 @@
  *
  *******************************************************************************************************/
 #if defined (GPIO_LED)
-#include "led.h"
-#include "board.h"
+#include "common.h"
 #include "gpio_led.h"
+
+//general
+#include "led.h"
 #include "timer_clock.h"
+
+//vendor
+#include "board.h"
 #include "app.h"
 
 typedef struct {

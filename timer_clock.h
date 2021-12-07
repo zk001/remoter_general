@@ -26,7 +26,7 @@
 #ifndef TIMER_CLOCK
 #define TIMER_CLOCK
 
-#include "../drivers.h"
+#include "common.h"
 
 #define CLOCK_SYS_CLOCK_HZ  	24000000		// define system clock
 

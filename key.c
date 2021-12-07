@@ -23,17 +23,22 @@
  * @version  A001
  *
  *******************************************************************************************************/
-#include "n_timer.h"
+#include "common.h"
+#include "key.h"
 #include "../../common/mempool.h"
-#include "main.h"
-#include "board.h"
+
+//general
 #include "matrix_gpio_key.h"
 #include "apt8l08_key.h"
+#include "n_timer.h"
 #include "power_saving.h"
-#include "key.h"
-#include "led.h"
 #include "wakeup.h"
 #include "list.h"
+
+//vendor
+#include "main.h"
+#include "board.h"
+#include "app.h"
 
 bool exit_peidui;
 u8 wakeup_key = 255;

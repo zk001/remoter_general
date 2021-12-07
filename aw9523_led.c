@@ -24,9 +24,15 @@
  *
  *******************************************************************************************************/
 #if defined (AW9523_LED)
+#include "common.h"
 #include "aw9523_led.h"
-#include "main.h"
+
+//general
 #include "led.h"
+
+//vendor
+#include "main.h"
+
 
 //led
 //should we set gpio direction???

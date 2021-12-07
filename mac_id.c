@@ -23,8 +23,7 @@
  * @version  A001
  *
  *******************************************************************************************************/
-#include "../../drivers.h"
-#include "../common.h"
+#include "common.h"
 #include "mac_id.h"
 #include "app.h"
 

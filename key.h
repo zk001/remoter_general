@@ -25,7 +25,7 @@
  *******************************************************************************************************/
 #ifndef __KEY_H__
 #define __KEY_H__
-#include "../common.h"
+#include "common.h"
 #include "types.h"
 
 typedef enum {

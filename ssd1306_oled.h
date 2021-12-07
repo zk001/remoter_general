@@ -26,8 +26,7 @@
 #ifndef __OLED_H
 #define __OLED_H			  	 
 
-#include "drivers.h"
-#include "../../common.h"
+#include "common.h"
 
 #define SIZE        16
 #define XLevelL		  0x02

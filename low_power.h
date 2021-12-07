@@ -27,6 +27,8 @@
 #ifndef __LOW_POWER__
 #define __LOW_POWER__
 
+#include "common.h"
+
 typedef void low_bat_warn (void);
 typedef void low_bat_finish (void);
 

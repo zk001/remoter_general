@@ -26,6 +26,8 @@
 #if defined(APT8_KEY)
 #ifndef _APT8L08_KEY_H
 #define _APT8L08_KEY_H
+
+#include "common.h"
 #include "key.h"
 
 #define   APT8_ADDRESS    0xac

@@ -100,12 +100,6 @@ void update_gear (u8 user_id, char* name, up_or_down_t direction)
 	else
 	  cur_user_value->value++;
   }
-//    else if (cur_user_value->method == KEEP) {
-//    if (direction == GEAR_UP && cur_user_value->value != max_gear)
-//      cur_user_value->value++;
-//    else if (direction == GEAR_DOWN && cur_user_value->value != min_gear)
-//      cur_user_value->value--;
-//  }
 }
 
 u8 get_gear (u8 user_id, char* name)

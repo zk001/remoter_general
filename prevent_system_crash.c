@@ -24,7 +24,6 @@
  *
  *******************************************************************************************************/
 #include "common.h"
-#include "drivers.h"
 
 /**
  * @brief      This function serves to set sws gpio port to input PM_PIN_PULLUP_1M

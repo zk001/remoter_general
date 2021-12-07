@@ -23,9 +23,10 @@
  * @version  A001
  *
  *******************************************************************************************************/
-#include "../../drivers.h"
-#include "../../esb_ll/esb_ll.h"
+#include "common.h"
 #include "rf.h"
+
+#include "../../esb_ll/esb_ll.h"
 #include "interrupt.h"
 #include "app.h"
 #include "pkg.h"

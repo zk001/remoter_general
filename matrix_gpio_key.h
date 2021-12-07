@@ -27,6 +27,9 @@
 #ifndef __MATRIX_GPIO_KEY_H__
 #define __MATRIX_GPIO_KEY_H__
 
+#include "common.h"
+#include "key.h"
+
 enum wake_up_pin_t {
   IS_WAKE_UP = 1,
   NO_WAKE_UP = 2

@@ -23,7 +23,8 @@
  * @version  A001
  *
  *******************************************************************************************************/
-#include "../common.h"
+//#include "../common.h"
+#include "common.h"
 #include "n_timer.h"
 #include "power_saving.h"
 #include "app.h"

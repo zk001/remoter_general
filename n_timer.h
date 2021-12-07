@@ -26,7 +26,7 @@
 #ifndef __N_TIMER__
 #define __N_TIMER__
 
-#include "../common.h"
+#include "common.h"
 
 #define MS2TICK(MS)   (MS*16*1000)
 #define TICK2MS(TICK) (TICK/1000/16)

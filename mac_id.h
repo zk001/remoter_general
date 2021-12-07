@@ -26,6 +26,8 @@
 #ifndef __MAC_ID_H__
 #define __MAC_ID_H__
 
+#include "common.h"
+
 extern void id_init ();
 extern void read_id (void *addr, u8 len);
 extern void write_id (void *addr, u8 len);

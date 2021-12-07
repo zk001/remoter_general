@@ -24,10 +24,9 @@
  *
  *******************************************************************************************************/
 #if (defined LOW_POWER_DETECT)
-#include "../drivers.h"
+#include "common.h"
 #include "low_power.h"
 #include "board.h"
-#include "app.h"
 #include "n_timer.h"
 
 u32 sample_result [32];
