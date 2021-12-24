@@ -253,7 +253,7 @@ static inline key_state_t* get_key_status (u8 key)
  * @param[out] cmb_time - key combin time
  * @return     none
  */
-static void get_key_combin_setup_time_and_combin_time (u8 key, u32* st_time, u32* cmb_time)
+static void get_key_combin_setup_time_and_combin_time (u8 key, u8 second_key, u32* st_time, u32* cmb_time)
 {
   event_handler_t* pos_ptr = NULL;
   u32 setup_time  = 0;
@@ -261,7 +261,7 @@ static void get_key_combin_setup_time_and_combin_time (u8 key, u32* st_time, u32
 
   list_for_each_entry(pos_ptr, &key_event[key].list, list) {
     if (pos_ptr != (event_handler_t*)&key_event[key].list) {
-      if (pos_ptr->key_ac == COMBIN_KEY || pos_ptr->key_ac == COMBIN_KEY_IN_TIME) {
+      if (pos_ptr->key_ac == COMBIN_KEY || (pos_ptr->key_ac == COMBIN_KEY_IN_TIME && pos_ptr->second_key == second_key)) {
         setup_time  = pos_ptr->time1;
         combin_time = pos_ptr->time2;
         break;
@@ -736,7 +736,7 @@ static void two_key_process (u32 bit)
   if ((first_key == two_key.key1 && second_key == two_key.key2) || (first_key == two_key.key2 && second_key == two_key.key1)) {
     status1 = get_key_status (first_key);
     status2 = get_key_status (second_key);
-    get_key_combin_setup_time_and_combin_time (first_key, &st_time, &cmb_time);
+    get_key_combin_setup_time_and_combin_time (first_key, second_key, &st_time, &cmb_time);
    } else {
      setup_time_valid = false;
 
@@ -751,7 +751,7 @@ static void two_key_process (u32 bit)
      status1 = get_key_status (first_key);
      status2 = get_key_status (second_key);
 
-     get_key_combin_setup_time_and_combin_time (first_key, &st_time, &cmb_time);
+     get_key_combin_setup_time_and_combin_time (first_key, second_key, &st_time, &cmb_time);
 
      if (is_key_pressing_less_than_time (status1, st_time))//two key is pressing, and first key pressing time is less than st_time
        setup_time_valid = true;

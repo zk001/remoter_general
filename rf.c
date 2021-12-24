@@ -23,6 +23,7 @@
  * @version  A001
  *
  *******************************************************************************************************/
+#if defined (RF)
 #include "common.h"
 #include "rf.h"
 
@@ -369,6 +370,57 @@ void send_rf_data_kemu (void* addr, u32 len)
 }
 
 /**
+ * @brief      This function serves to send kemu rf data
+ * @param[in]  addr - the data address
+ * @param[in]  len  - the length of the data
+ * @return     none
+ */
+void send_rf_data_kemu_peidui (void* addr, u32 len)
+{
+  volatile u8 tmp;
+
+  for (u8 i = 0; i < 3; i++) {//一共发送3次  2.4*3=7.2ms发送一个循环，接收端8ms才切换信道，所以每次切换信道理论上都能接收端
+    for (u8 j = 0; j < 4; j++) {//四个通道发送
+      ESB_ModeSet (ESB_MODE_PTX);
+      ESB_SetNewRFChannel (rf_channel_select[j]);
+      WaitUs (100);
+      tmp = ESB_WriteTxPayload (0, addr, len);
+      if (tmp)
+        ESB_PTXTrig ();
+      WaitUs (400);
+    }
+  }
+
+  WaitMs (10);
+
+  for (u8 i = 0; i < 3; i++) {//一共发送3次  2.4*3=7.2ms发送一个循环，接收端8ms才切换信道，所以每次切换信道理论上都能接收端
+    for (u8 j = 0; j < 4; j++) {//四个通道发送
+      ESB_ModeSet (ESB_MODE_PTX);
+      ESB_SetNewRFChannel (rf_channel_select[j]);
+      WaitUs (100);
+      tmp = ESB_WriteTxPayload (0, addr, len);
+      if (tmp)
+        ESB_PTXTrig ();
+      WaitUs (400);
+    }
+  }
+
+  WaitMs (10);
+
+  for (u8 i = 0; i < 3; i++) {//一共发送3次  2.4*3=7.2ms发送一个循环，接收端8ms才切换信道，所以每次切换信道理论上都能接收端
+    for (u8 j = 0; j < 4; j++) {//四个通道发送
+      ESB_ModeSet (ESB_MODE_PTX);
+      ESB_SetNewRFChannel (rf_channel_select[j]);
+      WaitUs (100);
+      tmp = ESB_WriteTxPayload (0, addr, len);
+      if (tmp)
+        ESB_PTXTrig ();
+      WaitUs (400);
+    }
+  }
+}
+
+/**
  * @brief      This function serves to receive rf data
  * @param[in]  addr - the data address
  * @return the data length
@@ -400,3 +452,4 @@ bool receive_from_peer (u32 uid)
   }
   return false;
 }
+#endif

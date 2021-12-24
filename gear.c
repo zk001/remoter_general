@@ -85,15 +85,15 @@ void update_gear (u8 user_id, char* name, up_or_down_t direction)
   }
 
   if (cur_user_value->method == BACK) {
+	if (max_gear == cur_user_value->value)
+	  cur_user_value->direction = GEAR_DOWN;
+	else if (min_gear == cur_user_value->value)
+	  cur_user_value->direction = GEAR_UP;
+
     if (cur_user_value->direction == GEAR_UP)
       cur_user_value->value++;
     else
       cur_user_value->value--;
-
-    if (max_gear == cur_user_value->value)
-      cur_user_value->direction = GEAR_DOWN;
-    else if (min_gear == cur_user_value->value)
-      cur_user_value->direction = GEAR_UP;
   } else if (cur_user_value->method == RESET) {
     if (cur_user_value->value == max_gear)
       cur_user_value->value = min_gear;

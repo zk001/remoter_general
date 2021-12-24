@@ -261,7 +261,7 @@ void apt8_read (key_status_t* key_s, key_index_t key)
 void apt8_touch_key_sleep_setup ()
 {
   if (touch_key_set_sleep)
-    SET_COL_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP (APT8L08_INT);
+    SET_SCAN_GPIO_WITH_DEEPSLEEP_LOW_WAKEUP (APT8L08_INT);
 }
 
 /**
