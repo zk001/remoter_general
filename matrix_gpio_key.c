@@ -290,63 +290,59 @@ void gpio_key_sleep_setup ()
   }
 }
 
+static key_status_t key_filter (u8 local_key, bool cur_status)
+{
+  static bool is_filter = false;
+  u32 cur_time;
+  u32 filter_time;
+
+  cur_time = clock_time ();
+  filter_time = debounce_time[local_key];
+
+  if (!is_filter) {//no filter
+    stable_status[local_key] = cur_status;
+    if (is_last_local_key (local_key))//all key scan finished
+      is_filter = true;
+  } else {
+    if (filter_time) { //debounce status
+      if (((u32)((int)cur_time - (int)filter_time)) >= DEBOUNCE_TIME) { //check if debounce finished
+        stable_status[local_key] = cur_status;//store cur_status as stable status
+        debounce_time[local_key] = 0;//clear debounce time
+      }
+    } else {//stable status
+      if (cur_status != stable_status[local_key])//check if debounce occrued
+        debounce_time[local_key] = clock_time();//store debounce start time
+    }
+  }
+  return stable_status[local_key]?PRESSING:RELEASE;
+}
+
 /**
  * @brief       This function serves to read the specified gpio key whether is pressing or not
  * @param[out]  key_s - specified the key is pressing or not
  * @param[in]   key   - the global key of gpio key
  * @return      none
  */
-void gpio_key_low_scan (key_status_t* key_s, key_index_t key)//key scan rate too low
+void gpio_key_low_scan (key_status_t* key_s, key_index_t key)
 {
-  static bool wakeup_fast_scan = true;
-  u8 local_key;
-  u32 time;
-  u32 cur_time;
-  key_map_t* key_row_col;
   bool cur_status;
   bool (*scan) (const key_map_t* key);
+  u8 local_key;
+  key_map_t* key_row_col;
 
   if (gpio_key_map.map && gpio_key_map.num) {
     local_gpio_key (key, &local_key);
 
-    time = debounce_time[local_key];
-    cur_time = clock_time ();
-
-    if (scan_level (local_key))
+    if (scan_level(local_key))
       scan = key_scan_high_valid;
     else
       scan = key_scan_low_valid;
 
     key_row_col = key_map (local_key);
 
-    if (wakeup_fast_scan) {
-      if (scan (key_row_col)) {
-         stable_status[local_key] = 1;
-        *key_s = PRESSING;
-      } else {
-        stable_status[local_key] = 0;
-        *key_s = RELEASE;
-      }
-      if (is_last_local_key (local_key)) {
-        wakeup_fast_scan = false;
-        WaitMs (20);//wait for debounce scan
-      }
-    } else {
-      cur_status = scan (key_row_col);
-      if (cur_status != stable_status[local_key]) {
-        if (!time) {
-    	  debounce_time[local_key] = clock_time ();
-    	  *key_s = stable_status[local_key]?PRESSING:RELEASE;
-    	} else if (((u32)((int)cur_time - (int)time)) >= DEBOUNCE_TIME) {
-    	  *key_s = cur_status?PRESSING:RELEASE;
-    	  stable_status[local_key] = cur_status;
-    	  debounce_time[local_key] = 0;
-    	} else
-    	  *key_s = stable_status[local_key]?PRESSING:RELEASE;
-    	} else
-    	  *key_s = stable_status[local_key]?PRESSING:RELEASE;
-    }
+    cur_status = scan (key_row_col);
+
+    *key_s = key_filter (local_key, cur_status);
   }
 }
-
 #endif

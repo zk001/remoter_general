@@ -31,12 +31,12 @@
 typedef enum {
   RELEASE = 1,
   PRESSING
-}key_status_t;
+} key_status_t;
 
 typedef enum {
   NO_STUCK = 1,
   STUCK
-}key_stuck_t;
+} key_stuck_t;
 
 typedef enum {
   SHORT_KEY_IMMEDIATELY_FLAG =  0x01,
@@ -46,7 +46,7 @@ typedef enum {
   COMBIN_KEY_FLAG            =  0x10,
   COMBIN_KEY_IN_TIME_FLAG    =  0x20,
   LEADER_KEY_FLAG            =  0x40,
-}key_flag_t;
+} key_flag_t;
 
 typedef struct {
   key_flag_t flag;
@@ -54,7 +54,7 @@ typedef struct {
   key_status_t pre_status;//prev status
   u32 sys_time;//store the system time
   u32 pressing_time;
-}key_state_t;
+} key_state_t;
 
 typedef void (*handler)(void);
 
@@ -87,7 +87,7 @@ typedef enum {
   RESERVED_KEY18           = 0x1000000,
   ALL_ACTION               = RELEASE_KEY | SHORT_KEY | SHORT_KEY_IMMEDIATELY | LONG_KEY | COMBIN_KEY | COMBIN_KEY_IN_TIME |\
                              NO_TIME_LIMIT_KEY_RELEASED | NO_TIME_LIMIT_KEY_ON | ONE_KEY_TWICE | ONE_KEY_TWICE_ONLY_ONCE  | LEADER_KEY
-}key_action_t;
+} key_action_t;
 
 typedef struct {
   struct g_list_head list;
@@ -96,12 +96,12 @@ typedef struct {
   u32 time1;
   u32 time2;
   handler key_handler;
-}event_handler_t __attribute__ ((aligned (4)));
+} event_handler_t __attribute__ ((aligned (4)));
 
 typedef struct {
   struct g_list_head list;
   key_action_t key_current_action;
-}key_process_t __attribute__ ((aligned (4)));
+} key_process_t __attribute__ ((aligned (4)));
 
 typedef enum {
   KEY0 = 0,
@@ -136,7 +136,7 @@ typedef enum {
   KEY29,
   KEY30,
   KEY31
-}key_index_t;
+} key_index_t;
 
 enum key_type_e{
   MECHANICAL_KEY = 1,
@@ -150,12 +150,12 @@ typedef struct {
   void (*key_scan) (key_status_t* key_s, key_index_t key);
   void (*key_enable_sleep) (u8 key);
   void (*key_disable_sleep) (u8 key);
-}key_type_t;
+} key_type_t;
 
 typedef struct {
-  const key_type_t *key;
+  const key_type_t* key;
   u8 num;
-}key_table_t;
+} key_table_t;
 
 typedef enum{
   INITIAL_PROCESS = 1,
@@ -166,12 +166,12 @@ typedef enum{
   WAIT_LEADER_KEY_PROCESS,
   LEADER_KEY_PROCESS,
   ONE_KEY_RELEASED_PROCESS,
-}process_status_t;
+} process_status_t;
 
 typedef struct{
   u8 key1;
   u8 key2;
-}two_key_t;
+} two_key_t;
 
 #define  LONG_KEY_OCCURED  0x01
 #define  LONG_KEY_FINISH   0x02

@@ -1190,9 +1190,9 @@ void poll_key_event ()
             key_handler ();
         } else if (action) {//short key short immedia key long key process
           clr_key_action (i, action);
-          if (exit_peidui && action == SHORT_KEY) {
+          if (exit_peidui && action == SHORT_KEY)
             exit_peidui = false;
-          } else {
+          else {
             key_handler = get_key_handler (i, 0, action);
             if (key_handler)
               key_handler();

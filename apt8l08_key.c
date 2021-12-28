@@ -41,6 +41,7 @@ static const u8 APTTouchRegDat [14] = {0x03, 0x50, 0x20, 0x00, 0x00, 0x00, 0x08,
 _attribute_data_retention_ static const u8* apt8_cap_sense = APTT8L16ArrySensing;
 _attribute_data_retention_ static const u8* apt8_reg_data  = APTTouchRegDat;
 
+static bool stable_status [MAX_TOUCH_KEYS];
 _attribute_data_retention_ static u8 apt8_first_key;
 _attribute_data_retention_ static u8 apt8_last_key;
 _attribute_data_retention_ static bool touch_key_set_sleep = true;
@@ -105,6 +106,16 @@ static key_index_t local_touch_key (key_index_t key)
     return apt8_last_key - apt8_first_key;
 
   return key - apt8_first_key;
+}
+
+/**
+ * @brief      This function serves to check the local key is the last local key
+ * @param[in]  key   - the local key
+ * @return if the last local key or not
+ */
+static inline bool is_last_local_key (u8 key)
+{
+  return key == apt8_last_key - apt8_first_key;
 }
 
 /**
@@ -210,6 +221,35 @@ void apt8_reset ()
   WaitMs (5);
 }
 
+#if defined(APT_DEBOUNCE)
+static key_status_t key_filter (u8 local_key, bool cur_status)
+{
+  static bool is_filter = false;
+  u32 filter_time;
+  u32 cur_time;
+
+  cur_time = clock_time ();
+  filter_time = debounce_time[local_key];
+
+  if (!is_filter) {//no filter
+    stable_status[local_key] = cur_status;
+    if (is_last_local_key(local_key))//all key scan finished
+      is_filter = true;
+  } else {
+    if (filter_time) { //debounce status
+      if (((u32)((int)cur_time - (int)filter_time)) >= APT_DEBOUNCE_TIME) { //check if debounce finished
+        stable_status[local_key] = cur_status;//store cur_status as stable status
+        debounce_time[local_key] = 0;//clear debounce time
+      }
+    } else {//stable status
+      if (cur_status != stable_status[local_key])//check if debounce occrued
+        debounce_time[local_key] = clock_time();//store debounce start time
+    }
+  }
+  return stable_status[local_key]?PRESSING:RELEASE;
+}
+#endif
+
 /**
  * @brief      This function serves to read the specified apt8 key whether is pressing or not
  * @param[out]  key_s - specified the key is pressing or not
@@ -230,29 +270,12 @@ void apt8_read (key_status_t* key_s, key_index_t key)
   touch_key = local_touch_key (key);
 
 #if defined (APT_DEBOUNCE)
-  u32 time;
-  u32 cur_time;
-
-  time = debounce_time[touch_key];
-  cur_time = clock_time();
-
-  if ((rd_data & (1 << touch_key))) {
-    if (!time) {
-      debounce_time[touch_key] = clock_time();
-      *key_s = RELEASE;
-    } else if (((u32)((int)cur_time - (int)time)) >= APT_DEBOUNCE_TIME)
-      *key_s = PRESSING;
-    else
-      *key_s = RELEASE;
-  } else {
-    debounce_time[touch_key] = 0;
-    *key_s = RELEASE;
-  }
+  *key_s = key_filter (touch_key, rd_data & (1 << touch_key));
 #else
-  *key_s = (rd_data & (1 << touch_key)) ? PRESSING:RELEASE;
+  stable_status[touch_key] = rd_data & (1 << touch_key);
+  *key_s = stable_status[touch_key] ? PRESSING:RELEASE;
 #endif
 }
-
 /**
  * @brief     This function serves to set apt8 if wakeup system or not
  * @param[in] none.
