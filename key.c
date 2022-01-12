@@ -1313,7 +1313,7 @@ bool app_read_single_key (u8 first_key, key_action_t my_action)
         } else if (action) {//short key short immedia key long key process
           clr_key_action (i, action);
           key_action ^= key;
-          if (first_key == i && action == my_action)
+          if ((first_key == 255 && action == my_action) || (first_key == i && action == my_action))//255 resp all keys
             return 1;
         }
         key <<= 1;
