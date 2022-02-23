@@ -26,6 +26,7 @@
 #include "common.h"
 #include "../../esb_ll/esb_ll.h"
 #include "timer_clock.h"
+#include "interrupt.h"
 
 volatile unsigned int tx_irq_cnt_tx = 0;
 volatile unsigned int tx_irq_cnt_invalid_pid = 0;
@@ -111,4 +112,3 @@ __attribute__((section(".ram_code")))__attribute__((optimize("-Os"))) void irq_h
   irq_clr_src();
   rf_irq_clr_src(FLD_RF_IRQ_ALL);
 }
-

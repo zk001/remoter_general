@@ -35,7 +35,7 @@ extern volatile unsigned int tx_irq_cnt_rx_dr;
 extern volatile unsigned char rx_flag;
 extern volatile unsigned char ds_flag;
 extern volatile unsigned char maxretry_flag;;
-extern u8 rf_channel_select[];
+extern const u8 rf_channel_select[];
 
 extern volatile unsigned char timer0_expire_flg;
 extern unsigned int timer0_irq_cnt;

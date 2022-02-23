@@ -987,7 +987,7 @@ void key_init ()
           num_keys_of_type = 0;
         }
         first_key_of_type = i;
-      }else
+      } else
         num_keys_of_type++;
     }
 
@@ -1251,7 +1251,7 @@ bool app_read_key (u8 first_key, u8 second_key)
           if (register_action1 == action && register_action2 == action && first == second_key && second == first_key)
             return 1;
 
-          if (register_action1 == action && first == first_key && second == second_key)
+          if (register_action1 == action && register_action2 == action && first == first_key && second == second_key)
             return 1;
         }
       } else {

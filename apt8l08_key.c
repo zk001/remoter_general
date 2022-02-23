@@ -224,17 +224,17 @@ void apt8_reset ()
 #if defined(APT_DEBOUNCE)
 static key_status_t key_filter (u8 local_key, bool cur_status)
 {
-  static bool is_filter = false;
+  static bool is_wakeup_filter = false;
   u32 filter_time;
   u32 cur_time;
 
   cur_time = clock_time ();
   filter_time = debounce_time[local_key];
 
-  if (!is_filter) {//no filter
+  if (!is_wakeup_filter) {//no filter
     stable_status[local_key] = cur_status;
     if (is_last_local_key(local_key))//all key scan finished
-      is_filter = true;
+      is_wakeup_filter = true;
   } else {
     if (filter_time) { //debounce status
       if (((u32)((int)cur_time - (int)filter_time)) >= APT_DEBOUNCE_TIME) { //check if debounce finished

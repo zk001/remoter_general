@@ -136,12 +136,10 @@ static bool key_scan_high_valid (const key_map_t* key)
   bool status;
 
   SET_GPIO_OUTPUT_HIGH(key->driver_pin);
-  SET_GPIO_INPUT_WITH_PULLDOWN(key->scan_pin);
 
   status = read_gpio (key->scan_pin) ? true:false;
 
   SET_GPIO_INPUT_WITH_PULLDOWN(key->driver_pin);
-  SET_GPIO_INPUT_WITH_PULLDOWN(key->scan_pin);
 
   return status;
 }
@@ -156,12 +154,10 @@ static bool key_scan_low_valid (const key_map_t* key)
   bool status;
 
   SET_GPIO_OUTPUT_LOW(key->driver_pin);
-  SET_GPIO_INPUT_WITH_PULLUP(key->scan_pin);
 
   status = read_gpio (key->scan_pin) ? false:true;
 
   SET_GPIO_INPUT_WITH_PULLUP(key->driver_pin);
-  SET_GPIO_INPUT_WITH_PULLUP(key->scan_pin);
 
   return status;
 }
@@ -224,8 +220,9 @@ void gpio_key_init (u8 first_key, u8 last_key)
     	SET_GPIO_INPUT_WITH_PULLDOWN(gpio_key_map.map[i].scan_pin);
       }
     }
-    gpio_first_key  = first_key;
-    gpio_last_key   = last_key;
+
+    gpio_first_key = first_key;
+    gpio_last_key  = last_key;
   }
 }
 
@@ -292,17 +289,17 @@ void gpio_key_sleep_setup ()
 
 static key_status_t key_filter (u8 local_key, bool cur_status)
 {
-  static bool is_filter = false;
+  static bool is_wakeup_filter = false;
   u32 cur_time;
   u32 filter_time;
 
   cur_time = clock_time ();
   filter_time = debounce_time[local_key];
 
-  if (!is_filter) {//no filter
+  if (!is_wakeup_filter) {//no filter
     stable_status[local_key] = cur_status;
     if (is_last_local_key (local_key))//all key scan finished
-      is_filter = true;
+      is_wakeup_filter = true;
   } else {
     if (filter_time) { //debounce status
       if (((u32)((int)cur_time - (int)filter_time)) >= DEBOUNCE_TIME) { //check if debounce finished

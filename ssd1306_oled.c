@@ -148,6 +148,21 @@ void display_graphic_128x32 (u8 page, u8 column, u8* dp)
     }
   }          
 }
+
+void display_graphic_128x32_2 (u8 reverse, u8 page, u8 column, u8* dp)
+{
+  for (u8 j = 0; j < 4; j++) {
+    lcd_address (page + j, column);
+    for (u8 i = 0; i < 128; i++) {
+      if (reverse == 1)
+        lcd_data (*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+      else
+        lcd_data (~*dp);	/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+      dp++;
+    }
+  }
+}
+
 /*64*32*/
 void display_graphic_64x32 (u8 page, u8 column, u8* dp)
 {

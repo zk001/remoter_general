@@ -24,8 +24,9 @@ typedef struct {
   up_or_down_t direction;
 } gear_t;
 
-extern void register_gear (gear_t* user_value, u8 region, u8 num);
+extern void register_gear (unsigned long flash_addr, u8* flash_buf, gear_t* user_value, u8 region, u8 num);
 extern u8 get_gear (u8 user_id, char* name);
 extern void update_gear (u8 user_id, char* name, up_or_down_t direction);
+extern u8 get_gear_direction (u8 user_id, char* name);
 
 #endif
