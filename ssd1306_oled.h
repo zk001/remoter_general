@@ -45,6 +45,7 @@ extern void initial_lcd ();
 extern void initial_lcd_no_clr ();
 extern void clear_screen ();
 extern void display_graphic_128x32 (u8 page, u8 column, u8 *dp);
+extern void display_graphic_128x32_2 (u8 reverse, u8 page, u8 column, u8* dp);
 extern void test_display (u8 data1,u8 data2);
 extern void display_string_8x16 (u32 page, u32 column, u8 *text);
 extern void display_string_5x8 (u32 page, u32 column, u8 *text);
