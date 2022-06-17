@@ -136,7 +136,7 @@ static bool key_scan_high_valid (const key_map_t* key)
   bool status;
 
   SET_GPIO_OUTPUT_HIGH(key->driver_pin);
-
+  WaitUs (100);
   status = read_gpio (key->scan_pin) ? true:false;
 
   SET_GPIO_INPUT_WITH_PULLDOWN(key->driver_pin);
@@ -154,7 +154,7 @@ static bool key_scan_low_valid (const key_map_t* key)
   bool status;
 
   SET_GPIO_OUTPUT_LOW(key->driver_pin);
-
+  WaitUs (100);
   status = read_gpio (key->scan_pin) ? false:true;
 
   SET_GPIO_INPUT_WITH_PULLUP(key->driver_pin);

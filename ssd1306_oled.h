@@ -38,8 +38,8 @@
 #define Y_WIDTH 	  64
 
 // IIC_ADDRESS
-#define	LCD_IIC_ADDRESS     0x78   //SSD1306  SLAVE ADDRESS
-#define I2C_CLOCK           400000//KHZ
+#define	 LCD_IIC_ADDRESS    0x78   //SSD1306  SLAVE ADDRESS
+#define I2C_CLOCK          400000//HZ
 
 extern void initial_lcd ();
 extern void initial_lcd_no_clr ();
@@ -67,6 +67,7 @@ extern void clr_graphic_1x16 (u8 page, u8 column);
 extern void clear_half_top_screen ();
 extern void clear_half_bottom_screen ();
 extern void display_graphic_1x8 (u8 page, u8 column, u8 *dp);
+extern void display_graphic_16x32_2 (u8 reverse, u8 page, u8 column, u8* dp);
 
 extern u8 const bmp_12832_0[];
 extern u8 const zhuang1[];

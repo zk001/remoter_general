@@ -161,4 +161,56 @@ void pwm_gpio_led_on_off (u32 leds, u8 mode)
   }
 }
 
+timer_handler_t time_hand;
+
+void timer_pwm_led_on_off_hand (u32 leds)
+{
+  static bool toggle = 0;
+
+  if (toggle)
+    gpio_led_on_off (leds, HAL_LED_MODE_ON);
+  else
+    gpio_led_on_off (leds, HAL_LED_MODE_OFF);
+
+  toggle ^= 1;
+}
+
+void timer_pwm_led_on_off (u32 leds, u8 mode)
+{
+  static u32 led_on  = 0;
+  static u32 led_off = 0;
+
+//  irq_disable ();
+  timer0_clock_stop ();
+
+  if (mode == HAL_LED_MODE_ON) {
+    led_on |= leds;
+	led_off &= ~leds;
+  } else {
+    led_off |= leds;
+    led_on &= ~leds;
+  }
+
+  if (led_on) {
+	time_hand.t_handler = timer_pwm_led_on_off_hand;
+	time_hand.para      = led_on;
+
+	timer0_clock_stop ();
+
+	set_timer_handler (&time_hand);
+
+	timer0_clock_init (200);
+  }
+
+  if (led_off)
+    gpio_led_on_off (led_off, HAL_LED_MODE_OFF);
+
+  if (!led_on && led_off) {
+	clr_timer_handler ();
+	timer0_clock_stop ();
+  }
+
+//  irq_enable ();
+}
+
 #endif

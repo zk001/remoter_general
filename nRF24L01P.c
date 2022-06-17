@@ -500,7 +500,7 @@ void APP_TransmitHandler(INT8U* buffer, INT8U len)
 	L01_WriteTXPayload_NoAck(buffer, len);
 	L01_SetCE(CE_HIGH);
 //	while(GET_L01_IRQ() != 0);
-	WaitMs (30);
+	WaitMs (15);
 	L01_FlushTX();
 	L01_ClearIRQ(IRQ_ALL);
 }

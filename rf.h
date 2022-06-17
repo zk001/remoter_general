@@ -38,5 +38,6 @@ extern void send_rf_data_kemu(void *addr, u32 len);
 extern void send_rf_data_ruierte(void *addr, u32 len);
 extern void send_rf_data_yihe(void *addr, u32 len);
 extern bool receive_from_peer(u32 uid);
+extern void send_rf_data_common (void *addr, u32 len);
 
 #endif

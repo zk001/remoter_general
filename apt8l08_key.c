@@ -260,6 +260,7 @@ void apt8_read (key_status_t* key_s, key_index_t key)
 {
   u8 rd_data;
   u8 touch_key;
+  bool cur_status;
 
   i2c_gpio_set (APT8L08_I2C_PORT);  	//SDA/CK : B6/D7
 
@@ -269,10 +270,12 @@ void apt8_read (key_status_t* key_s, key_index_t key)
 
   touch_key = local_touch_key (key);
 
+  cur_status = rd_data & (1 << touch_key)? true:false;
+
 #if defined (APT_DEBOUNCE)
-  *key_s = key_filter (touch_key, rd_data & (1 << touch_key));
+  *key_s = key_filter (touch_key, cur_status);
 #else
-  stable_status[touch_key] = rd_data & (1 << touch_key);
+  stable_status[touch_key] = cur_status;
   *key_s = stable_status[touch_key] ? PRESSING:RELEASE;
 #endif
 }

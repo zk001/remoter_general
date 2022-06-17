@@ -1,5 +1,6 @@
 #include "common.h"
 #include "gear.h"
+#include "flash_lock.h"
 
 #define IS_STORE_FLASH_ADDR 0x025000
 
@@ -66,10 +67,47 @@ static void store_gear2flash ()
 	    gear_arry[i*num_base_value + j] = base_value[i*num_base_value + j].value;
 	}
 
+    general_flash_unlock ();
+
     flash_erase_sector(gear_flash_addr);
 
     flash_write_page(gear_flash_addr, num_base_value*num_region, (u8 *)gear_arry);
+
+    general_flash_lock ();
   }
+}
+
+static void check_flash_data_valid ()
+{
+  for (u8 i = 0; i < num_region; i++) {
+	for (u8 j = 0; j < num_base_value; j++) {
+	  if (gear_arry[i*num_base_value + j] > base_value[i*num_base_value + j].max_value)
+	    gear_arry[i*num_base_value + j] = base_value[i*num_base_value + j].max_value;
+	  if (gear_arry[i*num_base_value + j] < base_value[i*num_base_value + j].min_value)
+	    gear_arry[i*num_base_value + j] = base_value[i*num_base_value + j].min_value;
+	  base_value[i*num_base_value + j].value = gear_arry[i*num_base_value + j];
+	}
+  }
+}
+
+void check_sram_data_valid (u8 user_id, char* name, u8 max_value, u8 min_value)
+{
+  gear_t* user_value = NULL;
+
+  user_value = get_user_data (user_id, name);
+
+  if (!user_value)
+    return;
+
+  if (user_value->max_value > max_value)
+    user_value->max_value = max_value;
+  if (user_value->min_value < min_value)
+    user_value->min_value = min_value;
+
+  if (user_value->value > max_value)
+    user_value->value = max_value;
+  if (user_value->value < min_value)
+    user_value->value = min_value;
 }
 
 void register_gear (unsigned long flash_addr, u8* flash_buf, gear_t* user_value, u8 region, u8 num)
@@ -79,6 +117,8 @@ void register_gear (unsigned long flash_addr, u8* flash_buf, gear_t* user_value,
 	num_base_value = num;
 	num_region = region;
   }
+
+  general_flash_unlock ();
 
   if (flash_addr && flash_buf) {
 	gear_arry = flash_buf;
@@ -94,12 +134,11 @@ void register_gear (unsigned long flash_addr, u8* flash_buf, gear_t* user_value,
     } else {
 	  flash_read_page (gear_flash_addr, num_region*num_base_value, (u8*)gear_arry);
 
-	  for (u8 i = 0; i < num_region; i++) {
-	    for (u8 j = 0; j < num_base_value; j++)
-		  base_value[i*num_base_value + j].value = gear_arry[i*num_base_value + j];
-	  }
+	  check_flash_data_valid ();
     }
   }
+
+  general_flash_lock ();
 }
 
 void update_gear (u8 user_id, char* name, up_or_down_t direction)
@@ -169,4 +208,39 @@ u8 get_gear_direction (u8 user_id, char* name)
 	return 0;
 
   return user_value->direction;
+}
+
+void cpy_user_data (u8 is_store_flash, u8 user_id_dst, u8 user_id_src, char* name)
+{
+  gear_t* user_value_dst = NULL;
+  gear_t* user_value_src = NULL;
+
+  user_value_dst = get_user_data (user_id_dst, name);
+  user_value_src = get_user_data (user_id_src, name);
+
+  if (!user_value_dst && !user_value_src)
+	return;
+
+  user_value_dst->value = user_value_src->value;
+
+  if (is_store_flash)
+    store_gear2flash ();
+}
+
+void cpy_user_data_with_direction (u8 is_store_flash, u8 user_id_dst, u8 user_id_src, char* name)
+{
+  gear_t* user_value_dst = NULL;
+  gear_t* user_value_src = NULL;
+
+  user_value_dst = get_user_data (user_id_dst, name);
+  user_value_src = get_user_data (user_id_src, name);
+
+  if (!user_value_dst && !user_value_src)
+	return;
+
+  user_value_dst->value     = user_value_src->value;
+  user_value_dst->direction = user_value_src->direction;
+
+  if (is_store_flash)
+	store_gear2flash ();
 }

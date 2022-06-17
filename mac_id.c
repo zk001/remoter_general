@@ -26,6 +26,7 @@
 #include "common.h"
 #include "mac_id.h"
 #include "app.h"
+#include "flash_lock.h"
 
 /**
  * @brief      This function serves to checkout if the id is set or not
@@ -37,7 +38,11 @@ static bool is_original_id ()
   u8 data [8] = {0,0,0,0,0x12,0x34,0x56,0x78};
   u8 raw_data [8] = {0};
 
+  general_flash_unlock ();
+
   flash_read_page (ID_Flash_Addr, sizeof(raw_data), (u8*)raw_data);
+
+  general_flash_lock ();
 
   return (!memcmp ((const void*)&data[4], (const void*)&raw_data[4], 4))? 0:1;
 }
@@ -50,7 +55,11 @@ static bool is_original_id ()
  */
 void read_id (void* addr, u8 len)
 {
+  general_flash_unlock ();
+
   flash_read_page (ID_Flash_Addr, len, (u8*)addr);
+
+  general_flash_lock ();
 }
 
 /**
@@ -65,9 +74,13 @@ void write_id (void* addr, u8 len)
 
   memcpy (data, addr, len);
 
+  general_flash_unlock ();
+
   flash_erase_sector (ID_Flash_Addr);
 
   flash_write_page (ID_Flash_Addr, sizeof(data), (u8*)data);
+
+  general_flash_lock ();
 }
 
 /**

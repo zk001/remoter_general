@@ -1218,10 +1218,11 @@ bool app_read_key (u8 first_key, u8 second_key)
   key_action_t key_action;
   key_action_t action;
   key_action_t key;
-  key_action_t register_action1 = RELEASE_KEY;
-  key_action_t register_action2 = RELEASE_KEY;
   u8 first  = 255;
   u8 second = 255;
+  key_action_t register_action1 = RELEASE_KEY;
+  key_action_t register_action2 = RELEASE_KEY;
+
 
   key_process (NULL);
 
@@ -1248,10 +1249,13 @@ bool app_read_key (u8 first_key, u8 second_key)
           get_register_key_comb_action (first_key, second_key, &register_action1);
           get_register_key_comb_action (second_key, first_key, &register_action2);
 
-          if (register_action1 == action && register_action2 == action && first == second_key && second == first_key)
+          if (register_action1 == action && first == first_key && second == second_key)
             return 1;
 
           if (register_action1 == action && register_action2 == action && first == first_key && second == second_key)
+            return 1;
+
+          if (register_action1 == action && register_action2 == action && first == second_key && second == first_key)
             return 1;
         }
       } else {

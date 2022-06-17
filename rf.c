@@ -45,11 +45,11 @@ void rf_8359_set_rx ()
   ESB_ClosePipe (ESB_PIPE_ALL);
 
   rf_acc_len_set (5);
-  write_reg8 (0x408, 0x71);
-  write_reg8 (0x409, 0x76);
-  write_reg8 (0x40a, 0x51);
-  write_reg8 (0x40b, 0x39);
-  write_reg8 (0x40c, 0x95);
+  write_reg8 (0x408, 0x71);//0x71
+  write_reg8 (0x409, 0x76);//0x76
+  write_reg8 (0x40a, 0x51);//0x51
+  write_reg8 (0x40b, 0x39);//0x39
+  write_reg8 (0x40c, 0x95);//0x95
 
   write_reg8 (0x420, 38);
 
@@ -80,16 +80,24 @@ void rf_8359_set_rx ()
 void rf_8359_set_tx ()
 {
   ESB_SetDatarate (ESB_DR_2M);
+#if defined (BIANJIEBAO_20D_LAOHUA)
+  ESB_SetOutputPower (ESB_RF_POWER_M_20DBM);
+#else
+#if defined (NEW_REMOTE) || defined (NEW_RF_POWER)//2022.5.25Ôºå‰∏•Â∑•ÂèëÈÇÆ‰ª∂ÔºåÂäüÁéáÁªü‰∏ÄÁî±10dBÈôç‰Ωé‰∏∫5dB
+  ESB_SetOutputPower (ESB_RF_POWER_5DBM);
+#else
   ESB_SetOutputPower (ESB_RF_POWER_10DBM);
+#endif
+#endif
   ESB_SetAddressWidth (ADDRESS_WIDTH_5BYTES);
   ESB_ClosePipe (ESB_PIPE_ALL);
 
   rf_acc_len_set (5);
-  write_reg8 (0x408, 0x71);
-  write_reg8 (0x409, 0x76);
-  write_reg8 (0x40a, 0x51);
-  write_reg8 (0x40b, 0x39);
-  write_reg8 (0x40c, 0x95);
+  write_reg8 (0x408, 0x71);//0x71
+  write_reg8 (0x409, 0x76);//0x76
+  write_reg8 (0x40a, 0x51);//0x51
+  write_reg8 (0x40b, 0x39);//0x39
+  write_reg8 (0x40c, 0x95);//0x95
 
   write_reg8 (0x420, 38);
 
@@ -172,8 +180,8 @@ void send_rf_data_yihe (void* addr, u32 len)
 {
   volatile u8 tmp;
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -186,8 +194,8 @@ void send_rf_data_yihe (void* addr, u32 len)
 
   WaitMs (10);
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -200,8 +208,8 @@ void send_rf_data_yihe (void* addr, u32 len)
 
   WaitMs (10);
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -225,8 +233,8 @@ void send_rf_data_yihe_peidui (void* addr, u32 len)
 {
   volatile u8 tmp;
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -239,8 +247,8 @@ void send_rf_data_yihe_peidui (void* addr, u32 len)
 
   WaitMs (10);
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -253,8 +261,8 @@ void send_rf_data_yihe_peidui (void* addr, u32 len)
 
   WaitMs (10);
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -275,8 +283,8 @@ void send_rf_data_ruierte (void* addr, u32 len)
 {
   volatile u8 tmp;
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -289,8 +297,8 @@ void send_rf_data_ruierte (void* addr, u32 len)
 
   WaitMs (10);
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -302,8 +310,8 @@ void send_rf_data_ruierte (void* addr, u32 len)
   }
   WaitMs (10);
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -326,8 +334,8 @@ void send_rf_data_kemu (void* addr, u32 len)
 {
   volatile u8 tmp;
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -340,8 +348,8 @@ void send_rf_data_kemu (void* addr, u32 len)
 
   WaitMs (10);
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -354,8 +362,8 @@ void send_rf_data_kemu (void* addr, u32 len)
 
   WaitMs (10);
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -379,8 +387,8 @@ void send_rf_data_kemu_peidui (void* addr, u32 len)
 {
   volatile u8 tmp;
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -393,8 +401,8 @@ void send_rf_data_kemu_peidui (void* addr, u32 len)
 
   WaitMs (10);
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -407,8 +415,8 @@ void send_rf_data_kemu_peidui (void* addr, u32 len)
 
   WaitMs (10);
 
-  for (u8 i = 0; i < 3; i++) {//“ªπ≤∑¢ÀÕ3¥Œ  2.4*3=7.2ms∑¢ÀÕ“ª∏ˆ—≠ª∑£¨Ω” ’∂À8ms≤≈«–ªª–≈µ¿£¨À˘“‘√ø¥Œ«–ªª–≈µ¿¿Ì¬€…œ∂ºƒ‹Ω” ’∂À
-    for (u8 j = 0; j < 4; j++) {//Àƒ∏ˆÕ®µ¿∑¢ÀÕ
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+    for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
       ESB_ModeSet (ESB_MODE_PTX);
       ESB_SetNewRFChannel (rf_channel_select[j]);
       WaitUs (100);
@@ -419,6 +427,54 @@ void send_rf_data_kemu_peidui (void* addr, u32 len)
     }
   }
 }
+
+void send_rf_data_common (void* addr, u32 len)
+{
+  volatile u8 tmp;
+
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+	for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
+	  ESB_ModeSet (ESB_MODE_PTX);
+	  ESB_SetNewRFChannel (rf_channel_select[j]);
+	  WaitUs (100);
+	  tmp = ESB_WriteTxPayload (0, addr, len);
+	  if (tmp)
+		ESB_PTXTrig ();
+	  WaitUs (400);
+	}
+  }
+
+  WaitMs (5);
+
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+	for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
+	  ESB_ModeSet (ESB_MODE_PTX);
+	  ESB_SetNewRFChannel (rf_channel_select[j]);
+	  WaitUs (100);
+	  tmp = ESB_WriteTxPayload (0, addr, len);
+	  if (tmp)
+		ESB_PTXTrig ();
+	  WaitUs (400);
+	}
+  }
+
+  WaitMs (5);
+
+  for (u8 i = 0; i < 3; i++) {//‰∏ÄÂÖ±ÂèëÈÄÅ3Ê¨°  2.4*3=7.2msÂèëÈÄÅ‰∏Ä‰∏™Âæ™ÁéØÔºåÊé•Êî∂Á´Ø8msÊâçÂàáÊç¢‰ø°ÈÅìÔºåÊâÄ‰ª•ÊØèÊ¨°ÂàáÊç¢‰ø°ÈÅìÁêÜËÆ∫‰∏äÈÉΩËÉΩÊé•Êî∂Á´Ø
+	for (u8 j = 0; j < 4; j++) {//Âõõ‰∏™ÈÄöÈÅìÂèëÈÄÅ
+	  ESB_ModeSet (ESB_MODE_PTX);
+	  ESB_SetNewRFChannel (rf_channel_select[j]);
+	  WaitUs (100);
+	  tmp = ESB_WriteTxPayload (0, addr, len);
+	  if (tmp)
+		ESB_PTXTrig ();
+	  WaitUs (400);
+	}
+  }
+
+//  WaitMs (250);
+}
+
 
 /**
  * @brief      This function serves to receive rf data
@@ -442,6 +498,40 @@ u8 receive_rf_data (void* addr)
  * @param[in]  uid - the id of the local device
  * @return true if peidui ok
  */
+#if defined (RUIERTE_NEW_RF)//ÁëûÂ∞îÁâπËß¶Êë∏ÊåâÈîÆÈÅ•ÊéßÂô®Áî®ÁöÑÁëûÂ∞îÁâπËá™Â∑±ÁöÑÂçèËÆÆÔºå‰∏çÊòØËø™ÂØåÁöÑÂçèËÆÆ
+bool receive_from_peer (u32 uid)
+{
+  u8 chksum;
+  rf_package_t rx_buf;
+
+  if (receive_rf_data (&rx_buf)) {
+	if (rx_buf.send_data.len == 0x0d &&\
+		rx_buf.send_data.addr == 0x19 &&\
+		rx_buf.send_data.info == 0xa0 &&\
+		rx_buf.send_data.id_h == ((uid & 0xff0000) >> 16) &&\
+		rx_buf.send_data.id_m == ((uid & 0xff00) >> 8) &&\
+		rx_buf.send_data.id_l == (uid & 0xff)) {
+
+	  chksum = *((u8*)&rx_buf.send_data.addr) +\
+			  *((u8*)&rx_buf.send_data.info) +\
+			   *((u8*)&rx_buf.send_data.id_h) +\
+			   *((u8*)&rx_buf.send_data.id_m) +\
+			   *((u8*)&rx_buf.send_data.id_l) +\
+			   *((u8*)&rx_buf.send_data.fun) +\
+			  *((u8*)&rx_buf.send_data.para0) +\
+			  *((u8*)&rx_buf.send_data.para1) +\
+			  *((u8*)&rx_buf.send_data.para2) +\
+			  *((u8*)&rx_buf.send_data.para3) +\
+			  *((u8*)&rx_buf.send_data.para4) +\
+			  *((u8*)&rx_buf.send_data.para5);
+
+	  if (rx_buf.send_data.chksum == chksum && rx_buf.send_data.fun == 0xaa)
+		return true;
+	}
+  }
+  return false;
+}
+#else
 bool receive_from_peer (u32 uid)
 {
   rf_package_t rx_buf;
@@ -452,4 +542,5 @@ bool receive_from_peer (u32 uid)
   }
   return false;
 }
+#endif
 #endif

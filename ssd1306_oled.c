@@ -26,6 +26,7 @@
 #if defined(SSD1306_OLED)
 // 液晶模块型号：12832，I2C接口
 // 驱动IC是:SSD1306
+//lie * hang
 
 #include "common.h"
 #include "ssd1306_oled.h"
@@ -278,6 +279,44 @@ void display_graphic_32x32 (u8 page, u8 column, u8* dp)
   }
 }
 
+void display_graphic_32x32_2 (u8 reverse, u8 page, u8 column, u8* dp)
+{
+  for (u8 j = 0; j < 4; j++) {
+    lcd_address (page + j, column);
+    for (u8 i = 0; i < 32; i++) {
+      if (reverse)
+        lcd_data (*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+      else
+    	lcd_data (~*dp);
+      dp++;
+    }
+  }
+}
+
+void display_graphic_16x32 (u8 page, u8 column, u8* dp)
+{
+  for (u8 j = 0; j < 4; j++) {
+    lcd_address (page + j, column);
+    for (u8 i = 0; i < 16; i++) {
+      lcd_data (*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+      dp++;
+    }
+  }
+}
+
+void display_graphic_16x32_2 (u8 reverse, u8 page, u8 column, u8* dp)
+{
+  for (u8 j = 0; j < 4; j++) {
+    lcd_address (page + j, column);
+    for (u8 i = 0; i < 16; i++) {
+      if (reverse == 1)
+        lcd_data (*dp);		/*写数据到LCD,每写完一个8位的数据后列地址自动加1*/
+      else
+    	lcd_data (~*dp);
+      dp++;
+    }
+  }
+}
 /**
  * @brief      This function serves to clear 16*16
  * @param[in]  page    - the page will be write to oled
@@ -454,11 +493,6 @@ void display_string_5x8 (u32 page, u32 column, u8* text)
  */
 void initial_lcd()
 {
-  //	LCD_RST =0;
-  //	delay(30);
-  //	LCD_RST =1;
-  //	delay(100);	  //等待RC复位  大约10MS
-
   i2c_gpio_set (SSD1306_I2C_PORT);  	//SDA/CK : B6/D7
   i2c_master_init (LCD_IIC_ADDRESS, (u8)(CLOCK_SYS_CLOCK_HZ/(4*I2C_CLOCK)) );
 
